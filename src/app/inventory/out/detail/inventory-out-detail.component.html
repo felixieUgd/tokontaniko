@@ -1,0 +1,334 @@
+<div class="container-fluid">
+  <div class="pdd-horizon-30">
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="card mb-0">
+          <div class="tab-info">
+            <ul class="nav nav-tabs" role="tablist">
+              <li class="nav-item">
+                <a href="#details" class="nav-link active" role="tab" data-toggle="tab">DETAILS</a>
+              </li>
+              <li class="nav-item">
+                <a href="#items" class="nav-link" role="tab" data-toggle="tab">PRODUITS</a>
+              </li>
+              <li class="nav-item">
+                <a href="#history" class="nav-link" role="tab" data-toggle="tab">HISTORIQUE</a>
+              </li>
+              <li class="nav-item">
+                <a href="#bills" class="nav-link" role="tab" data-toggle="tab">EXPÉDITION</a>
+              </li>
+              <li class="col text-right">
+                <a class="nav-link">
+                  <label class="label label-lg mb-0 text-uppercase label-{{bgColor(request?.status)}}-inverse">
+                    <ng-container *ngIf="request?.status as status">{{'status.'+status | translate}}</ng-container>
+                    <ng-container *ngIf="!request?.status"><i class="fa fa-spinner fa-spin"></i></ng-container>
+                  </label>
+                </a>
+              </li>
+            </ul>
+            <div class="tab-content">
+              <div role="tabpanel" class="tab-pane fade in active" id="details">
+                <form role="form" [formGroup]="requestForm" (ngSubmit)="updateRequest()" novalidate>
+                  <div class="padding-30">
+                    <div class="form-group row">
+                      <label class="col-lg-2 col-form-label text-lg-right">Catégorie</label>
+                      <div class="col-lg-3">
+                        <ng-select [clearable]="false" [searchable]="false" class="disabled" [items]="categories" bindLabel="name" bindValue="id" formControlName="category_id"
+                          [ngClass]="{'error': submitted && requestForm.get('category_id').status === 'INVALID'}">
+                          <ng-template ng-option-tmp let-item="item">
+                            {{item.name}}
+                          </ng-template>
+                        </ng-select>
+                      </div>
+                    
+                      <label class="col-lg-3 col-form-label text-lg-right">
+                        Document n° / Commande n°
+                      </label>
+                      <label class="col-lg-3 col-form-label text-dark">
+                        {{request?.id}} / <a *ngIf="request?.meta?.order_id as orderId" [routerLink]="['/inventory/order/detail', orderId]">{{ orderId }}</a>
+                      </label>
+                    </div>
+                    
+                    <div class="form-group row">
+                      <label class="col-lg-2 col-form-label text-lg-right">Récepteur</label>
+                      <div class="col-lg-3">
+                        <ng-select [items]="contact$ | async" bindLabel="name" formControlName="contact" minTermLength="3"
+                          typeToSearchText="{{('nav.SEARCH' | translate) + '...'}}"
+                          [class.error]="submitted && requestForm.controls.contact.invalid" [typeahead]="contactInput$" [clearable]="true"
+                          [multiple]="true" (add)="onAddContact($event)" (remove)="onRemoveContact($event)">
+                          <ng-template ng-option-tmp let-item="item">
+                            {{item?.name}}
+                            <ng-container *ngIf="item?.id">
+                              <br />
+                              <span style="color: #6f748a;">
+                                {{item?.phone}} -
+                                {{item?.id_cin}} -
+                                {{item?.id_passport}}
+                              </span>
+                            </ng-container>
+                          </ng-template>
+                        </ng-select>
+                      </div>
+                    
+                      <label class="col-lg-3 col-form-label text-lg-right" translate>common.DATE</label>
+                      <div class="col-lg-3">
+                        <input class="form-control" #dt="ngbDatepicker" (click)="dt.toggle()" formControlName="requested_at"
+                          ngbDatepicker [readOnly]="true" [placement]="'bottom-right'" [required]="requestForm.controls.requested_at.value"
+                          [class.error]="submitted && requestForm.controls.requested_at.invalid">
+                      </div>
+                    </div>
+                    
+                    <div class="form-group row" *ngIf="request">
+                      <ng-container *ngIf="request?.category_id === defaultTransferId">
+                        <label class="col-lg-2 col-form-label text-lg-right">Local source</label>
+                        <div class="col-lg-3" formGroupName="meta">
+                          <ng-select [items]="rooms" formControlName="source_room_id" [clearable]="false" [searchable]="false" bindValue="id" class="disabled">
+                            <ng-template ng-label-tmp let-item="item">
+                              {{ item.title }} <ng-container *ngIf="item.Facility">[{{ item.Facility?.name }}]</ng-container>
+                            </ng-template>
+                            <ng-template ng-option-tmp let-item="item">
+                              {{ item.title }}<br>
+                              <small class="text-muted">{{ item.Facility?.name || '-' }}</small>
+                            </ng-template>
+                          </ng-select>
+                        </div>
+                      </ng-container>
+
+                      <label class="col-form-label text-lg-right" [ngClass]="{'col-lg-2': request?.category_id !== defaultTransferId, 'col-lg-3': request?.category_id === defaultTransferId}">Local</label>
+                      <div [ngClass]="{'col-lg-3': request?.category_id !== defaultTransferId, 'col-lg-3': request?.category_id === defaultTransferId}">
+                        <ng-select [items]="rooms" formControlName="room_id" bindValue="id" [clearable]="false" [searchable]="request?.category_id !== defaultTransferId" [class.disabled]="request?.category_id === defaultTransferId" (change)="updateRoom($event)">
+                          <ng-template ng-label-tmp let-item="item">
+                            {{ item.title }} <ng-container *ngIf="item.Facility">[{{ item.Facility?.name }}]</ng-container>
+                          </ng-template>
+                          <ng-template ng-option-tmp let-item="item">
+                            {{ item.title }}<br>
+                            <small class="text-muted">{{ item.Facility?.name || '-' }}</small>
+                          </ng-template>
+                        </ng-select>
+                        <ng-container *ngIf="request?.category_id === defaultTransferId">
+                          <ul class="list-unstyled mt-2 font-size-14 text-muted pl-1" *ngIf="request?.Facility?.Contacts[0] as contact">
+                            <li>{{ contact.phone }}</li>
+                          </ul>
+                        </ng-container>
+                      </div>
+                    </div>
+                    
+                    <div class="border-top my-5"></div>
+                    
+                    <div class="row">
+                      <div class="col-lg-6 pl-0">
+                        <div class="form-group row">
+                          <label class="col-lg-3 col-form-label text-lg-right">Motif</label>
+                          <div class="col-lg-8">
+                            <textarea class="form-control" formControlName="description" style="min-height: 170px;"
+                              [class.error]="submitted && requestForm.get('description').status === 'INVALID'"></textarea>
+                          </div>
+                        </div>
+                    
+                        <div class="form-group row">
+                          <label class="col-lg-3 col-form-label text-lg-right">Assigné à</label>
+                          <div class="col-lg-8">
+                            <ng-select [items]="staff$ | async" bindLabel="name" formControlName="staff" minTermLength="3"
+                              typeToSearchText="{{('nav.SEARCH' | translate) + '...'}}"
+                              [class.error]="submitted && requestForm.controls.staff.invalid" [typeahead]="staffInput$" [clearable]="true"
+                              [multiple]="true" (add)="onAddStaff($event)" (remove)="onRemoveStaff($event)">
+                              <ng-template ng-option-tmp let-item="item">
+                                {{item?.name}}
+                                <br />
+                                <span style="color: #6f748a;">
+                                  {{item?.email}}
+                                </span>
+                              </ng-template>
+                            </ng-select>
+                          </div>
+                        </div>
+
+                        <div class="form-group row" hidden>
+                          <label class="col-lg-3 col-form-label text-lg-right">Etat intermédiaire</label>
+                          <div class="col-lg-8">
+                            <ng-select [items]="requestStatuses" bindLabel="name" formControlName="extended_status"
+                              (change)="onSelectStatus($event)" [clearable]="true"
+                              [ngClass]="{'error': submitted && requestForm.controls.extended_status.invalid}">
+                              <ng-template ng-label-tmp let-item="item">
+                                <b class="text-info">{{item.name | translate}}</b>
+                              </ng-template>
+                              <ng-template ng-option-tmp let-item="item">
+                                {{item.name | translate}}
+                              </ng-template>
+                            </ng-select>
+                          </div>
+                        </div>
+                    
+                        <div class="form-group row">
+                          <label class="col-lg-3 col-form-label text-lg-right">Créé par</label>
+                          <label class="col-lg-8 col-form-label text-dark">
+                            {{request?.User?.name}}
+                          </label>
+                        </div>
+                    
+                        <div class="form-group row">
+                          <label class="col-lg-3 col-form-label text-lg-right">Créé le</label>
+                          <label class="col-lg-8 col-form-label text-dark">
+                            {{request?.created_at | date:'dd MMM yyyy HH:mm'}}
+                          </label>
+                        </div>
+                      </div>
+                      <div class="col-lg-6">
+                        <div class="form-group">
+                          <label>Rapport</label>
+                          <textarea class="form-control" formControlName="comments" style="min-height: 260px !important;"
+                            [class.error]="submitted && requestForm.get('comments').status === 'INVALID'"></textarea>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="border top pdd-horizon-30 pdd-vertical-15">
+                    <button type="button" class="btn btn-dark" (click)="print()"><i class="fa fa-print"></i></button>
+                    <div class="dropdown inline-block">
+                      <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                        <span class="mrg-right-10">Autres actions</span>
+                        <i class="ti-angle-down font-size-9"></i>
+                      </button>
+                      <ul class="dropdown-menu">
+                        <li *ngFor="let item of maintenanceService.statuses">
+                          <a (click)="updateStatus(item)" translate>{{'status.' + item |
+                            translate}}</a>
+                        </li>
+                      </ul>
+                    </div>
+                    <button class="btn btn-info pull-right"><i class="fa fa-save"></i></button>
+                  </div>
+                </form>
+              </div>
+
+              <div role="tabpanel" class="tab-pane fade" id="items">
+                <form role="form" [formGroup]="itemForm">
+                  <div class="padding-30">
+                    <div class="row">
+                      <div class="col-lg-12">
+                        <div formArrayName="RequestItems">
+                          <div class="form-group m-0">
+                            <div>
+                              <label>Produits</label>
+                            </div>
+                            <table class="table table-bordered table-item">
+                              <thead>
+                                <tr class="font-weight-bold bg-light">
+                                  <th class="text-center width-5">
+                                    <i class="fa fa-navicon"></i>
+                                  </th>
+                                  <th>Nom</th>
+                                  <th class="width-30">Unité</th>
+                                  <th class="width-10 text-center">Quantité</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <tr *ngFor="let item of RequestItems.controls; let i=index" [formGroupName]="i">
+                                  <td class="text-center">
+                                    <button [disabled]="isCompleted" type="button" class="btn btn-link m-0" (click)="removeItem(i, item.controls.id?.value)">
+                                      <i class="fa fa-trash text-danger"></i>
+                                    </button>
+                                  </td>
+                                  <td class="relative">
+                                    <ng-select class="flex-grow-1 no-border disabled" placeholder="Choisissez l'article..." [clearable]="false"  [hideSelected]="true" [searchable]="false"
+                                      [items]="items" formControlName="item" bindLabel="name" >
+                                    </ng-select>
+                        
+                                    <button type="button" class="btn btn-link m-0" data-toggle="collapse" [attr.data-target]="'#collapse-' + i"
+                                      style="position: absolute; top: 0; right: 0;">
+                                      <i class="fa fa-pencil text-dark"></i>
+                                    </button>
+                        
+                                    <div class="collapse" id="collapse-{{i}}" [class.show]="item.controls.description?.value">
+                                      <textarea readonly class="form-control no-border" formControlName="description"
+                                        placeholder="Entrer description"></textarea>
+                                    </div>
+                                  </td>
+                                  <td>
+                                    <ng-select class="no-border disabled" placeholder="Unité"
+                                      formControlName="unit_id"
+                                      [searchable]="false"
+                                      [items]="units" bindLabel="name"
+                                      bindValue="id" [hideSelected]="true" [clearable]="false">
+                                    </ng-select>
+                                  </td>
+                                  <td>
+                                    <input type="number" readonly formControlName="quantity" class="form-control text-center" [min]="1">
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div *ngIf="!isCompleted" class="row">
+                      <div class="col-lg-4">
+                        <button appXhrBtnIndicator type="button" class="btn btn-default" (click)="openAppendModal()">
+                          Ajouter
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </form>
+              </div>
+
+              <div role="tabpanel" class="tab-pane fade" id="history">
+                <app-list-history [dataId]="request?.id" [dataTable]="request?.RequestHistories"
+                  [dataType]="'MAINTENANCE'" (onSubmit)="resetForm()">
+                </app-list-history>
+              </div>
+
+              <div role="tabpanel" class="tab-pane fade" id="bills">
+                <app-paginate-bill [detailUrl]="'/inventory/entry/detail'" [data]="request?.Bills"></app-paginate-bill>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #tplUser let-r="result" let-t="term">
+  <div class="row align-items-center" *ngIf="r">
+    <div class="col">
+      <ngb-highlight [result]="r?.name" [term]="t"></ngb-highlight>
+      <span style="color: #6f748a;" [ngClass]="{'d-block' : r, 'd-none': !r}">
+        {{r?.email}}
+      </span>
+    </div>
+  </div>
+
+  <a class="d-block text-white py-2" [routerLink]="['/settings/user/add']" *ngIf="!r">
+    <i class="fa fa-plus-circle mr-1"></i> Ajouter utilisateur
+  </a>
+</ng-template>
+
+<ng-template #tplContact let-r="result" let-t="term">
+  <ngb-highlight [result]="r?.name" [term]="t"></ngb-highlight>
+
+  <span style="color: #6f748a;" [ngClass]="{'d-block' : r, 'd-none': !r}">
+    {{r?.phone}} -
+    {{r?.id_cin}} -
+    {{r?.id_passport}}
+  </span>
+
+  <a class="d-block text-white py-2" *ngIf="!r">
+    <i class="fa fa-plus-circle mr-1"></i> Ajouter contact
+  </a>
+</ng-template>
+
+<ng-template #tpl let-r="result" let-t="term">
+  <ng-container *ngIf="r">
+    <ngb-highlight [result]="r?.name" [term]="t">
+    </ngb-highlight>
+    <span style="color: #ff6879!important" class="d-block font-weight-bold" *ngIf="!r.available"><i
+        class="fa fa-exclamation-triangle"></i>&nbsp;&nbsp;Stock épuisé</span>
+    <span class="d-block font-size-13" *ngIf="r.available">
+      {{ r.available.quantity }} {{ r.available.ItemUnit?.name || 'UNITE' }}(S)
+    </span>
+  </ng-container>
+</ng-template>

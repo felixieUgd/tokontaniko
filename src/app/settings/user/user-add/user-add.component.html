@@ -1,0 +1,134 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-lg-10 mr-auto ml-auto mrg-top-20">
+      <div class="card">
+        <form [formGroup]="userForm" (ngSubmit)="save()">
+          <div class="card-heading border bottom">
+            <h4 class="card-title">Nouvel utilisateur</h4>
+          </div>
+          <div class="card-block">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label>Nom et prénom</label>
+                  <input type="text" placeholder="" class="form-control" formControlName="name"
+                    [class.error]="submitted && userForm.get('name').status === 'INVALID'">
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label>Adresse électronique</label>
+                  <input type="email" placeholder="" class="form-control" formControlName="email"
+                    [class.error]="submitted && userForm.get('email').status === 'INVALID'">
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label>Mot de passe</label>
+                  <input type="password" class="form-control" name="password" formControlName="password"
+                    [class.error]="submitted && userForm.get('password').status === 'INVALID'">
+
+                  <label class="error" *ngIf="submitted && userForm.get('password').errors?.pattern"
+                    translate>validation.VULNERABLE_PASSWORD</label>
+
+                  <div class="mrg-top-15">
+                    <span class="font-size-13 font-italic">{{'common.PASSWORD_PATTERN' | translate}}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label>Confirmation mot de passe</label>
+                  <input type="password" class="form-control" name="passwordConfirm" formControlName="passwordConfirm"
+                    [class.error]="submitted && userForm.get('passwordConfirm').status === 'INVALID'">
+
+                  <label class="error d-block" *ngIf="submitted && userForm.errors?.passwordDoNotMatch"
+                    translate>validation.PASSWORD_DO_NOT_MATCH</label>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-lg">
+                <div class="row">
+                  <div class="col-12 col-lg">
+                    <div class="form-group">
+                      <label>Compagnies disponibles</label>
+
+                      <div class="picklist border ps" perfectScrollbar>
+                        <div class="list-group">
+                          <a class="list-group-item list-group-item-action pointer" tabindex="0"
+                            [class.active]="Selected?.type === 'ADD' && item.id === Selected?.value.id"
+                            (click)="onSelect(item, 'ADD')" *ngFor="let item of companies; let i=index;">
+                            {{item['company_name']}}
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col col-lg-1 align-self-center px-0">
+                    <button type="button" class="btn btn-default btn-block mb-2" [disabled]="!companies || companies?.length === 0"
+                      (click)="addRemove()">
+                      <i class="fa fa-caret-right"></i>
+                    </button>
+                    <button type="button" class="btn btn-default btn-block mb-2" [disabled]="!companies || companies?.length === 0"
+                      (click)="addAll()">
+                      <i class="fa fa-angle-double-right"></i>
+                    </button>
+                    <button type="button" class="btn btn-default btn-block mb-2" [disabled]="!user || user?.Companies?.length === 0"
+                      (click)="addRemove()">
+                      <i class="fa fa-caret-left"></i>
+                    </button>
+                    <button type="button" class="btn btn-default btn-block" [disabled]="!user || user?.Companies?.length === 0"
+                      (click)="clearAll()">
+                      <i class="fa fa-angle-double-left"></i>
+                    </button>
+                  </div>
+
+                  <div class="col-12 col-lg">
+                    <div class="form-group">
+                      <label>Compagnies sélectionnés</label>
+
+                      <div class="picklist border ps" perfectScrollbar>
+                        <div class="list-group">
+                          <a class="list-group-item list-group-item-action pointer" tabindex="0"
+                            [class.active]="Selected?.type === 'REMOVE' && item.id === Selected?.value.id"
+                            *ngFor="let item of this.user?.Companies; let i=index;" (click)="onSelect(item, 'REMOVE')">
+                            {{item['company_name']}}
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label>Activer</label>
+                  <div class="toggle-checkbox toggle-info">
+                    <input type="checkbox" formControlName="enabled" id="toggle">
+                    <label for="toggle"></label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer border top">
+            <div class="text-right">
+              <button class="btn btn-info" appXhrBtnIndicator>
+                <i class="fa fa-save"></i>
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

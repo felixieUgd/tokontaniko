@@ -1,0 +1,231 @@
+<div class="container-fluid">
+  <div class="pdd-horizon-30">
+    <div class="row">
+      <div class="col-lg-4">
+        <div class="text-info font-weight-bold mb-3 text-uppercase">
+          <span class="btn bg-info rounded-seat"><i class="fa fa-search"></i></span>
+          {{'nav.SEARCH' | translate | uppercase}}
+        </div>
+        <div class="card">
+          <div class="card-body">
+            <form [formGroup]="searchForm" (ngSubmit)="search()">
+              <div>
+                <div class="form-group">
+                  <label translate>men.ESTABLISHMENT</label>
+                  <div>
+                    <input 
+                      class="form-control"
+                      formControlName="Facility"
+                      [placeholder]="('common.TYPE_TO_SEARCH' | translate) + '...'"
+                      minlength="3"
+                      [ngClass]="{'font-weight-bold text-info':searchForm.get('Facility').value, 'error':submitted && searchForm.get('Facility').errors?.required}"
+                      [ngbTypeahead]="searchFacility"
+                      [placement]="'bottom-left'"
+                      [resultTemplate]="facilityTemplate"
+                      [editable]="false"
+                      [inputFormatter]="formatter"
+                      (selectItem)="onSelectFacility($event)" 
+                    />
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label>Début</label>
+                  <div class="timepicker-input input-icon">
+                    <i class="ti-calendar"></i>
+                    <input class="form-control" formControlName="start" ngbDatepicker #dtdeb="ngbDatepicker" (click)="dtdeb.toggle()"
+                      [readOnly]="true">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label>Fin</label>
+                  <div class="timepicker-input input-icon">
+                    <i class="ti-calendar"></i>
+                    <input class="form-control" formControlName="end" ngbDatepicker #dtfin="ngbDatepicker" (click)="dtfin.toggle()"
+                      [readOnly]="true">
+                  </div>
+                </div>
+                <div class="filter-container">
+                  <div class="form-group mb-4">
+                    <label><span translate>common.FILTER</span>s <button
+                        class="btn btn-info btn-inverse rounded-seat ml-1 mb-0 tree-btn-action" type="button"
+                        (click)="addFilter()">
+                        <i class="fa fa-plus"></i>
+                      </button>
+                    </label>
+                    <ng-container formArrayName="Filters">
+                      <div *ngFor="let filter of Filters.controls; let i = index;" [formGroupName]="i">
+                        <div class="mb-4">
+                          <div>
+                            <ng-container formArrayName="DiagnosticCodes">
+                              <div [attr.data-rank]="i+1" class="row diagnosticCode-holder mx-0 align-items-center mb-2"
+                                *ngFor="let item of getDiagnosticCodes(filter).controls; let j = index;" [formGroupName]="j">
+                                <div class="col px-0 select-container">
+                                  <ng-select
+                                    formControlName="diagnosticCode"
+                                    [placeholder]="('common.SELECT' | translate) + '...'"
+                                    [class.error]="submitted && (!item.controls.diagnosticCode.valid)"
+                                    [items]="j === 0? healthDiagnosticCodes: getDiagnosticCodes(filter).controls[j - 1].get('diagnosticCode').value.Child"
+                                    bindLabel="title" [clearable]="false">
+                                  </ng-select>
+                                </div>
+                                <input type="hidden" formControlName="groupIndex" />
+                              </div>
+                            </ng-container>
+                            <ng-container
+                              *ngIf="getDiagnosticCodes(filter)?.controls[getDiagnosticCodes(filter)?.length - 1]?.value.diagnosticCode as diagnosticCode">
+                              <ng-container *ngIf="MedicalService.isInput(diagnosticCode, true)">
+                                <div [attr.data-rank]="i+1" class="row diagnosticCode-holder mx-0 align-items-center mb-2">
+                                  <div class="col px-0">
+                                    <div class="input-group">
+                                      <div class="input-group-prepend">
+                                        <ng-select
+                                          [ngStyle]="{minWidth: '100px'}"
+                                          [class.error]="submitted && filter.get('operator').status === 'INVALID'"
+                                          placeholder="Opérateur"
+                                          [items]="operators" formControlName="operator" bindLabel="symbol" bindValue="code"
+                                          [clearable]="false">
+                                        </ng-select>
+                                      </div>
+                                      <input [class.error]="submitted && filter.get('value').status === 'INVALID'"
+                                        formControlName="value" type="number" class="form-control">
+                                    </div>
+                                  </div>
+                                </div>
+                              </ng-container>
+                              <ng-container *ngIf="diagnosticCode.field_type === 'boolean'">
+                                <div [attr.data-rank]="i+1" class="row diagnosticCode-holder mx-0 align-items-center mb-2">
+                                  <div class="col px-0">
+                                    <ng-select [class.error]="submitted && filter.get('value').status === 'INVALID'" formControlName="value"
+                                      [clearable]="false">
+                                      <ng-option value="true">Oui</ng-option>
+                                      <ng-option value="false">Non</ng-option>
+                                    </ng-select>
+                                  </div>
+                                </div>
+                              </ng-container>
+                            </ng-container>
+                          </div>
+                          <div class="text-right">
+                            <span class="clear-button" (click)="Filters.removeAt(i)"><i class="fa fa-times"></i> {{ 'common.REMOVE_FILTER' | translate }}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </ng-container>
+                  </div>
+                </div>
+                <div class="form-group mb-0">
+                  <button type="submit" class="btn btn-info mr-0 w-100" appXhrBtnIndicator translate>button.SEARCH</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-8" [hidden]="!showResult">
+        <div class="text-info font-weight-bold mb-3 text-uppercase">
+          <span class="btn bg-info rounded-seat"><i class="fa fa-list"></i></span>
+          {{ 'common.RESULT' | translate }} <span class="label label-primary">{{pager?.length || 0}}</span>
+        </div>
+        <div hidden>
+          <div class="row">
+            <div class="col-lg">
+              <div class="padding-20 bg-primary-inverse border-radius-4 text-center">
+                <div>
+                  <h1 class="font-size-31 mrg-btm-5 lh-1 text-primary">
+                    {{ '5' }}</h1>
+                  <span class="text-primary">Total résultat</span>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg">
+              <div class="padding-20 bg-primary-inverse border-radius-4 text-center">
+                <div>
+                  <h1 class="font-size-31 mrg-btm-5 lh-1 text-primary">
+                    {{ '50%' }}</h1>
+                  <span class="text-primary">Pourcentage</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="table-responsive" stTable #table="stTable">
+            <table class="m-0 table no-border table-striped">
+              <tr>
+                <th stSort="created_at" stSortCycle="true" class="width-30">Date</th>
+                <th>Titre</th>
+                <th class="width-30 text-right">Assigné à</th>
+              </tr>
+              <tr>
+                <td class="text-center" colspan="3" *ngIf="table.busy">
+                  <i class="fa fa-spin fa-spinner"></i>
+                </td>
+              </tr>
+              <tr>
+                <td class="text-center" colspan="3" *ngIf="!table.busy && table.items.length === 0">
+                  Aucun enregistrement
+                </td>
+              </tr>
+              <tr *ngFor="let request of table.items" [hidden]="table.busy">
+                <td>
+                  {{request.requested_at | date:'dd MMM yyyy HH:mm'}}
+                </td>
+                <td>
+                  {{request.title}}
+                </td>
+                <td class="text-right">
+                  {{request?.Staff?.name || request.staff_name}}
+                </td>
+              </tr>
+            </table>
+          </div>
+          
+          <hr style="margin: 0;" />
+          
+          <div class="row padding-10" stPagination #pager="stPagination">
+            <div class="col-lg">
+              <div style="width: 200px;">
+                <div class="d-inline">Afficher</div>
+                <select class="form-control d-inline mx-2 width-35" [(ngModel)]="pager.size"
+                  (ngModelChange)="smartTableService.slice(_table, pager)">
+                  <option [value]="item" *ngFor="let item of appService.displayedRows">
+                    {{item}}
+                  </option>
+                </select>
+                <div class="d-inline">lignes</div>
+              </div>
+            </div>
+            <div class="col-lg-3 text-center">
+              <div class="btn btn-link mb-0 disabled">
+                {{pager.length > 0 ? pager.lowerBoundIndex + 1 : 0}} - {{(pager.higherBoundIndex || -1) + 1}} sur
+                {{pager.length || 0}}
+              </div>
+            </div>
+            <div class="col-lg">
+              <div class="btn-group pagination justify-content-end">
+                <button type="button" class="btn btn-default mb-0" (click)="pager.selectPreviousPage()"
+                  [disabled]="!pager.isPreviousPageEnabled()">
+                  <i class="ti-arrow-left"></i>
+                </button>
+                <button type="button" class="btn btn-default mb-0" (click)="pager.selectNextPage()"
+                  [disabled]="!pager.isNextPageEnabled()">
+                  <i class="ti-arrow-right"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+  </div>
+</div>
+
+<ng-template #facilityTemplate let-r="result" let-t="term">
+  <ngb-highlight [result]="r?.name" [term]="t"></ngb-highlight>
+
+  <span style="color: #6f748a;" [ngClass]="{ 'd-block': r, 'd-none': !r }">
+    {{ r?.code }}
+  </span>
+
+  <span class="d-block text-muted py-2" *ngIf="!r">
+    {{ 'common.NO_RECORD' | translate }}
+  </span>
+</ng-template>

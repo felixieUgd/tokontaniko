@@ -1,0 +1,924 @@
+<div class="app"
+  [ngClass]="{
+    'is-collapsed': app.layout.isMenuCollapsed,
+    'is-opened': app.layout.isMenuOpened,
+    rtl: app.layout.rtlActived
+  }">
+  <div class="layout" [ngClass]="headerSelected">
+    <div [ngClass]="sidenavSelected">
+      <!-- Side Nav START -->
+      <div class="side-nav" sideBar>
+        <div class="side-nav-inner">
+          <div class="side-nav-logo">
+            <a class="overflow-hidden" href="" [routerLink]="['/dashboard']">
+              <img
+                *ngIf="logoUrl"
+                class="logo logo-dark"
+                [src]="logoUrl"
+              >
+              <!-- <img
+                class="logo logo-white"
+                [src]="logoUrl"
+              > -->
+            </a>
+            <div class="mobile-toggle side-nav-toggle">
+              <a class="pointer" (click)="app.layout.isMenuCollapsed = !app.layout.isMenuCollapsed">
+                <i class="ti-arrow-circle-left"></i>
+              </a>
+            </div>
+          </div>
+          <ul class="side-nav-menu ps" perfectScrollbar>
+            <li class="nav-item dropdown" routerLinkActive="active" *ngIf="activeMenu?.dashboard?.root">
+              <a
+                class="dropdown-toggle"
+                [routerLink]="['/dashboard']">
+                <span class="icon-holder">
+                  <i class="fa fa-heartbeat" *ngIf="moduleLoading !== 'DashboardModule'"></i>
+                  <i class="fa fa-spin fa-circle-o-notch" *ngIf="moduleLoading === 'DashboardModule'"></i>
+                </span>
+                <span class="title" translate>nav.DASHBOARD</span>
+                <span class="arrow">
+                  <i class="ti-angle-right"></i>
+                </span>
+              </a>
+              <ul class="dropdown-menu">
+                <li routerLinkActive="active" *ngIf="activeMenu?.dashboard?.announcement">
+                  <a href [routerLink]="['/dashboard/announcement']" translate>nav.ANNOUNCEMENT</a>
+                </li>
+                <li routerLinkActive="active" *ngIf="activeMenu?.dashboard?.pulse">
+                  <a href [routerLink]="['/dashboard/pulse']" translate>nav.PULSE</a>
+                </li>
+                <li routerLinkActive="active" *ngIf="activeMenu?.dashboard?.performance">
+                  <a href [routerLink]="['/dashboard/performance']" translate>Performance</a>
+                </li>
+              </ul>
+            </li>
+            <li class="nav-item dropdown" routerLinkActive="active" *ngIf="activeMenu?.men?.root">
+              <a
+                class="dropdown-toggle"
+                [routerLink]="['/men']">
+                <span class="icon-holder">
+                  <i class="ei ei-insurance" *ngIf="moduleLoading !== 'MENModule'"></i>
+                  <i class="fa fa-spin fa-circle-o-notch" *ngIf="moduleLoading === 'MENModule'"></i>
+                </span>
+                <span class="title" translate>nav.MEN</span>
+                <span class="arrow">
+                  <i class="ti-angle-right"></i>
+                </span>
+              </a>
+              <ul class="dropdown-menu">
+                <!-- <li routerLinkActive="active">
+                  <a href [routerLink]="['/men/dashboard']" translate>nav.DASHBOARD</a>
+                </li> -->
+                <li routerLinkActive="active" *ngIf="activeMenu?.men?.list">
+                  <a href [routerLink]="['/men/list']" translate>nav.LIST</a>
+                </li>
+                <li routerLinkActive="active" *ngIf="activeMenu?.men?.request">
+                  <a href [routerLink]="['/men/request']" translate>nav.INTERVENTION</a>
+                </li>
+                <li routerLinkActive="active" *ngIf="activeMenu?.men?.invoice">
+                  <a href [routerLink]="['/income/invoice']" translate>nav.INCOME</a>
+                </li>
+                <li routerLinkActive="active" *ngIf="activeMenu?.men?.bill">
+                  <a href [routerLink]="['/expense/bill']" translate>nav.EXPENSE</a>
+                </li>
+                <li routerLinkActive="active" *ngIf="activeMenu?.men?.search">
+                  <a href [routerLink]="['/men/search']" translate>nav.SEARCH</a>
+                </li>
+                <li routerLinkActive="active" *ngIf="activeMenu?.men?.invoiceGroup">
+                  <a href [routerLink]="['/men/invoice/group']">État de versement</a>
+                </li>
+              </ul>
+            </li>
+            <li
+              class="nav-item dropdown"
+              routerLinkActive="active"
+              *ngIf="activeMenu?.inventory?.root"
+            >
+              <a
+                class="dropdown-toggle"
+                [routerLink]="['/inventory']">
+                <span class="icon-holder">
+                  <i class="ti-dropbox" *ngIf="moduleLoading !== 'InventoryModule'"></i>
+                  <i class="fa fa-spin fa-circle-o-notch" *ngIf="moduleLoading === 'InventoryModule'"></i>
+                </span>
+                <span class="title" translate>nav.INVENTORY</span>
+                <span class="arrow">
+                  <i class="ti-angle-right"></i>
+                </span>
+              </a>
+              <ul class="dropdown-menu">
+                <li routerLinkActive="active" *ngIf="activeMenu?.inventory?.list">
+                  <a href [routerLink]="['/inventory/list']" translate>nav.LIST</a>
+                </li>
+                <li routerLinkActive="active" *ngIf="activeMenu?.inventory?.entry">
+                  <a href [routerLink]="['/inventory/entry']" translate>nav.ENTRY</a>
+                </li>
+                <li class="nav-item dropdown" routerLinkActive="active" *ngIf="activeMenu?.inventory?.order?.root">
+                  <a class="dropdown-toggle" [routerLink]="['/inventory/order']">
+                    <span class="title" translate>nav.ORDER</span>
+                    <span class="arrow">
+                      <i class="ti-angle-right"></i>
+                    </span>
+                  </a>
+                  <ul class="dropdown-menu">
+                    <li routerLinkActive="active" *ngIf="activeMenu?.inventory?.order?.add">
+                      <a href [routerLink]="['/inventory/order/add']" translate>nav.ADD</a>
+                    </li>
+                    <li routerLinkActive="active" *ngIf="activeMenu?.inventory?.order?.list">
+                      <a href [routerLink]="['/inventory/order/list']" translate>nav.LIST</a>
+                    </li>
+                    <li routerLinkActive="active" *ngIf="activeMenu?.inventory?.order?.search">
+                      <a href [routerLink]="['/inventory/order/search']" translate>nav.SEARCH</a>
+                    </li>
+                  </ul>
+                </li>
+                <li class="nav-item dropdown" routerLinkActive="active" *ngIf="activeMenu?.inventory?.out?.root">
+                  <a class="dropdown-toggle" [routerLink]="['/inventory/out']">
+                    <span class="title" translate>nav.OUT</span>
+                    <span class="arrow">
+                      <i class="ti-angle-right"></i>
+                    </span>
+                  </a>
+                  <ul class="dropdown-menu">
+                    <li routerLinkActive="active" *ngIf="activeMenu?.inventory?.out?.add">
+                      <a href [routerLink]="['/inventory/out/add']" translate>nav.ADD</a>
+                    </li>
+                    <li routerLinkActive="active" *ngIf="activeMenu?.inventory?.out?.list">
+                      <a href [routerLink]="['/inventory/out/list']" translate>nav.LIST</a>
+                    </li>
+                    <li routerLinkActive="active" *ngIf="activeMenu?.inventory?.out?.search">
+                      <a href [routerLink]="['/inventory/out/search']" translate>nav.SEARCH</a>
+                    </li>
+                    <li routerLinkActive="active" *ngIf="activeMenu?.inventory?.out?.shipping">
+                      <a href [routerLink]="['/inventory/out/shipping']" translate>nav.SHIPPING</a>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+            <li
+              class="nav-item dropdown"
+              routerLinkActive="active"
+              *ngIf="activeMenu?.health?.root"
+            >
+              <a class="dropdown-toggle" [routerLink]="['/health']"
+                joyrideStep="menu"
+                stepPosition="right"
+                [prevTemplate]="prevButton"
+                [nextTemplate]="nextButton"
+                [doneTemplate]="doneButton"
+                [title]="'Menu'"
+                text="Cliquer ici pour accéder au module Visite Médicale Électronique"
+              >
+                <span class="icon-holder">
+                  <i class="fa fa-plus" *ngIf="moduleLoading !== 'HealthModule'"></i>
+                  <i class="fa fa-spin fa-circle-o-notch" *ngIf="moduleLoading === 'HealthModule'"></i>
+                </span>
+                <span class="title" translate>nav.HEALTH</span>
+                <span class="arrow">
+                  <i class="ti-angle-right"></i>
+                </span>
+              </a>
+              <ul class="dropdown-menu">
+                <li class="nav-item" routerLinkActive="active" *ngIf="activeMenu?.health?.add">
+                  <a [routerLink]="['/health/add']">
+                    <span translate>nav.ADD</span>
+                  </a>
+                </li>
+                <li class="nav-item" routerLinkActive="active" *ngIf="activeMenu?.health?.search">
+                  <a [routerLink]="['/health/search']">
+                    <span translate>nav.SEARCH</span>
+                  </a>
+                </li>
+                <li class="nav-item dropdown" routerLinkActive="active" *ngIf="activeMenu?.health?.diagnostic?.root">
+                  <a [routerLink]="['/health/diagnostic']">
+                    <span translate>nav.DIAGNOSTIC</span>
+                    <span class="arrow" style="line-height: 25px;">
+                      <i class="ti-angle-right"></i>
+                    </span>
+                  </a>
+                  <ul class="dropdown-menu">
+                    <li routerLinkActive="active" *ngIf="activeMenu?.health?.diagnostic?.form">
+                      <a href [routerLink]="['/health/diagnostic/add']" translate>nav.FORM</a>
+                    </li>
+                    <li routerLinkActive="active" *ngIf="activeMenu?.health?.diagnostic?.report">
+                      <a href [routerLink]="['/health/diagnostic/report']" translate>nav.REPORT</a>
+                    </li>
+                    <li routerLinkActive="active" *ngIf="activeMenu?.health?.diagnostic?.record">
+                      <a href [routerLink]="['/health/diagnostic/record']" translate>nav.RECORD</a>
+                    </li>
+                  </ul>
+                </li>
+                <li class="nav-item dropdown" routerLinkActive="active" *ngIf="activeMenu?.health?.consultation?.root">
+                  <a [routerLink]="['/health/consultation']">
+                    <span translate>nav.CONSULTATION</span>
+                    <span class="arrow" style="line-height: 25px;">
+                      <i class="ti-angle-right"></i>
+                    </span>
+                  </a>
+                  <ul class="dropdown-menu">
+                    <li routerLinkActive="active" *ngIf="activeMenu?.health?.consultation?.form">
+                      <a href [routerLink]="['/health/consultation/add']" translate>nav.FORM</a>
+                    </li>
+                    <li routerLinkActive="active" *ngIf="activeMenu?.health?.consultation?.report">
+                      <a href [routerLink]="['/health/consultation/report']" translate>nav.REPORT</a>
+                    </li>
+                    <li routerLinkActive="active" *ngIf="activeMenu?.health?.consultation?.record">
+                      <a href [routerLink]="['/health/consultation/record']" translate>nav.RECORD</a>
+                    </li>
+                  </ul>
+                </li>
+                <li class="nav-item" routerLinkActive="active" *ngIf="activeMenu?.health?.settings">
+                  <a [routerLink]="['/health/settings']">
+                    <span translate>nav.SETTINGS</span>
+                  </a>
+                </li>
+              </ul>
+            </li>
+            <li class="nav-item dropdown" routerLinkActive="active" *ngIf="activeMenu?.cashDesk?.root">
+              <a class="dropdown-toggle" href [routerLink]="['/cashDesk']">
+                <span class="icon-holder">
+                  <i class="ei ei-shield" *ngIf="moduleLoading !== 'CashDeskModule'"></i>
+                  <i class="fa fa-spin fa-circle-o-notch" *ngIf="moduleLoading === 'CashDeskModule'"></i>
+                </span>
+                <span class="title" translate>nav.CASHDESK</span>
+                <span class="arrow">
+                  <i class="ti-angle-right"></i>
+                </span>
+              </a>
+              <ul class="dropdown-menu">
+                <li routerLinkActive="active" *ngIf="activeMenu?.cashDesk?.list">
+                  <a href [routerLink]="['/cashDesk/list']" translate>nav.LIST</a>
+                </li>
+                <li routerLinkActive="active" *ngIf="activeMenu?.cashDesk?.invoiceAdd">
+                  <a href [routerLink]="['/cashDesk/invoice/add']" translate>nav.INVOICEADD</a>
+                </li>
+                <li routerLinkActive="active" *ngIf="activeMenu?.cashDesk?.invoiceSearch">
+                  <a href [routerLink]="['/cashDesk/invoice/search']" translate>
+                    nav.INVOICESEARCH
+                  </a>
+                </li>
+                <li routerLinkActive="active" *ngIf="activeMenu?.cashDesk?.availability">
+                  <a href [routerLink]="['/cashDesk/availability']" translate>nav.AVAILABILITY</a>
+                </li>
+                <li routerLinkActive="active" *ngIf="activeMenu?.cashDesk?.manifest">
+                  <a href [routerLink]="['/cashDesk/manifest']" translate>nav.MANIFEST</a>
+                </li>
+                <li routerLinkActive="active" *ngIf="activeMenu?.cashDesk?.report">
+                  <a href [routerLink]="['/cashDesk/report/participation']" translate>nav.REPORT</a>
+                </li>
+                <li routerLinkActive="active" *ngIf="activeMenu?.cashDesk?.disbursement">
+                  <a href [routerLink]="['/cashDesk/disbursement']" translate>nav.DISBURSEMENT</a>
+                </li>
+                <li class="nav-item dropdown" routerLinkActive="active" *ngIf="activeMenu?.cashDesk?.report?.root">
+                  <a href [routerLink]="['/cashDesk/report']">
+                    <span translate>nav.REPORT</span>
+                    <span class="arrow" style="line-height: 25px;">
+                      <i class="ti-angle-right"></i>
+                    </span>
+                  </a>
+                  <ul class="dropdown-menu">
+                    <li routerLinkActive="active" *ngIf="activeMenu?.cashDesk?.report?.unclaimed">
+                      <a href [routerLink]="['/cashDesk/report/unclaimed']" translate>nav.UNCLAIMED</a>
+                    </li>
+                    <li routerLinkActive="active" *ngIf="activeMenu?.cashDesk?.report?.upcoming">
+                      <a href [routerLink]="['/cashDesk/report/upcoming']" translate>nav.UPCOMING</a>
+                    </li>
+                  </ul>
+                </li>
+                <li class="nav-item dropdown" routerLinkActive="active" *ngIf="activeMenu?.cashDesk?.closing?.root">
+                  <a href [routerLink]="['/cashDesk/closing']">
+                    <span translate>nav.CLOSING</span>
+                    <span class="arrow" style="line-height: 25px;">
+                      <i class="ti-angle-right"></i>
+                    </span>
+                  </a>
+                  <ul class="dropdown-menu">
+                    <li routerLinkActive="active" *ngIf="activeMenu?.cashDesk?.closing.user">
+                      <a href [routerLink]="['/cashDesk/closing/user']" translate>nav.USER</a>
+                    </li>
+                    <li routerLinkActive="active" *ngIf="activeMenu?.cashDesk?.closing?.account">
+                      <a href [routerLink]="['/cashDesk/closing/account']" translate>nav.ACCOUNT</a>
+                    </li>
+                    <li routerLinkActive="active" *ngIf="activeMenu?.cashDesk?.closing?.accountAll">
+                      <a href [routerLink]="['/cashDesk/closing/accountAll']">{{'nav.ACCOUNT' | translate}} InOut</a>
+                    </li>
+                    <li routerLinkActive="active" *ngIf="activeMenu?.cashDesk?.closing.destination">
+                      <a href [routerLink]="['/cashDesk/closing/destination']" translate>nav.DESTINATION</a>
+                    </li>
+                    <li routerLinkActive="active" *ngIf="activeMenu?.cashDesk?.closing.mixed">
+                      <a href [routerLink]="['/cashDesk/closing/mixed']" translate>nav.MIXED</a>
+                    </li>
+                    <li routerLinkActive="active" *ngIf="activeMenu?.cashDesk?.closing.history">
+                      <a href [routerLink]="['/cashDesk/closing/logs']" translate>nav.HISTORY</a>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+            <li class="nav-item" routerLinkActive="active" *ngIf="activeMenu?.contact?.root">
+              <a href [routerLink]="['/contact']">
+                <span class="icon-holder">
+                  <i class="ei ei-phone-book-contact" *ngIf="moduleLoading !== 'ContactModule'"></i>
+                  <i class="fa fa-spin fa-circle-o-notch" *ngIf="moduleLoading === 'ContactModule'"></i>
+                </span>
+                <span class="title" translate>nav.CONTACT</span>
+              </a>
+            </li>
+            <li class="nav-item dropdown" routerLinkActive="active" *ngIf="activeMenu?.accounting?.root">
+              <a class="dropdown-toggle" href [routerLink]="['/accounting']">
+                <span class="icon-holder">
+                  <i class="ei ei-abacus" *ngIf="moduleLoading !== 'AccountingModule'"></i>
+                  <i class="fa fa-spin fa-circle-o-notch" *ngIf="moduleLoading === 'AccountingModule'"></i>
+                </span>
+                <span class="title" translate>nav.ACCOUNTING</span>
+                <span class="arrow">
+                  <i class="ti-angle-right"></i>
+                </span>
+              </a>
+              <ul class="dropdown-menu">
+                <li routerLinkActive="active" *ngIf="activeMenu?.accounting?.account">
+                  <a href [routerLink]="['/accounting/account']" translate>nav.ACCOUNT</a>
+                </li>
+                <li routerLinkActive="active" *ngIf="activeMenu?.accounting?.transfer">
+                  <a href [routerLink]="['/accounting/transfer']" translate>nav.TRANSFER</a>
+                </li>
+                <li routerLinkActive="active" *ngIf="activeMenu?.accounting?.category">
+                  <a href [routerLink]="['/accounting/category']" translate>nav.CATEGORY</a>
+                </li>
+                <li routerLinkActive="active" *ngIf="activeMenu?.accounting?.currency">
+                  <a href [routerLink]="['/accounting/currency']" translate>nav.CURRENCY</a>
+                </li>
+                <li routerLinkActive="active" *ngIf="activeMenu?.accounting?.tax">
+                  <a href [routerLink]="['/accounting/tax']" translate>
+                    nav.TAX
+                    </a>
+                </li>
+                <li routerLinkActive="active" *ngIf="activeMenu?.accounting?.item">
+                  <a href [routerLink]="['/accounting/item']" translate>nav.ITEM</a>
+                </li>
+                <li routerLinkActive="active" *ngIf="activeMenu?.accounting?.incomeStatement">
+                  <a href [routerLink]="['/accounting/incomeStatement']" translate>
+                    nav.INCOMESTATEMENT</a>
+                </li>
+              </ul>
+            </li>
+            <li class="nav-item dropdown" routerLinkActive="active" *ngIf="activeMenu?.hr?.root">
+              <a class="dropdown-toggle" href [routerLink]="['/hr']">
+                <span class="icon-holder">
+                  <i class="ei ei-employees" *ngIf="moduleLoading !== 'HrModule'"></i>
+                  <i class="fa fa-spin fa-circle-o-notch" *ngIf="moduleLoading === 'HrModule'"></i>
+                </span>
+                <span class="title" translate>nav.HR</span>
+                <span class="arrow">
+                  <i class="ti-angle-right"></i>
+                </span>
+              </a>
+              <ul class="dropdown-menu">
+                <li routerLinkActive="active" *ngIf="activeMenu?.hr?.position">
+                  <a href [routerLink]="['/hr/position']" translate>
+                    nav.POSITION</a>
+                </li>
+                <li routerLinkActive="active" *ngIf="activeMenu?.hr?.leave">
+                  <a href [routerLink]="['/hr/leave']" translate>nav.LEAVE</a>
+                </li>
+                <li class="nav-item dropdown" routerLinkActive="active" *ngIf="activeMenu?.hr?.attendance?.root">
+                  <a [routerLink]="['/hr/attendance']">
+                    <span translate>nav.ATTENDANCE</span>
+                    <span class="arrow" style="line-height: 25px;">
+                      <i class="ti-angle-right"></i>
+                    </span>
+                  </a>
+                  <ul class="dropdown-menu">
+                    <li routerLinkActive="active" *ngIf="activeMenu?.hr?.attendance?.list">
+                      <a [routerLink]="['/hr/attendance/list']" translate>
+                        nav.LIST</a>
+                    </li>
+                    <li routerLinkActive="active" *ngIf="activeMenu?.hr?.attendance?.import">
+                      <a [routerLink]="['/hr/attendance/import']" translate>
+                        nav.IMPORT</a>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+            <li class="nav-item dropdown" routerLinkActive="active" *ngIf="activeMenu?.maintenance?.root">
+              <a class="dropdown-toggle" href [routerLink]="['/maintenance']">
+                <span class="icon-holder">
+                  <i class="ti-agenda" *ngIf="moduleLoading !== 'MaintenanceModule'"></i>
+                  <i class="fa fa-spin fa-circle-o-notch" *ngIf="moduleLoading === 'MaintenanceModule'"></i>
+                </span>
+                <span class="title" translate>nav.MAINTENANCE</span>
+                <span class="arrow">
+                  <i class="ti-angle-right"></i>
+                </span>
+              </a>
+              <ul class="dropdown-menu">
+                <li routerLinkActive="active" *ngIf="activeMenu?.maintenance?.dashboard">
+                  <a href [routerLink]="['/maintenance/dashboard']" translate>nav.DASHBOARD</a>
+                </li>
+                <li routerLinkActive="active" *ngIf="activeMenu?.maintenance?.add">
+                  <a href [routerLink]="['/maintenance/add']" translate>nav.ADD</a>
+                </li>
+                <li routerLinkActive="active" *ngIf="activeMenu?.maintenance?.calendar">
+                  <a href [routerLink]="['/maintenance/calendar']" translate>nav.CALENDAR</a>
+                </li>
+                <li routerLinkActive="active" *ngIf="activeMenu?.maintenance?.list">
+                  <a href [routerLink]="['/maintenance/list']" translate>nav.LIST</a>
+                </li>
+                <li routerLinkActive="active" *ngIf="activeMenu?.maintenance?.search">
+                  <a href [routerLink]="['/maintenance/search']" translate>nav.SEARCH</a>
+                </li>
+                <li class="nav-item dropdown" routerLinkActive="active" *ngIf="activeMenu?.maintenance?.settings?.root">
+                  <a [routerLink]="['/maintenance/extended']">
+                    <span translate>nav.SETTINGS</span>
+                    <span class="arrow" style="line-height: 25px;">
+                      <i class="ti-angle-right"></i>
+                    </span>
+                  </a>
+                  <ul class="dropdown-menu">
+                    <li routerLinkActive="active" *ngIf="activeMenu?.maintenance?.settings?.status">
+                      <a [routerLink]="['/maintenance/extended/status']" translate>
+                        nav.STATUS</a>
+                    </li>
+                    <li routerLinkActive="active" *ngIf="activeMenu?.maintenance?.settings?.type">
+                      <a [routerLink]="['/maintenance/extended/type']" translate>
+                        nav.TYPE</a>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+            <li class="nav-item dropdown" routerLinkActive="active" *ngIf="activeMenu?.income?.root">
+              <a class="dropdown-toggle" href [routerLink]="['/income']">
+                <span class="icon-holder">
+                  <i class="fa fa-money" *ngIf="moduleLoading !== 'IncomeModule'"></i>
+                  <i class="fa fa-spin fa-circle-o-notch" *ngIf="moduleLoading === 'IncomeModule'"></i>
+                </span>
+                <span class="title" translate>nav.INCOME</span>
+                <span class="arrow">
+                  <i class="ti-angle-right"></i>
+                </span>
+              </a>
+              <ul class="dropdown-menu">
+                <li routerLinkActive="active" *ngIf="activeMenu?.income?.list">
+                  <a href [routerLink]="['/income/list']" translate>nav.LIST</a>
+                </li>
+                <li routerLinkActive="active" *ngIf="activeMenu?.income?.invoice">
+                  <span class="sub-loader" *ngIf="moduleLoading === 'InvoiceModule'">
+                    <i class="fa fa-spin fa-circle-o-notch"></i>
+                  </span>
+                  <a href [routerLink]="['/income/invoice']" translate>nav.INVOICE</a>
+                </li>
+                <li routerLinkActive="active" *ngIf="activeMenu?.income?.group">
+                  <a href [routerLink]="['/income/group']" translate>nav.GROUP</a>
+                </li>
+                <li routerLinkActive="active" *ngIf="activeMenu?.income.search">
+                  <a href [routerLink]="['/income/search']" translate>nav.SEARCH</a>
+                </li>
+              </ul>
+            </li>
+            <li class="nav-item dropdown" routerLinkActive="active" *ngIf="activeMenu?.expense?.root">
+              <a class="dropdown-toggle" href [routerLink]="['/expense']">
+                <span class="icon-holder">
+                  <i class="ti-receipt" *ngIf="moduleLoading !== 'ExpenseModule'"></i>
+                  <i class="fa fa-spin fa-circle-o-notch" *ngIf="moduleLoading === 'ExpenseModule'"></i>
+                </span>
+                <span class="title" translate>nav.EXPENSE</span>
+                <span class="arrow">
+                  <i class="ti-angle-right"></i>
+                </span>
+              </a>
+              <ul class="dropdown-menu">
+                <li routerLinkActive="active" *ngIf="activeMenu?.expense?.list">
+                  <a href [routerLink]="['/expense/list']" translate>nav.LIST</a>
+                </li>
+                <li routerLinkActive="active" *ngIf="activeMenu?.expense?.bill">
+                  <a href [routerLink]="['/expense/bill']" translate>nav.BILL</a>
+                </li>
+                <li routerLinkActive="active" *ngIf="activeMenu?.expense?.search">
+                  <a href [routerLink]="['/expense/search']" translate>nav.SEARCH</a>
+                </li>
+              </ul>
+            </li>
+            <li class="nav-item dropdown" routerLinkActive="active" *ngIf="activeMenu?.settings?.root">
+              <a class="dropdown-toggle" href [routerLink]="['/settings']">
+                <span class="icon-holder">
+                  <i class="ti-settings" *ngIf="moduleLoading !== 'SettingsModule'"></i>
+                  <i class="fa fa-spin fa-circle-o-notch" *ngIf="moduleLoading === 'SettingsModule'"></i>
+                </span>
+                <span class="title" translate>nav.SETTINGS</span>
+                <span class="arrow">
+                  <i class="ti-angle-right"></i>
+                </span>
+              </a>
+              <ul class="dropdown-menu">
+                <li routerLinkActive="active" *ngIf="activeMenu?.settings?.general">
+                  <a href [routerLink]="['/settings/general']" translate>nav.GENERAL</a>
+                </li>
+                <li routerLinkActive="active" *ngIf="activeMenu?.settings?.role">
+                  <span class="sub-loader" *ngIf="moduleLoading === 'RoleModule'">
+                    <i class="fa fa-spin fa-circle-o-notch"></i>
+                  </span>
+                  <a href [routerLink]="['/settings/role']" translate>nav.ROLE</a>
+                </li>
+                <li routerLinkActive="active" *ngIf="activeMenu?.settings?.user">
+                  <span class="sub-loader" *ngIf="moduleLoading === 'UserModule'">
+                    <i class="fa fa-spin fa-circle-o-notch"></i>
+                  </span>
+                  <a href [routerLink]="['/settings/user']" translate>nav.USER</a>
+                </li>
+                <li routerLinkActive="active" *ngIf="activeMenu?.settings?.company">
+                  <span class="sub-loader" *ngIf="moduleLoading === 'SettingsCompanyModule'">
+                    <i class="fa fa-spin fa-circle-o-notch"></i>
+                  </span>
+                  <a href [routerLink]="['/settings/company']" translate>
+                    nav.COMPANY
+                  </a>
+                </li>
+                <li routerLinkActive="active" *ngIf="activeMenu?.settings?.itinerary">
+                  <span class="sub-loader" *ngIf="moduleLoading === 'SettingsItineraryModule'">
+                    <i class="fa fa-spin fa-circle-o-notch"></i>
+                  </span>
+                  <a href [routerLink]="['/settings/itinerary']" translate>
+                    nav.ITINERARY
+                  </a>
+                </li>
+                <li routerLinkActive="active" *ngIf="activeMenu?.settings?.geography">
+                  <span class="sub-loader" *ngIf="moduleLoading === 'SettingsGeographyModule'">
+                    <i class="fa fa-spin fa-circle-o-notch"></i>
+                  </span>
+                  <a href [routerLink]="['/settings/geography']" translate>
+                    nav.GEOGRAPHY
+                  </a>
+                </li>
+                <li class="nav-item dropdown" routerLinkActive="active" *ngIf="activeMenu?.settings?.structure?.root">
+                  <span class="sub-loader" *ngIf="moduleLoading === 'SettingsStructureModule'">
+                    <i class="fa fa-spin fa-circle-o-notch"></i>
+                  </span>
+                  <a href [routerLink]="['/settings/structure']">
+                    <span>Structure</span>
+                    <span class="arrow" style="line-height: 25px;">
+                      <i class="ti-angle-right"></i>
+                    </span>
+                  </a>
+                  <ul class="dropdown-menu">
+                    <li class="nav-item dropdown" routerLinkActive="active" *ngIf="activeMenu?.settings?.structure?.facility?.root">
+                      <a href [routerLink]="['/settings/structure/facility']">
+                        <span>Etablissement</span>
+                        <span class="arrow" style="line-height: 25px;">
+                          <i class="ti-angle-right"></i>
+                        </span>
+                      </a>
+                      <ul class="dropdown-menu">
+                        <li routerLinkActive="active" *ngIf="activeMenu?.settings?.structure?.facility?.list">
+                          <a href [routerLink]="['/settings/structure/facility/list']" translate>nav.LISTING</a>
+                        </li>
+                        <li routerLinkActive="active" *ngIf="activeMenu?.settings?.structure?.facility?.type">
+                          <a href [routerLink]="['/settings/structure/facility/type']" translate>nav.TYPE</a>
+                        </li>
+                      </ul>
+                    </li>
+                    <li class="nav-item dropdown" routerLinkActive="active" *ngIf="activeMenu?.settings?.structure?.room?.root">
+                      <a href [routerLink]="['/settings/structure/room']">
+                        <span>Local</span>
+                        <span class="arrow" style="line-height: 25px;">
+                          <i class="ti-angle-right"></i>
+                        </span>
+                      </a>
+                      <ul class="dropdown-menu">
+                        <li routerLinkActive="active" *ngIf="activeMenu?.settings?.structure?.room?.list">
+                          <a href [routerLink]="['/settings/structure/room/list']" translate>nav.LISTING</a>
+                        </li>
+                        <li routerLinkActive="active" *ngIf="activeMenu?.settings?.structure?.room?.type">
+                          <a href [routerLink]="['/settings/structure/room/type']" translate>nav.TYPE</a>
+                        </li>
+                      </ul>
+                    </li>
+                    <li class="nav-item dropdown" routerLinkActive="active" *ngIf="activeMenu?.settings?.structure?.room?.root">
+                      <a href [routerLink]="['/settings/structure/storage']">
+                        <span>Stockage</span>
+                        <span class="arrow" style="line-height: 25px;">
+                          <i class="ti-angle-right"></i>
+                        </span>
+                      </a>
+                      <ul class="dropdown-menu">
+                        <li routerLinkActive="active" *ngIf="activeMenu?.settings?.structure?.room?.list">
+                          <a href [routerLink]="['/settings/structure/storage/list']" translate>nav.LISTING</a>
+                        </li>
+                      </ul>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <!-- Side Nav END -->
+
+      <!-- Page Container START -->
+      <div class="page-container ps" perfectScrollbar>
+        <!-- Top Nav START -->
+        <div class="header navbar">
+          <div class="header-container">
+            <ul class="nav-left">
+              <li>
+                <a
+                  class="side-nav-toggle pointer"
+                  (click)="
+                    app.layout.isMenuCollapsed = !app.layout.isMenuCollapsed
+                  "
+                >
+                  <i
+                    class="fa"
+                    [class.fa-indent]="!app.layout.isMenuCollapsed"
+                    [class.fa-dedent]="app.layout.isMenuCollapsed"
+                  ></i>
+                </a>
+              </li>
+              <li class="user-profile no-border">
+                <a href [routerLink]="['/settings/user/edit/', user?.id]" *ngIf="user?.id">
+                  <div class="d-inline-block mr-2" [ngStyle]="{width: '35px', height: '35px'}">
+                    <img
+                      class="profile-img w-100 h-100 mr-0"
+                      [ngStyle]="{objectFit: 'cover', marginTop: '12px'}"
+                      alt=""
+                      [docType]="'photo'"
+                      [docId]="user?.photo"
+                      appImagesrc
+                    />
+                  </div>
+                  <div class="user-info">
+                    <span class="name pdd-right-5">{{user?.name}}</span>
+                  </div>
+                </a>
+              </li>
+            </ul>
+            <ul class="nav-right nav-menu">
+              <li
+                id="searchDropdown"
+                class="notifications dropdown"
+                [formGroup]="searchForm"
+              >
+                <a href class="dropdown-toggle" data-toggle="dropdown">
+                  <i class="ti-search"></i>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-left">
+                  <li class="notice-header no-border">Recherche contact</li>
+                  <li class="pdd-horizon-15 mrg-btm-15 no-border">
+                    <input
+                      class="form-control"
+                      [placeholder]="('nav.SEARCH' | translate) + '...'"
+                      formControlName="term"
+                      (selectItem)="onSelectSearch($event)"
+                      [ngbTypeahead]="search"
+                      [placement]="'bottom-right'"
+                      minlength="3"
+                      [resultTemplate]="tplContact"
+                    />
+                  </li>
+                </ul>
+              </li>
+              <li class="border left notifications">
+                <!--<span class="counter" *ngIf="messages?.length">{{messages?.length}}</span>-->
+                <a class="pointer" (click)="app.layout.sidePanelOpen = true; scrollToBottom()">
+                  <span *ngIf="messageNotification && !app.layout.sidePanelOpen" class="counter">
+                    !
+                  </span>
+                  <span class="icon-holder">
+                    <i class="ei ei-speech-box-dual"></i>
+                  </span>
+                </a>
+              </li>
+              <li class="border left">
+                <!--<span class="counter" *ngIf="messages?.length">{{messages?.length}}</span>-->
+                <a class="pointer" (click)="openNoteEditor(true)">
+                  <span class="icon-holder">
+                    <i class="ei ei-file-edit"></i>
+                  </span>
+                </a>
+              </li>
+              <li class="dropdown border left">
+                <a href class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                  <span class="icon-holder">
+                    <i class="ei-briefcase"></i>
+                  </span>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-right ps" perfectScrollbar
+                  style="max-height: 400px; min-width: 12rem; white-space: nowrap;">
+                  <li *ngFor="let item of user?.Roles; let i = index" (click)="switchRole(i)">
+                    <a class="pointer">
+                      {{item}}
+                      <span class="fa fa-check-circle text-success ml-2" *ngIf="i === user.activeRoleIndex"></span>
+                    </a>
+                  </li>
+                </ul>
+              </li>
+              <li class="dropdown border left">
+                <a href class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                  <span class="icon-holder">
+                    <i class="ei-bank"></i>
+                  </span>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-right ps" perfectScrollbar
+                    style="max-height: 400px; min-width: 12rem; white-space: nowrap;">
+                  <li *ngFor="let item of companies" (click)="switchCompany(item.id)">
+                    <a class="pointer">
+                      {{item['id']}} - {{item['company_name']}}
+                      <span class="fa fa-check-circle text-success ml-2"
+                            *ngIf="item.id === getActiveCompany()?.id"></span>
+                    </a>
+                  </li>
+                  <li class="border-top">
+                    <a href [routerLink]="['/settings/company']">Gérer les compagnies</a>
+                  </li>
+                </ul>
+              </li>
+
+              <li class="dropdown border left">
+                <a href class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                  <img src="assets/images/flags/{{currentLang}}.png" width="25" height="15" style="margin-bottom: 3px;">
+                </a>
+                <ul class="dropdown-menu dropdown-menu-right">
+                  <li>
+                    <a (click)="changeTranslation('en')">
+                      <img src="assets/images/flags/en.png" width="30" height="20" class="mr-3" style="margin-bottom: 3px;">
+                      {{'common.ENGLISH' | translate}}
+                    </a>
+                  </li>
+                  <li>
+                    <a (click)="changeTranslation('fr')">
+                      <img src="assets/images/flags/fr.png" width="30" height="20" class="mr-3" style="margin-bottom: 3px;">
+                      {{'common.FRENCH' | translate}}
+                    </a>
+                  </li>
+                  <li>
+                    <a (click)="changeTranslation('mg')">
+                      <img src="assets/images/flags/mg.png" width="30" height="20" class="mr-3" style="margin-bottom: 3px;">
+                      {{'common.MALAGASY' | translate}}
+                    </a>
+                  </li>
+                </ul>
+              </li>
+              <li class="border left" routerLinkActive="active">
+                <a class="text-danger pointer" (click)="logout()" title="Sign out">
+                  <span class="icon-holder">
+                    <i class="fa fa-power-off"></i>
+                  </span>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <!-- Top Nav END -->
+
+        <!-- Content Wrapper START -->
+        <div class="main-content">
+          <div class="alert alert-danger alert-dismissible fade show w-100" role="alert" [hidden]="isTimeOk">
+            <strong>L'horloge de votre ordinateur est dérèglé !</strong> On est le {{worldTime | date:'dd MMM yyyy HH:mmz'}}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+
+          <router-outlet></router-outlet>
+        </div>
+        <!-- Content Wrapper END -->
+
+        <!-- Footer START -->
+        <footer class="content-footer">
+          <div class="row align-items-center footer">
+            <div class="col text-right">
+              <span>© {{app_copyright}} Powered by </span>
+              <a href="http://capsule.mg/" class="font-weight-bold" target="_blank">CAPSULE IO Finance Technology</a>
+              <span>. v{{app_version}}</span>
+            </div>
+          </div>
+        </footer>
+        <!-- Footer END -->
+      </div>
+      <!-- Page Container END -->
+    </div>
+  </div>
+</div>
+
+<!-- Side Panel Korana -->
+<div id="korana" class="side-panel" [ngClass]="{ 'side-panel-open': app.layout.sidePanelOpen }">
+  <div class="side-panel-wrapper bg-white" [ngStyle]="{'z-index': 999}">
+    <ul class="nav nav-tabs" role="tablist">
+      <li class="nav-item active">
+        <a class="nav-link" href="#chat" role="tab" data-toggle="tab">
+          <span>Korana 2.0</span>
+        </a>
+      </li>
+      <li class="panel-close">
+        <button class="side-panel-toggle"
+           (click)="app.layout.sidePanelOpen = !app.layout.sidePanelOpen; messageNotification = false;">
+          <i class="ti-close"></i>
+        </button>
+      </li>
+    </ul>
+    <div class="tab-content">
+      <!-- chat START -->
+      <div id="chat" role="tabpanel" class="tab-pane fade in active">
+        <div class="chat open">
+          <div class="conversation">
+            <div class="conversation-wrapper">
+              <!--<div #korana class="conversation-body ps" perfectScrollbar (psYReachStart)="chatService.next()">-->
+              <div #korana class="conversation-body ps" perfectScrollbar>
+                <div class="msg" *ngFor="let msg of messagesList">
+                  <div class="bubble" [ngClass]="msg.user_id === user.id ? 'me' : 'friend'">
+                    <span>{{msg.text}}</span>
+                    <span *ngIf="msg.user_id !== user.id" class="font-size-12 font-italic">
+                      <br/> {{msg.name}}
+                    </span>
+                    <span class="font-size-12 font-italic">
+                      <br/> {{msg?.created | date:todayFormat(msg?.created)}}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="conversation-footer fixed-bottom">
+                <form role="form" [formGroup]="messageForm" (ngSubmit)="sendMessage()" autocomplete="off" novalidate>
+                  <input class="chat-input" type="text" placeholder="Type a message..." formControlName="text"/>
+                  <button class="sent-btn" type="submit">
+                    <i class="fa fa-send-o"></i>
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- chat END -->
+    </div>
+  </div>
+</div>
+<!-- Side Panel Korana -->
+
+<ng-template #onboardingModal>
+  <div class="modal-header border-bottom pb-3">
+    <h5 class="modal-title text-danger">Nouveau</h5>
+    <button type="button" class="close" (click)="onboardingModalRef.close()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    Un nouveau module est disponible! Voulez-vous démarrer une visite guidée?
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-transparent mr-2" (click)="onboardingModalRef.close()">Non, merci</button>
+    <button class="btn btn-info" (click)="startTour()">Démarrer</button>
+  </div>
+</ng-template>
+
+<ng-template #tplContact let-r="result" let-t="term">
+  <ngb-highlight [result]="r?.name" [term]="t"></ngb-highlight>
+
+  <span style="color: #6f748a" [ngClass]="{ 'd-block': r, 'd-none': !r }">
+    {{ r?.phone }} - {{ r?.id_cin }} -
+    {{ r?.id_passport }}
+  </span>
+
+  <a class="d-block text-white py-2" *ngIf="!r">
+    <i class="fa fa-plus-circle mr-1"></i> {{'button.ADD' | translate}} {{'contact.CUSTOMER' | translate}}
+  </a>
+</ng-template>
+
+<ng-template #card let-modal>
+  <div class="modal-body">
+    <h4>{{cardContact?.name}}</h4>
+    <p>{{cardContact?.phone | mask:'000 00 000 00'}}</p>
+    <button type="button" class="btn btn-outline-default" *ngIf="cardContact"
+            (click)="modal.dismiss()">Redirect
+    </button>
+    <button type="button" class="btn btn-outline-dark" *ngIf="cardContact"
+            (click)="openContact(modal)">Redirect
+    </button>
+  </div>
+</ng-template>
+
+<ng-template #prevButton>
+  <button type="button" class="btn btn-secondary btn-sm" translate>button.PREVIOUS</button>
+</ng-template>
+<ng-template #nextButton>
+  <button type="button" class="btn btn-info btn-sm" appXhrBtnIndicator translate>button.NEXT</button>
+</ng-template>
+<ng-template #doneButton>
+  <button type="button" class="btn btn-info btn-sm" translate>button.FINISH</button>
+</ng-template>
+
+<app-side-panel-contact></app-side-panel-contact>
+
+<app-side-panel-item></app-side-panel-item>
+
+<app-side-panel-payment></app-side-panel-payment>
+
+<app-side-panel-transfer></app-side-panel-transfer>
+
+<app-side-panel-facility-add></app-side-panel-facility-add>
+
+<app-side-panel-note></app-side-panel-note>

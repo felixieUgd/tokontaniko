@@ -1,0 +1,23 @@
+.room {
+  min-width: 125px;
+  cursor: pointer;
+  text-align: center;
+  border-radius: 2px;
+  border: 1px solid $border-color;
+
+  &:hover {
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  }
+}
+
+.icon-bg {
+  color: #a0b2be;
+
+  &.active {
+    color: $default-success;
+  }
+
+  &.danger {
+    color: lighten($default-danger, 15);
+  }
+}

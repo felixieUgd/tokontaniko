@@ -1,0 +1,20 @@
+<div class="row justify-content-center">
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-body">
+        <form role="form" [formGroup]="searchForm" (submit)="search()">
+          <div class="form-group mb-0">
+            <label>RECHERCHER PAR CODE ÉTUDIANT</label>
+            <div class="input-group">
+              <input type="search" name="code" placeholder="Entrer code..." class="form-control" autofocus formControlName="code"
+                [class.error]="submitted && searchForm.get('code').status === 'INVALID'" />
+              <div class="input-group-append">
+                <button appXhrBtnIndicator class="btn btn-info"><i class="fa fa-search"></i></button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

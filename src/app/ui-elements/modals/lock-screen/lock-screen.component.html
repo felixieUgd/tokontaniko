@@ -1,0 +1,60 @@
+<div class="modal-body full-height">
+  <div class="vertical-align text-center">
+    <div class="table-cell">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-auto mr-auto ml-auto" style="max-width: 45%">
+            <div class="widget-profile-1">
+              <div class="profile">
+                <div class="container mrg-top-30">
+                  <img
+                    class="img-thumbnail pdp"
+                    (load)="onload()"
+                    [docType]="'photo'"
+                    [docId]="getUserPhoto()"
+                    appImagesrc
+                  />
+                </div>
+
+                <h5 class="mrg-top-20 text-white">{{user?.name}}</h5>
+              </div>
+
+              <div class="row">
+                <div class="col text-center">
+                  <form role="form" [formGroup]="form" (ngSubmit)="signIn()">
+                    <div class="input-group">
+                      <input
+                        type="password"
+                        class="form-control"
+                        [placeholder]="'common.ENTER_YOUR_PASSWORD' | translate"
+                        formControlName="password"
+                        [class.error]="
+                          submitted &&
+                          form.get('password').status === 'INVALID'
+                        "
+                      />
+                      <div class="input-group-append">
+                        <button class="btn btn-success mr-0">
+                          <i class="fa fa-arrow-right"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+
+              <div class="row mt-3">
+                <div class="col">
+                  <a (click)="logout()" tabindex="0"
+                     class="text-warning text-underline pointer font-weight-bold">
+                    Changer d'utilisateur ?
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

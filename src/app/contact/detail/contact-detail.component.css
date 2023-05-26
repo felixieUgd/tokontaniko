@@ -1,0 +1,11 @@
+textarea {
+  min-height: 172px !important;
+}
+
+.alert {
+  white-space: pre-line;
+}
+
+.progress {
+  height: 6px;
+}

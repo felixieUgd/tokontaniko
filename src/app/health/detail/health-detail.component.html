@@ -1,0 +1,77 @@
+<div class="row align-items-start position-relative">
+  <div class="col-lg-4 col-xl-3 sticky-lg-top">
+    <div class="widget-profile-1 card">
+      <div class="profile border bottom py-4">
+        <div class="container">
+          <img class="img-thumbnail pointer" (click)="preview(contact?.photo, 'photo')" alt="Profile" [docType]="'photo'" [docId]="contact?.photo" appImagesrc />
+        </div>
+    
+        <div class="display-block mrg-top-20 text-center">
+          <div class="btn-group">
+            <button type="button" class="btn btn-default btn-sm" placement="left" ngbTooltip="Aperçu Qr" data-toggle="modal"
+              data-target="#modal-qr">
+              <i class="fa fa-qrcode"></i>
+            </button>
+            <button type="button" class="btn btn-default btn-sm" placement="right" ngbTooltip="Changer photo"
+              (click)="photoInput.click()">
+              <i class="fa fa-camera"></i>
+            </button>
+          </div>
+    
+          <input class="d-none" type="file" name="img-upload" id="img-upload" #photoInput [uploader]="uploader"
+            (click)="uploadPhoto()" ng2FileSelect />
+        </div>
+      </div>
+      <ul class="list-unstyled text-center p-3">
+        <li>
+          &nbsp;&nbsp;<b>{{ contact?.name }}</b>&nbsp;<i class="fa fa-mars text-info" *ngIf="contact?.sex === 'M'"></i><i class="fa fa-venus text-danger" *ngIf="contact?.sex === 'F'"></i>
+        </li>
+        <li class="font-size-14 mb-2 text-muted">{{ contact?.code }}</li>
+        <li class="font-size-14">
+          <span *ngIf="contact?.bio_dob">{{ getDiff(contact?.bio_dob) }} ans</span>
+        </li>
+      </ul>
+    </div>
+    <!-- <div class="card">
+      <div class="card-block">
+        <div>
+          <h5 class="font-weight-bold text-uppercase text-info mb-3" translate>Identité</h5>
+          <div class="form-group mb-2">
+            <label class="mb-0">Code:&nbsp;</label>
+            {{ contact?.code }}
+          </div>
+          <div class="form-group mb-2">
+            <label class="mb-0">Nom et prénom:&nbsp;</label>
+            {{ contact?.name }}
+          </div>
+          <div class="form-group mb-2">
+            <label class="mb-0">Date de naissance:&nbsp;</label>
+            {{ contact?.bio_dob | date: 'dd MMMM yyyy' }}
+          </div>
+          <div class="form-group mb-0">
+            <label class="mb-0">Genre:&nbsp;</label>
+            {{ contact?.sex }}
+          </div>
+        </div>
+      </div>
+    </div> -->
+  </div>
+  <div class="col-lg-8 col-xl-9">
+    <router-outlet></router-outlet>
+  </div>
+</div>
+<div class="modal fade" id="modal-qr">
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content">
+      <div class="modal-body">
+        <div class="row justify-content-center" *ngIf="contact?.code">
+          <div class="col-auto text-center py-5">
+            <qrcode [qrdata]="contact?.code.toString()" [size]="200" [level]="'L'"></qrcode>
+
+            <div class="mt-3 text-semibold text-black">{{ contact?.code }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

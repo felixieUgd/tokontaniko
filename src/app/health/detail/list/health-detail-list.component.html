@@ -1,0 +1,62 @@
+<div class="card">
+  <div class="card-block">
+    <div class="d-flex justify-content-center">
+      <ul class="timeline-event" [class.ml-0]="!requests?.length">
+        <li class="tl-header">
+          <a class="btn btn-info mr-0" [routerLink]="['/health/add']" [queryParams]="{id: this.id}" appXhrBtnIndicator translate>button.ADD</a>
+        </li>
+        <div *ngIf="isLoading" class="text-center mt-4"><i class="fa fa-spin fa-spinner"></i></div>
+        <ng-container *ngIf="requests && !isLoading">
+          <div *ngIf="!requests.length" class="text-center mt-4 text-muted">Aucun enregistrement</div>
+          <li class="tl-item" *ngFor="let item of requests">
+            <div *ngIf="item.RequestType?.meta?.route === '/health/consultation'" class="tl-wrap b-danger">
+              <div class="tl-date card">
+                <span class="arrow-event right pull-up"></span>
+                <div [ngTemplateOutlet]="documentDisplay" [ngTemplateOutletContext]="{document: item}">
+                </div>
+              </div>
+              <span class="tl-content">{{item.requested_at | date:'dd.MM.yyyy'}}</span>
+            </div>
+            <div *ngIf="item.RequestType?.meta?.route === '/health/diagnostic'" class="tl-wrap b-info">
+              <span class="tl-date">{{item.requested_at | date:'dd.MM.yyyy'}}</span>
+              <div class="tl-content card">
+                <span class="arrow-event left pull-up"></span>
+                <div [ngTemplateOutlet]="documentDisplay" [ngTemplateOutletContext]="{document: item}">
+                </div>
+              </div>
+            </div>
+          </li>
+        </ng-container>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<ng-template #documentDisplay let-request="document">
+  <div class="row align-items-center justify-content-between mb-1">
+    <div class="col-auto">{{ request.RequestType?.name }}</div>
+    <div class="col-auto mb-1">
+      <label class="label label-md mb-0 text-uppercase label-{{getBgColor(request.status)}}-inverse">
+        {{'status.' + request.status | translate}}
+      </label>
+    </div>
+  </div>
+  <ul class="list-unstyled">
+    <li class="text-muted font-size-13"><i class="fa fa-fw fa-hashtag"></i> {{ request.id }}</li>
+    <li class="text-muted font-size-13"><i class="fa fa-fw fa-map-marker"></i> {{ request.Facility?.name || '-' }}
+    </li>
+    <li class="text-muted font-size-13"><i class="fa fa-fw fa-user-md"></i> {{ request.Staffs? request.Staffs[0].name: '-'
+      }}</li>
+  </ul>
+  <hr class="my-2">
+  <div class="row align-items-center timeline-actions">
+    <div class="col-auto">
+      <a class="btn btn-outline-info btn-xs mr-0" appXhrBtnIndicator
+        [routerLink]="['/health/detail/'+ request.Contacts[0].id +'/document', request.id]">Ouvrir</a>
+    </div>
+    <div class="col text-muted text-history" *ngIf="request.RequestHistories[0]?.description">
+      <div class="font-size-13" [innerHTML]="maintenanceService.getLatestHistory(request.RequestHistories)">
+      </div>
+    </div>
+  </div>
+</ng-template>

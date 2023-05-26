@@ -1,0 +1,77 @@
+<div class="card">
+  <div class="card-body">
+    <form role="form" [formGroup]="searchForm" (submit)="onSubmit()" novalidate>
+      <div class="row">
+        <div class="col-lg">
+          <div class="form-group">
+            <label>Région</label>
+            <ng-select [items]="regionsDisplay" notFoundText="Aucun enregistrement" formControlName="region_id" bindValue="id" [class.error]="submitted && searchForm.get('region_id').errors?.required" bindLabel="name"></ng-select>
+          </div>
+        </div>
+        <div class="col-lg">
+          <div class="form-group">
+            <label>District</label>
+            <ng-select [items]="districtsDisplay" notFoundText="Aucun enregistrement" [class.error]="submitted && searchForm.get('district_id').errors?.required" formControlName="district_id" bindValue="id" bindLabel="name">
+            </ng-select>
+          </div>
+        </div>
+        <div class="col-lg">
+          <div class="form-group">
+            <label>Commune</label>
+            <ng-select [items]="communesDisplay" notFoundText="Aucun enregistrement" [class.error]="submitted && searchForm.get('commune_id').errors?.required" formControlName="commune_id" bindValue="id" bindLabel="name">
+            </ng-select>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg">
+          <div class="form-group">
+            <label>Établissement</label>
+            <ng-select #facilitySelect [items]="searchFacility$ | async" [loading]="isFacilityLoading" loadingText="Chargement..." notFoundText="Aucun enregistrement" bindLabel="name" formControlName="Facility" minTermLength="3"
+              typeToSearchText="{{('common.TYPE_TO_SEARCH' | translate) + '...'}}"
+              
+              [class.error]="submitted && searchForm.controls.Facility.invalid"
+              [typeahead]="facilityInput$"
+              [clearable]="true"
+            >
+              <ng-template ng-option-tmp let-item="item">
+                {{item?.name}}
+                <br />
+                <span style="color: #6f748a;">
+                  {{item?.code}}
+                </span>
+              </ng-template>
+            </ng-select>
+          </div>
+        </div>
+        <div class="col-lg">
+          <div class="form-group">
+            <label>Début</label>
+            <div class="timepicker-input input-icon">
+              <i class="ti-calendar"></i>
+              <input class="form-control" formControlName="start" ngbDatepicker #dtdeb="ngbDatepicker"
+                (click)="dtdeb.toggle()" [readOnly]="true">
+            </div>
+          </div>
+        </div>
+        <div class="col-lg">
+          <div class="form-group">
+            <label>Fin</label>
+            <div class="timepicker-input input-icon">
+              <i class="ti-calendar"></i>
+              <input class="form-control" formControlName="end" ngbDatepicker #dtfin="ngbDatepicker"
+                (click)="dtfin.toggle()" [readOnly]="true">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="d-flex justify-content-end">
+        <div class="form-group mb-0">
+          <button type="submit" class="btn btn-info" appXhrBtnIndicator>
+            Rechercher
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,25 @@
+::ng-deep label {
+    margin-bottom: 0.75rem;
+}
+
+.identity label {
+    margin-right: 5px;
+}
+
+.identity label::before {
+    content: "\f054";
+    font-family: 'FontAwesome';
+    text-rendering: auto;
+    vertical-align: middle;
+    margin-right: 8px;
+    font-size: 9px;
+}
+
+.identity label + span{
+    font-weight: 700;
+    font-size: 17px;
+}
+
+.form-control[readonly]:not([ngbdatepicker]) {
+    background-color: #fafafa;
+}

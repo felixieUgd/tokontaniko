@@ -1,0 +1,661 @@
+<div class="container-fluid">
+  <div class="pdd-horizon-30">
+    <div class="row">
+      <div class="col-lg">
+        <div class="card">
+          <div class="tab-info">
+            <ul class="nav nav-tabs" role="tablist">
+              <li class="nav-item">
+                <a href="#tab-info" class="nav-link text-uppercase active" role="tab" data-toggle="tab">
+                  {{'nav.INFO' | translate}}
+                </a>
+              </li>
+              <li class="nav-item">
+                  <a href="#tab-bill" class="nav-link text-uppercase" role="tab" data-toggle="tab">
+                    {{'common.INVOICE' | translate}} / DÉPENSES
+                    <span class="label label-primary">{{claim?.Bills?.length || 0}}</span>
+                  </a>
+                </li>
+              <li class="nav-item">
+                <a href="#history" class="nav-link text-uppercase" role="tab" data-toggle="tab">
+                  {{'common.HISTORY' | translate}}
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#attachment" class="nav-link text-uppercase" role="tab" data-toggle="tab">
+                  {{'common.FILE' | translate}}
+                </a>
+              </li>
+              <li class="col text-right">
+                <a class="nav-link">
+                  <label class="label label-lg mb-0 text-uppercase label-{{bgColor(claim?.status)}}-inverse">
+                    {{'status.' + claim?.status | translate}}
+                  </label>
+                </a>
+              </li>
+            </ul>
+
+            <div class="tab-content">
+              <div role="tabpanel" class="tab-pane fade in active" id="tab-info">
+                <div class="padding-30">
+                  <div class="row mrg-btm-30" [formGroup]="form">
+                    <label class="col-lg-1 col-form-label text-lg-right" translate>N°</label>
+                    <div class="col-lg-2">
+                      <input class="form-control-plaintext font-weight-bold" [value]="claim?.id" readonly>
+                    </div>
+                    <label class="col-lg-1 col-form-label text-lg-right" translate>Type</label>
+                    <label class="col-lg-3 col-form-label font-weight-bold">{{ claim?.RequestType?.name }}</label>
+
+                    <label class="col-lg-auto col-form-label" translate>common.ASSIGNED_TO</label>
+                    <div class="col-lg">
+                      <ng-select [items]="staff$ | async" bindLabel="name"
+                        formControlName="staff"  minTermLength="3"
+                        typeToSearchText="{{('nav.SEARCH' | translate) + '...'}}"
+                        [class.error]="submitted && form.controls.staff.invalid"
+                        [typeahead]="staffInput$" [clearable]="true" [multiple]="true"
+                        (add)="onAddStaff($event)"
+                        (remove)="onRemoveStaff($event)"
+                        >
+                        <ng-template ng-option-tmp let-item="item">
+                          {{item.name}}
+                        </ng-template>
+                      </ng-select>
+                    </div>
+                  </div>
+
+                  <div
+                    id="accordion"
+                    class="accordion panel-group"
+                    role="tablist"
+                    aria-multiselectable="true"
+                  >
+                    <div class="row mt-3">
+                      <div class="col-md-6">
+                        <!-- FACILITY -->
+                        <div class="panel-heading" role="tab" id="headingOne">
+                          <h5 class="panel-title lh-1">
+                            <a
+                              data-toggle="collapse"
+                              data-parent="#accordion-1"
+                              href="#collapseOne"
+                              aria-expanded="false"
+                              class="collapsed bg-info-inverse text-info"
+                            >
+                              <span>Etablissement</span>
+                              <i class="icon mt-0 ti-arrow-circle-down"></i>
+                            </a>
+                          </h5>
+                        </div>
+
+                        <div id="collapseOne" class="collapse panel-collapse p-3 border" role="tabpanel">
+                          <div class="panel-body">
+                            <div class="form-group">
+                              <label translate>common.NAME</label>
+                              <input class="form-control input-material input-sm text-info font-weight-bold pointer" *ngIf="claim"
+                                [routerLink]="['/men/detail/', claim?.facility_id]"
+                                [value]="claim?.Facility?.name" readonly />
+                            </div>
+                            <div class="form-group">
+                              <label translate>common.ADDRESS</label>
+                              <input class="form-control input-material input-sm" [value]="claim?.Facility?.meta?.address || ''" readonly />
+                            </div>
+                            <div class="form-group">
+                              <label>ZAP</label>
+                              <input class="form-control input-material input-sm" readonly />
+                            </div>
+                            <div class="form-group row" *ngFor="let item of claim?.Facility?.Contacts;let i=index;">
+                              <div class="col-md-8">
+                                <label>Contact - {{i+1}}</label>
+                                <input class="form-control input-material input-sm" [value]="item.name" readonly />
+                              </div>
+                              <div class="col-md-4">
+                                <label>Tel</label>
+                                <input class="form-control input-material input-sm"
+                                  [value]="item.phone | mask:'000 00 000 00'" readonly />
+                              </div>
+                              <!-- <div class="col-md-4">
+                                <label>IM</label>
+                                <input class="form-control input-material input-sm" [value]="claim?.Facility?.Contact?.id" />
+                              </div>
+                              <div class="col-md-4">
+                                <label>Corps et grade</label>
+                                <input class="form-control input-material input-sm" [value]="claim?.Facility?.Contact?.rank" />
+                              </div> -->
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- STUDENT -->
+                        <div class="panel-heading mt-3" role="tab" id="headingTwo">
+                          <h5 class="panel-title lh-1">
+                            <a
+                              class="collapsed bg-info-inverse text-info"
+                              data-toggle="collapse"
+                              data-parent="#accordion-1"
+                              href="#collapseTwo"
+                              aria-expanded="false"
+                            >
+                              <span>Élève</span>
+                              <i class="icon mt-0 ti-arrow-circle-down"></i>
+                            </a>
+                          </h5>
+                        </div>
+
+                        <div id="collapseTwo" class="collapse panel-collapse p-3 border" role="tabpanel" *ngIf="RequestContacts?.Student">
+                          <div class="panel-body">
+                            <div class="form-group">
+                              <label translate>common.NAME</label>
+                              <input class="form-control input-material input-sm" [value]="RequestContacts?.Student?.name" readonly />
+                            </div>
+                            <div class="form-group row">
+                              <div class="col-md-4">
+                                <label>Date naissance</label>
+                                <input class="form-control input-material input-sm" ngbDatepicker #dtBioDob="ngbDatepicker"
+                                  (click)="dtBioDob.toggle()" [minDate]="appService.getMinDate()" [readOnly]="true"
+                                  [(ngModel)]="RequestContacts.Student.bio_dob" />
+                              </div>
+                              <div class="col-md-4">
+                                <label>lieu</label>
+                                <input class="form-control input-material input-sm" [(ngModel)]="RequestContacts.Student.bio_pob" />
+                              </div>
+                              <div class="col-md-4">
+                                <label>Age</label>
+                                <input class="form-control input-material input-sm font-weight-bold text-info"
+                                  [value]="getAge(RequestContacts?.Student?.bio_dob)" readonly />
+                              </div>
+                            </div>
+                            <div class="form-group row">
+                              <div class="col-md-4">
+                                <label>Sexe</label>
+                                <input class="form-control input-material input-sm" [value]="RequestContacts?.Student?.sex" readonly />
+                              </div>
+                              <div class="col-md-4">
+                                <label>Classe</label>
+                                <input class="form-control input-material input-sm"
+                                  [value]="claim?.meta?.Student?.school_grade" readonly />
+                              </div>
+                              <div class="col-md-4">
+                                <label>N° matricule</label>
+                                <input class="form-control input-material input-sm"
+                                  [value]="claim?.meta?.Student?.school_serial" readonly />
+                              </div>
+                            </div>
+
+                            <!-- PARENTS -->
+                            <div class="form-group row" *ngIf="RequestContacts?.Father">
+                              <div class="col-md-6">
+                                <label>Père</label>
+                                <input class="form-control input-material input-sm" readonly
+                                  [value]="RequestContacts?.Father?.name" />
+                              </div>
+                              <div class="col-md-6">
+                                <label>Mère</label>
+                                <input class="form-control input-material input-sm" readonly
+                                  [value]="RequestContacts?.Mother?.name" />
+                              </div>
+                            </div>
+                            <div class="form-group" *ngIf="RequestContacts?.Father">
+                              <label translate>common.ADDRESS</label>
+                              <input class="form-control input-material input-sm" readonly
+                                [value]="RequestContacts?.Father?.address" />
+                            </div>
+
+                            <!-- TUTOR -->
+                            <div *ngIf="RequestContacts?.Tutor">
+                              <div class="form-group row">
+                                <div class="col-md-6">
+                                  <label>Tuteur</label>
+                                  <input class="form-control input-material input-sm" readonly
+                                    [value]="RequestContacts?.Tutor?.name" />
+                                </div>
+                                <div class="col-md-6">
+                                  <label>Adresse</label>
+                                  <input class="form-control input-material input-sm" readonly
+                                    [value]="RequestContacts?.Tutor?.address" />
+                                </div>
+                              </div>
+                            </div>
+
+                            <div class="form-group row mb-0">
+                              <div class="col-auto">
+                                <button type="button" class="btn btn-info btn-sm m-0" (click)="updateContactInfo(RequestContacts.Student)"
+                                  appXhrBtnIndicator translate>
+                                  button.SAVE</button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- WARRANT -->
+                        <div class="panel-heading mt-3" role="tab" id="headingThree">
+                          <h5 class="panel-title lh-1">
+                            <a
+                              class="collapsed bg-info-inverse text-info"
+                              data-toggle="collapse"
+                              data-parent="#accordion-1"
+                              href="#collapseThree"
+                              aria-expanded="false"
+                              [ngClass]="{
+                                'bg-danger-inverse text-danger': !warrants?.length
+                              }"
+                            >
+                              <span>Déclarant / Bénéficiaire</span>
+                              <i class="icon mt-0 ti-arrow-circle-down"></i>
+                            </a>
+                          </h5>
+                        </div>
+
+                        <div id="collapseThree" class="collapse panel-collapse p-3 border" role="tabpanel">
+                          <div class="panel-body">
+                            <div class="mb-3">
+                              <div class="form-group">
+                                <app-typeahead-contact
+                                  [(ngModel)]="RequestContacts.Warrant"
+                                  (selectContact)="updateContact($event, 'WARRANT')"
+                                ></app-typeahead-contact>
+                              </div>
+
+                              <div class="form-group row" *ngFor="let item of warrants" [hidden]="RequestContacts?.Warrant">
+                                <div class="col-md">
+                                  <label>Nom</label>
+                                  <div class="input-group">
+                                    <input class="form-control input-material input-sm" [value]="item.name" readonly />
+                                    <span class="text-info pointer absolute" style="right:10px;z-index:100;"
+                                      (click)="RequestContacts.Warrant = item">
+                                      <i class="ti-pencil"></i>
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div class="mrg-btm-15" *ngIf="RequestContacts?.Warrant">
+                              <div class="form-group">
+                                <label translate>common.NAME</label>
+                                <input class="form-control input-material input-sm" [(ngModel)]="RequestContacts.Warrant.name" />
+                              </div>
+                              <div class="form-group row">
+                                <div class="col-md-4">
+                                  <label>CIN</label>
+                                  <input class="form-control input-material input-sm" [(ngModel)]="RequestContacts.Warrant.id_cin"
+                                    mask="000 000 000 000"/>
+                                </div>
+                                <div class="col-md-4">
+                                  <label>Du</label>
+                                  <input class="form-control input-material input-sm" ngbDatepicker #dtCinIssuedWarrant="ngbDatepicker"
+                                    (click)="dtCinIssuedWarrant.toggle()" [minDate]="appService.getMinDate()" [readOnly]="true"
+                                    [(ngModel)]="RequestContacts.Warrant.meta.id_cin_issued_date" />
+                                </div>
+                                <div class="col-md-4">
+                                  <label>à</label>
+                                  <input class="form-control input-material input-sm" [(ngModel)]="RequestContacts.Warrant.meta.id_cin_delivered_at" />
+                                </div>
+                              </div>
+                              <div class="form-group row">
+                                <div class="col-md-4">
+                                  <label>Tel</label>
+                                  <input class="form-control input-material input-sm" [(ngModel)]="RequestContacts.Warrant.phone" mask="000 00 000 00" />
+                                </div>
+                                <div class="col-md-8">
+                                  <label>Adresse</label>
+                                  <input class="form-control input-material input-sm" [(ngModel)]="RequestContacts.Warrant.address" />
+                                </div>
+                              </div>
+                              <div class="form-group row">
+                                <div class="col-auto text-right">
+                                  <button type="button" class="btn btn-info btn-sm m-0" (click)="updateContactInfo(RequestContacts.Warrant)"
+                                    appXhrBtnIndicator translate>
+                                    button.SAVE</button>
+                                  <button type="button" class="btn btn-sm" (click)="RequestContacts.Warrant = null" translate>
+                                    button.CANCEL</button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <!-- ACCIDENT -->
+                        <div class="panel-heading" role="tab" id="headingFour">
+                          <h5 class="panel-title lh-1">
+                            <a
+                              class="collapsed bg-info-inverse text-info"
+                              data-toggle="collapse"
+                              data-parent="#accordion-1"
+                              href="#collapseFour"
+                              aria-expanded="false"
+                            >
+                              <span>Accident</span>
+                              <i class="icon mt-0 ti-arrow-circle-down"></i>
+                            </a>
+                          </h5>
+                        </div>
+
+                        <div id="collapseFour" class="collapse panel-collapse p-3 border" role="tabpanel" *ngIf="claim">
+                          <div class="panel-body">
+                            <div class="form-group row">
+                              <div class="col-md-4">
+                                <label translate>common.DATE</label>
+                                <input class="form-control input-material input-sm" ngbDatepicker #dtRequested="ngbDatepicker"
+                                  [(ngModel)]="claim.requested_at" [readOnly]="true" [minDate]="appService.getMinDate()"
+                                  (click)="dtRequested.toggle()"
+                                />
+                              </div>
+                              <div class="col-md-4">
+                                <label>Heure</label>
+                                <input class="form-control input-material input-sm" mask="Hh:m0" [(ngModel)]="claim.event_start"
+                                  [showMaskTyped]="true" [dropSpecialCharacters]="false" />
+                              </div>
+                            </div>
+                            <div class="form-group row">
+                              <div class="col-md-6">
+                                <label>Cause</label>
+                                <input class="form-control input-material input-sm" [value]="claim?.title" readonly />
+                              </div>
+                              <div class="col-md-6">
+                                <label>Effet</label>
+                                <input class="form-control input-material input-sm" [value]="claim?.comments" readonly />
+                              </div>
+                            </div>
+                            <div class="form-group">
+                              <label>Renseignement sur ce qui a causé l'accident</label>
+                              <textarea class="form-control input-material input-sm" [value]="claim?.description" readonly>
+                              </textarea>
+                            </div>
+
+                            <!-- DOCUMENT -->
+                            <div class="form-group row">
+                              <div class="col-md-4">
+                                <label>N° assurance</label>
+                                <input class="form-control input-material input-sm" [(ngModel)]="claim.meta.Student.school_insurance" />
+                              </div>
+                              <div class="col-md-4">
+                                <label>Envoyé le</label>
+                                <input class="form-control input-material input-sm" ngbDatepicker #dtDocDelivered="ngbDatepicker"
+                                  [(ngModel)]="claim.meta.Accident.delivered_at" [readOnly]="true" [minDate]="appService.getMinDate()"
+                                  (click)="dtDocDelivered.toggle()"
+                                />
+                              </div>
+                              <div class="col-md-4">
+                                <label>Sous le N°</label>
+                                <input class="form-control input-material input-sm" [(ngModel)]="claim.meta.Accident.doc_number" />
+                              </div>
+                            </div>
+
+                            <div class="form-group row mb-0">
+                              <div class="col-auto">
+                                <button type="button" class="btn btn-info btn-sm m-0" (click)="updateRequest()" appXhrBtnIndicator translate>
+                                  button.SAVE</button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- WITNESS -->
+                        <div class="panel-heading mt-3" role="tab" id="headingFive">
+                          <h5 class="panel-title lh-1">
+                            <a
+                              class="collapsed bg-info-inverse text-info"
+                              data-toggle="collapse"
+                              data-parent="#accordion-1"
+                              href="#collapseFive"
+                              aria-expanded="false"
+                              [ngClass]="{
+                                'bg-danger-inverse text-danger': !RequestContacts.Witness
+                              }"
+                            >
+                              <span>Témoin</span>
+                              <i class="icon mt-0 ti-arrow-circle-down"></i>
+                            </a>
+                          </h5>
+                        </div>
+
+                        <div id="collapseFive" class="collapse panel-collapse p-3 border" role="tabpanel">
+                          <div class="panel-body">
+                            <div class="mrg-btm-15" *ngIf="!RequestContacts?.Witness">
+                              <app-typeahead-contact
+                                [(ngModel)]="RequestContacts.Witness"
+                                (selectContact)="updateContact($event, 'WITNESS')"
+                              ></app-typeahead-contact>
+                            </div>
+
+                            <div class="" *ngIf="RequestContacts?.Witness">
+                              <div class="form-group">
+                                <label translate>common.NAME</label>
+                                <input class="form-control input-material input-sm"
+                                  [(ngModel)]="RequestContacts?.Witness.name" />
+                              </div>
+                              <div class="form-group row">
+                                <div class="col-md-4">
+                                  <label>CIN</label>
+                                  <input class="form-control input-material input-sm" mask="000 000 000 000"
+                                    [(ngModel)]="RequestContacts?.Witness.id_cin"/>
+                                </div>
+                                <div class="col-md-4">
+                                  <label>Du</label>
+                                  <input class="form-control input-material input-sm" #dtCinIssuedWitness="ngbDatepicker" ngbDatepicker
+                                    (click)="dtCinIssuedWitness.toggle()" [minDate]="appService.getMinDate()" [readOnly]="true"
+                                    [(ngModel)]="RequestContacts?.Witness.meta.id_cin_issued_date">
+                                </div>
+                                <div class="col-md-4">
+                                  <label>à</label>
+                                  <input class="form-control input-material input-sm" [(ngModel)]="RequestContacts?.Witness.meta.id_cin_issued_place" />
+                                </div>
+                              </div>
+                              <div class="form-group row">
+                                <div class="col-md-4">
+                                  <label>Tel</label>
+                                  <input class="form-control input-material input-sm" mask="000 00 000 00"
+                                    [(ngModel)]="RequestContacts?.Witness.phone"/>
+                                </div>
+                                <div class="col-md-8">
+                                  <label>Adresse</label>
+                                  <input class="form-control input-material input-sm" [(ngModel)]="RequestContacts?.Witness.address" />
+                                </div>
+                              </div>
+                              <div class="form-group row mb-0">
+                                <div class="col-auto">
+                                  <button type="button" class="btn btn-info btn-sm m-0" (click)="updateContactInfo(RequestContacts?.Witness)"
+                                    appXhrBtnIndicator translate>
+                                    button.SAVE</button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- OFFICER -->
+                        <div class="panel-heading mt-3" role="tab" id="headingSix">
+                          <h5 class="panel-title lh-1">
+                            <a
+                              class="collapsed bg-info-inverse text-info"
+                              data-toggle="collapse"
+                              data-parent="#accordion-1"
+                              href="#collapseSix"
+                              aria-expanded="false"
+                              [ngClass]="{
+                                'bg-danger-inverse text-danger': !RequestContacts.Officer
+                              }"
+                            >
+                              <span>Officier</span>
+                              <i class="icon mt-0 ti-arrow-circle-down"></i>
+                            </a>
+                          </h5>
+                        </div>
+
+                        <div id="collapseSix" class="collapse panel-collapse p-3 border" role="tabpanel">
+                          <div class="panel-body">
+                            <div class="mrg-btm-15" *ngIf="!RequestContacts?.Officer">
+                              <app-typeahead-contact
+                                [(ngModel)]="RequestContacts.Officer"
+                                (selectContact)="updateContact($event, 'OFFICER')"
+                              ></app-typeahead-contact>
+                            </div>
+
+                            <div class="" *ngIf="RequestContacts?.Officer">
+                              <div class="form-group row">
+                                <div class="col-md-8">
+                                  <label translate>common.NAME</label>
+                                  <input class="form-control input-material input-sm" [(ngModel)]="RequestContacts.Officer.name" />
+                                </div>
+                                <div class="col-md-4">
+                                  <label>Tel.</label>
+                                  <input class="form-control input-material input-sm" mask="000 00 000 00"
+                                    [(ngModel)]="RequestContacts.Officer.phone"/>
+                                </div>
+                              </div>
+                              <div class="form-group row">
+                                <div class="col-md-4">
+                                  <label>IM</label>
+                                  <input class="form-control input-material input-sm"
+                                    [(ngModel)]="RequestContacts.Officer.meta.officer_serial"/>
+                                </div>
+                                <div class="col-md-4">
+                                  <label>Grade</label>
+                                  <input class="form-control input-material input-sm"
+                                    [(ngModel)]="RequestContacts.Officer.meta.officer_rank" />
+                                </div>
+                                <div class="col-md-4">
+                                  <label>Juridiction</label>
+                                  <input class="form-control input-material input-sm"
+                                    [(ngModel)]="RequestContacts.Officer.meta.officer_worksite" />
+                                </div>
+                              </div>
+                              <div class="form-group row mb-0">
+                                <div class="col-auto">
+                                  <button type="button" class="btn btn-info btn-sm m-0" appXhrBtnIndicator
+                                    (click)="updateContactInfo(RequestContacts?.Officer)" translate>
+                                    button.SAVE
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="border top pdd-horizon-30 pdd-vertical-15">
+                  <div class="dropdown inline-block">
+                    <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                      <span class="mrg-right-10" translate>button.OTHER_ACTIONS</span>
+                      <i class="ti-angle-down font-size-9"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                      <li>
+                        <a (click)="addBill()">Insérer facture</a>
+                      </li>
+                      <li class="divider"></li>
+                      <li>
+                        <a (click)="updateStatus('COMPLETED')" translate>button.MARK_COMPLETED</a>
+                      </li>
+                      <li>
+                        <a (click)="updateStatus('ON_HOLD')" translate>button.MARK_ON_HOLD</a>
+                      </li>
+                      <li>
+                        <a (click)="updateStatus('IN_PROGRESS')" translate>button.MARK_IN_PROGRESS</a>
+                      </li>
+                      <li>
+                        <a (click)="updateStatus('APPROVED')" translate>button.MARK_APPROVED</a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <div role="tabpanel" class="tab-pane fade" id="tab-bill">
+                <div class="table-responsive">
+                  <table class="table no-border mb-0">
+                    <thead>
+                      <tr>
+                        <th class="no-border">N°</th>
+                        <th class="no-border" translate>common.CATEGORY</th>
+                        <th class="no-border" translate>nav.CONTACT</th>
+                        <th class="no-border" translate>common.DESCRIPTION</th>
+                        <th class="no-border" translate>common.AMOUNT</th>
+                        <th class="no-border text-center" translate>common.STATUS</th>
+                        <th class="no-border text-right" translate>status.CREATED</th>
+                        <th class="no-border text-center" translate>common.ACTION</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let item of claim?.Bills">
+                        <td>
+                          <a href [routerLink]="['/men/bill/detail', item.id]">
+                            {{item.id}}
+                          </a>
+                        </td>
+                        <td>
+                          {{item?.Category?.name}}
+                        </td>
+                        <td>
+                          {{item?.Contact?.name}}
+                        </td>
+                        <td>
+                          <ul class="pl-3">
+                            <li *ngFor="let elem of item?.BillItems">{{elem.name}} ({{elem.quantity}})</li>
+                          </ul>
+                        </td>
+                        <td>
+                          {{item?.amount | currency:'MGA':'Ar'}}
+                        </td>
+                        <td class="text-center">
+                          <label class="label label-{{utilityService.statusStyle(item.status).background}} text-uppercase">
+                            {{'status.' + item.status | translate}}
+                          </label>
+                        </td>
+                        <td class="text-right">
+                          {{item?.created_at | date:'dd MMM yyyy HH:mm'}}
+                        </td>
+                        <td class="text-center">
+                          <button type="button" class="btn btn-dark btn-sm" (click)="print(item)" [disabled]="item.status !== 'PAID'">
+                            <i class="fa fa-print"></i>
+                          </button>
+                        </td>
+                      </tr>
+                      <tr *ngIf="claim?.Bills?.length === 0">
+                        <td colspan="7" class="text-center" translate>common.NO_RECORD</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div role="tabpanel" class="tab-pane fade" id="history">
+                <app-list-history
+                  [dataTable]="claim?.RequestHistories"
+                  [dataType]="'MAINTENANCE'"
+                  [dataId]="claim?.id"
+                  (onSubmit)="resetForm()">
+                </app-list-history>
+              </div>
+
+              <div role="tabpanel" class="tab-pane fade" id="attachment">
+                <div class="padding-30">
+                  <div class="row">
+                    <div class="col-lg-4">
+                      <app-file-attachment
+                        [attachments]="claim?.attachments"
+                        [route]="'requests'"
+                        [id]="claim?.id"
+                        (onSuccess)="resetForm()"
+                        (onDelete)="deleteAttachment($event)"
+                      >
+                      </app-file-attachment>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #rt let-r="result" let-t="term">
+  <ngb-highlight [result]="r.name + ' (' + r.sku.toUpperCase() + ')'" [term]="t"></ngb-highlight>
+</ng-template>

@@ -1,0 +1,27 @@
+.form-group label,
+.form-group.row label {
+  margin-bottom: 0;
+  font-size: 13px;
+  font-weight: 400;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.input-material {
+  font-weight: 400;
+  padding-top: 0;
+  height: 30px !important;
+}
+
+.accordion .panel-title > a {
+  padding: 15px;
+  font-weight: bold;
+}
+
+.panel-collapse {
+  margin-bottom: 5px;
+  border-width: 1px;
+  /* border-top: 0 !important; */
+}

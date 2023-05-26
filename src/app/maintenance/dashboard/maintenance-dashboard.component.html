@@ -1,0 +1,164 @@
+<div class="container-fluid">
+  <div class="row mrg-btm-30">
+    <div class="col col-lg-6">
+      <form [formGroup]="filterForm" (ngSubmit)="loadRequestReports()">
+        <div class="input-group">
+          <input type="text" class="form-control bg-white" placeholder="Début" formControlName="start" ngbDatepicker #d1="ngbDatepicker"
+            (click)="d1.toggle()" [class.error]="submitted && filterForm.get('start').status === 'INVALID'"
+            readonly />
+          <input type="text" class="form-control bg-white" placeholder="Fin" formControlName="end" ngbDatepicker #d2="ngbDatepicker"
+            (click)="d2.toggle()" [class.error]="submitted && filterForm.get('end').status === 'INVALID'"
+            readonly />
+          <div class="col-lg-6 p-0 text-left">
+            <ng-select placeholder="Choisir type ..." formControlName="request_type_id" bindValue="id" [items]="types" bindLabel="name">
+              <ng-template ng-option-tmp let-item="item">
+                <span [title]="item.name">{{ item.name }}</span>
+              </ng-template>
+            </ng-select>
+          </div>
+          <div class="input-group-append">
+            <button class="btn btn-info btn-sm m-0">
+              <i class="fa fa-search"></i>
+            </button>
+            <button type="button" (click)="resetForm()" class="btn btn-dark btn-sm m-0">
+              <i class="fa fa-refresh"></i>
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div class="row mrg-btm-15">
+    <div class="col-lg-6 mb-3 mb-lg-0">
+      <div class="card h-100 mb-0">
+        <div class="card-block">
+          <h3>Requêtes</h3>
+          <div class="mrg-top-10">
+            <canvas *ngIf="requestData" baseChart height="180" [datasets]="requestData" [labels]="barChartLabels"
+              [legend]="barChartLegend" [chartType]="barChartType" [colors]="barChartColors"
+              [options]="barChartOptions"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="card h-100 mb-0">
+          <div class="card-block">
+            <h3>Type</h3>
+            <div class="chart-holder mrg-top-10 p-4">
+              <canvas *ngIf="typeData" height="238" baseChart [data]="typeData" [labels]="typeLabels" [chartType]="donutChartType"
+                [legend]="donutChartLegend" [colors]="donutChartColors"  (chartClick)="handleTypeChartClick($event)" [options]="donutChartOptions"></canvas>
+            </div>
+          </div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="padding-20 d-flex align-items-center">
+      <h3 class="card-title no-mrg-btm pointer" (click)="filterBy('status')">Détails <span class="label label-primary">{{requestSummary?.total || 0}}</span></h3>
+      <div class="flex-grow-1 text-right">
+        <ul class="list-inline">
+          <li class="list-inline-item mr-3 pointer" [class.font-weight-bold]="selectedStatus === 'APPROVED'" (click)="filterBy('status', 'APPROVED')"><span class="mr-1" translate>status.APPROVED</span> <span class="label label-danger">{{requestSummary?.approved}}</span></li>
+          <li class="list-inline-item mr-3 pointer" [class.font-weight-bold]="selectedStatus === 'IN_PROGRESS'" (click)="filterBy('status', 'IN_PROGRESS')"><span class="mr-1" translate>status.IN_PROGRESS</span> <span class="label label-info">{{requestSummary?.in_progress}}</span></li>
+          <li class="list-inline-item mr-3 pointer" [class.font-weight-bold]="selectedStatus === 'ON_HOLD'" (click)="filterBy('status', 'ON_HOLD')"><span class="mr-1" translate>status.ON_HOLD</span> <span class="label label-warning">{{requestSummary?.on_hold}}</span></li>
+          <li class="list-inline-item pointer" [class.font-weight-bold]="selectedStatus === 'COMPLETED'" (click)="filterBy('status', 'COMPLETED')"><span class="mr-1" translate>status.COMPLETED</span> <span class="label label-success">{{requestSummary?.completed}}</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div #table="stTable" stTable>
+      <div class="table-responsive">
+        <table class="table table-striped mb-0">
+          <thead>
+            <tr>
+              <th class="width-5 text-center">N°</th>
+              <th class="width-15" translate>common.DATE</th>
+              <th translate>men.ESTABLISHMENT</th>
+              <th translate>common.TITLE</th>
+              <th class="width-15" translate>common.ASSIGNED_TO</th>
+              <th translate>common.PROGRESS</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let request of table.items" [hidden]="table.busy">
+              <td class="text-center">
+                <a class="text-link" (click)="edit(request.id)">
+                  {{request.id}}
+                </a>
+              </td>
+              <td>
+                {{request.requested_at | date:'dd MMM yyyy'}}
+              </td>
+              <td>
+                <ng-container *ngIf="request.Facility as Facility">
+                  {{ Facility.name }}<span class="text-muted d-block font-size-14">{{request?.Room?.title}}</span>
+                </ng-container>
+              </td>
+              <td>{{request.title}}<span class="text-muted d-block font-size-14">{{request?.Category?.name}}</span></td>
+              <td>
+                <ul class="list-unstyled">
+                  <li class="pointer" *ngFor="let item of request.Staffs" [title]="item.name">
+                    {{item.name | slice:0:13}}.
+                  </li>
+                </ul>
+              </td>
+              <td>
+                <label class="label label-{{utilityService.statusStyle(request.status).background}} text-uppercase">
+                  {{'status.' + request.status | translate}}
+                </label>
+                <ng-container *ngIf="request.RequestStatus?.name as extendedStatusName">
+                  <label class="label label-primary">{{
+                    extendedStatusName }}</label>
+                </ng-container>
+                <br>
+                <span class="font-size-13" [innerHTML]="maintenanceService.getLatestHistory(request.RequestHistories)"></span>
+              </td>
+            </tr>
+            <tr>
+              <td class="text-center" colspan="6" *ngIf="table.busy">
+                <i class="fa fa-spin fa-spinner"></i>
+              </td>
+            </tr>
+            <tr>
+              <td class="text-center" colspan="6" *ngIf="!table.busy && table.items.length === 0" translate>common.NO_RECORD</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <hr style="margin: 0;" />
+    
+    <div class="row padding-10" stPagination #pager="stPagination">
+      <div class="col-lg">
+        <div style="width: 200px;">
+          <div class="d-inline">Afficher</div>
+          <select class="form-control d-inline mx-2 width-35" [(ngModel)]="pager.size"
+            (ngModelChange)="smartTableService.slice(_table, pager)">
+            <option [value]="item" *ngFor="let item of appService.displayedRows">
+              {{item}}
+            </option>
+          </select>
+          <div class="d-inline">lignes</div>
+        </div>
+      </div>
+      <div class="col-lg-3 text-center">
+        <div class="btn btn-link mb-0 disabled">
+          {{pager.length > 0 ? pager.lowerBoundIndex + 1 : 0}} - {{(pager.higherBoundIndex || -1) + 1}} sur
+          {{pager.length || 0}}
+        </div>
+      </div>
+      <div class="col-lg">
+        <div class="btn-group pagination justify-content-end">
+          <button type="button" class="btn btn-default mb-0" (click)="pager.selectPreviousPage()"
+            [disabled]="!pager.isPreviousPageEnabled()">
+            <i class="ti-arrow-left"></i>
+          </button>
+          <button type="button" class="btn btn-default mb-0" (click)="pager.selectNextPage()"
+            [disabled]="!pager.isNextPageEnabled()">
+            <i class="ti-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

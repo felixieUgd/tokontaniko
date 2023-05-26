@@ -1,0 +1,118 @@
+<div class="container-fluid">
+  <div class="row mrg-btm-30">
+    <div class="col col-lg-6">
+      <form [formGroup]="filterForm">
+        <div class="input-group">
+          <input type="text" class="form-control bg-white" formControlName="start" ngbDatepicker
+                 #d1="ngbDatepicker" (click)="d1.toggle()"
+                 [class.error]="filterFormSubmitted && filterForm.get('start').status === 'INVALID'" readonly/>
+          <input type="text" class="form-control bg-white" formControlName="end" ngbDatepicker
+                 #d2="ngbDatepicker" (click)="d2.toggle()"
+                 [class.error]="filterFormSubmitted && filterForm.get('end').status === 'INVALID'" readonly/>
+          <div class="col-lg-3 p-0 text-left">
+            <ng-select placeholder="Choisir utilisateur" formControlName="user" [items]="users" bindLabel="name">
+            </ng-select>
+          </div>
+          <div class="input-group-append">
+            <button class="btn btn-info btn-sm m-0" type="button" (click)="getPerformanceReport()">
+              <i class="fa fa-search"></i>
+            </button>
+            <button class="btn btn-dark btn-sm" type="button" (click)="resetForm()">
+              <i class="fa fa-refresh"></i>
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-block">
+          <h2>Actions</h2>
+
+          <div class="mrg-top-10">
+            <canvas *ngIf="performanceData" baseChart height="70" [datasets]="performanceData"
+                    [labels]="barChartLabels"
+                    [legend]="barChartLegend" [chartType]="barChartType" [colors]="barChartColors"
+                    [options]="barChartOptions"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-6">
+      <div class="card">
+        <div class="padding-20">
+          <h4 class="card-title no-mrg-btm">Staff</h4>
+        </div>
+        <div class="chart-holder mrg-btm-15">
+          <canvas *ngIf="userData" height="230" baseChart [data]="userData"
+                  [labels]="userLabels" [chartType]="donutChartType" [legend]="donutChartLegend"
+                  [colors]="donutChartColors" [options]="donutChartOptions"
+                  (chartClick)="handleUserChartClick($event)"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-6">
+      <div class="card">
+        <div class="padding-20">
+          <h4 class="card-title no-mrg-btm">Catégorie</h4>
+        </div>
+        <div class="chart-holder mrg-btm-15">
+          <canvas *ngIf="categoryData" height="230" baseChart [data]="categoryData"
+                  [labels]="categoryLabels" [chartType]="donutChartType" [legend]="donutChartLegend"
+                  [colors]="donutChartColors" [options]="donutChartOptions"
+                  (chartClick)="handleCategoryChartClick($event)"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="padding-20">
+          <h4 class="card-title no-mrg-btm pointer">
+            Détails
+          </h4>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-striped mb-0">
+            <thead>
+            <tr>
+              <th translate>Action</th>
+              <th translate>Description</th>
+              <th class="text-right" translate>Établissement</th>
+              <th class="text-right" translate>Date</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let item of timelineData">
+              <td>
+                {{item.status_code}}
+              </td>
+              <td>
+                {{item.description}}
+                <span class="text-opacity-6 d-block font-size-13">
+                    {{item.Request?.Category?.name}}
+                </span>
+              </td>
+              <td class="text-right">
+                <span>{{item.Request?.Facility?.name || '-'}}</span>
+              </td>
+              <td class="text-right">
+                <span class="text-opacity-6 d-block font-size-13">{{item.created_at | date:'dd MMM yyyy HH:mm'}}</span>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

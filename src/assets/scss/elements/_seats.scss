@@ -1,0 +1,60 @@
+.dot {
+  color: #dae1e7;
+  height: 25px;
+  width: 25px;
+  background-color: #ecf0f1;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.dot2 {
+  height: 25px;
+  width: 25px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.dot3 {
+  color: #fff;
+  height: 25px;
+  width: 25px;
+  background-color: $default-danger;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  margin-top: -7px;
+
+  &.photo {
+    bottom: 0;
+    cursor: pointer;
+    font-size: 13px;
+    height: 30px;
+    position: absolute;
+    right: 10px;
+    width: 30px;
+  }
+}
+
+.new-seats input[disabled] + i.move,
+fieldset[disabled] .new-seats input + i.move {
+  border-color: $default-seat;
+  background-color: $default-seat;
+  color: white !important;
+}
+
+.rounded-seat {
+  background-color: $default-seat;
+  color: white;
+  font-size: 12px;
+  height: 25px;
+  width: 25px;
+  margin-bottom: 5px;
+  margin-right: 5px;
+  padding: 3px;
+  border-radius: 50px;
+}

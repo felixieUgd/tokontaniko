@@ -1,0 +1,58 @@
+<div class="table-responsive">
+  <table class="table no-border mb-0">
+    <thead>
+      <tr>
+        <th class="no-border">N°</th>
+        <th class="no-border" translate>common.CATEGORY</th>
+        <th class="no-border" translate>nav.CONTACT</th>
+        <th class="no-border" translate>common.DESCRIPTION</th>
+        <th class="no-border text-right" translate>common.AMOUNT</th>
+        <th class="no-border text-center" translate>common.STATUS</th>
+        <th class="no-border text-right" translate>status.CREATED</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let item of dataTable">
+        <td>
+          <a href
+            [routerLink]="[redirectLink, item.id]"
+            [queryParams]="linkParams">
+            {{item.id}}
+          </a>
+        </td>
+        <td>
+          {{item?.Category?.name}}
+        </td>
+        <td>
+          {{item?.Contact?.name}}
+        </td>
+        <td>
+          <ul class="list-unstyled">
+            <li *ngFor="let elem of item?.InvoiceItems">{{elem.name}} ({{elem.quantity}})</li>
+          </ul>
+        </td>
+        <td class="text-right">
+          {{item?.amount | currency:'MGA':'Ar'}}
+        </td>
+        <td class="text-center">
+          <label class="label label-{{utilityService.statusStyle(item.status).background}} text-uppercase">
+            {{'status.' + item.status | translate}}
+          </label>
+        </td>
+        <td class="text-right">
+          {{item?.created_at | date:'dd MMM yyyy HH:mm'}}
+        </td>
+      </tr>
+      <tr *ngIf="dataTable?.length === 0">
+        <td colspan="7" class="text-center" translate>common.NO_RECORD</td>
+      </tr>
+      <!-- <tr>
+        <td colspan="7" class="text-right">
+          <a href class="btn btn-link" (click)="addInvoice()">
+            {{'button.ADD' | translate}}
+          </a>
+        </td>
+      </tr> -->
+    </tbody>
+  </table>
+</div>

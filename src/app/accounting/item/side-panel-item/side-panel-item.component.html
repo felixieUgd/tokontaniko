@@ -1,0 +1,141 @@
+
+<div class="side-panel" [ngClass]="{'side-panel-open' : sidePanelOpen}">
+  <div class="side-panel-wrapper bg-white">
+    <ul class="nav nav-tabs" role="tablist">
+      <li class="nav-item">
+        <a class="nav-link active" href="#edit" role="tab" data-toggle="tab">
+          <span>Nouveau</span>
+        </a>
+      </li>
+      <li class="panel-close">
+        <button class="side-panel-toggle" (click)="close()">
+          <i class="ti-close"></i>
+        </button>
+      </li>
+    </ul>
+
+    <div class="tab-content ps" perfectScrollbar>
+      <div id="edit" role="tabpanel" class="tab-pane fade in active">
+        <form class="form-horizontal h-100" [formGroup]="form" (ngSubmit)="save()" autocomplete="off" novalidate>
+          <div class="p-4 h-100">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="itemName" class="control-label">Nom</label>
+                  <input type="text" class="form-control" formControlName="name" placeholder=""
+                    [class.error]="submitted && form.controls.name.invalid">
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="ref" class="control-label">Référence</label>
+                  <input type="text" id="ref" class="form-control" formControlName="sku" placeholder=""
+                    [class.error]="submitted && form.controls.sku.invalid">
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label for="description" class="control-label">Description</label>
+                  <input name="description" class="form-control" formControlName="description" [class.error]="submitted && form.controls.description.invalid">
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="purchase_price" class="control-label">Prix d'achat</label>
+                  <input type="text" id="purchase_price" class="form-control" formControlName="purchase_price"
+                    placeholder="" [class.error]="submitted && form.controls.purchase_price.invalid">
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="sale_price" class="control-label">Prix de vente</label>
+                  <input type="text" id="sale_price" class="form-control" formControlName="sale_price" placeholder=""
+                    [class.error]="submitted && form.controls.sale_price.invalid">
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="category" class="control-label">Catégorie</label>
+                  <ng-select [items]="categories | async" bindLabel="name" formControlName="category"
+                    [ngClass]="{'error': submitted && form.controls.category.invalid}"
+                    [clearable]="false">
+                  </ng-select>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label for="quantity" class="control-label">Quantité</label>
+                  <input type="number" id="quantity" class="form-control bg-transparent" formControlName="quantity"
+                    [class.error]="submitted && form.controls.quantity.invalid" readonly>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label for="initial_quantity" class="control-label">Qté. initiale</label>
+                  <input type="number" id="initial_quantity" class="form-control bg-transparent"
+                    formControlName="initial_quantity" readonly>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label class="control-label">Taxes</label>
+                  <ng-select placeholder="Ajouter taxe" formControlName="Taxes" [items]="taxes | async"
+                    bindLabel="name" [hideSelected]="true" [searchable]="true" [multiple]="true" [clearable]="false">
+                  </ng-select>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label class="control-label">Type</label>
+                  <ng-select [items]="itemTypes" formControlName="type"
+                    [ngClass]="{'error': submitted && form.controls.type.invalid}"
+                    [clearable]="false">
+                    <ng-template ng-label-tmp let-item="item">
+                      <span class="text-uppercase">{{'item_type.' + item | translate}}</span>
+                    </ng-template>
+                    <ng-template ng-option-tmp let-item="item">
+                      <span class="text-uppercase">{{'item_type.' + item | translate}}</span>
+                    </ng-template>
+                  </ng-select>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col col-md-6">
+                <div class="form-group">
+                  <label class="control-label">Activé</label>
+                  <div class="toggle-checkbox toggle-info">
+                    <input type="checkbox" formControlName="enabled" id="toggle-sp-enabled" checked
+                      [class.error]="submitted && form.controls.enabled.invalid">
+                    <label for="toggle-sp-enabled"></label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row footer">
+              <div class="col">
+                <button type="submit" class="btn btn-info btn-block no-mrg-btm" appXhrBtnIndicator translate>
+                  button.SAVE
+                </button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

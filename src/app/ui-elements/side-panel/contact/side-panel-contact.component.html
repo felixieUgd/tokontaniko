@@ -1,0 +1,395 @@
+<div class="side-panel" [ngClass]="{ 'side-panel-open': sidePanelOpen }">
+  <div class="side-panel-wrapper bg-white">
+    <ul class="nav nav-tabs" role="tablist">
+      <li class="nav-item active">
+        <a class="nav-link" href="#contact" role="tab" data-toggle="tab">
+          <span translate>nav.ADD</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#other" role="tab" data-toggle="tab">
+          <span translate>common.OTHER</span>
+        </a>
+      </li>
+      <li class="panel-close">
+        <button
+          class="side-panel-toggle"
+          (click)="closeSidePanel()"
+        >
+          <i class="ti-close"></i>
+        </button>
+      </li>
+    </ul>
+
+    <form
+      role="form"
+      [formGroup]="contactForm"
+      (ngSubmit)="save()"
+      autocomplete="off"
+      novalidate
+    >
+      <div class="tab-content">
+        <div id="contact" role="tabpanel" class="tab-pane fade in active ps" perfectScrollbar>
+          <div class="p-4">
+            <div class="font-weight-bold text-info text-uppercase mb-3" translate>common.BIOGRAPHY</div>
+
+            <div class="row">
+              <div class="col-auto">
+                <div class="form-group-sm">
+                  <label translate>common.TYPE</label>
+                  <div
+                    class="btn-group btn-group-toggle width-100"
+                    formControlName="is_business"
+                    ngbRadioGroup
+                  >
+                    <label
+                      ngbButtonLabel
+                      class="btn-default"
+                      style="width: 50% !important;"
+                    >
+                      <input ngbButton type="radio" [value]="false"/>
+                      {{'common.PARTICULAR' | translate | uppercase}}
+                    </label>
+                    <label
+                      ngbButtonLabel
+                      class="btn-default"
+                      style="width: 50% !important;"
+                    >
+                      <input ngbButton type="radio" [value]="true"/>
+                      {{'common.PROFESSIONAL' | translate | uppercase}}
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <div class="col-auto">
+                <div class="form-group-sm">
+                  <label class="d-block">{{'common.FOREIGN' | translate}} ?</label>
+                  <div class="toggle-checkbox toggle-info toggle-md">
+                    <input type="checkbox" id="toggle" formControlName="is_foreigner">
+                    <label for="toggle" class="mb-0"></label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-lg">
+                <div class="form-group-sm">
+                  <label for="name" translate>common.NAME</label>
+                  <input
+                    type="text"
+                    id="name"
+                    class="form-control"
+                    formControlName="name"
+                    [class.error]="
+                      submitted && contactForm.get('name').status === 'INVALID'
+                    "
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div *ngIf="!contactForm.controls.is_business.value">
+              <div class="row">
+                <div class="col-lg-4">
+                  <div class="form-group-sm">
+                    <label translate>account.SEX</label>
+                    <div
+                      class="btn-group btn-group-toggle width-100"
+                      formControlName="sex"
+                      ngbRadioGroup
+                    >
+                      <label
+                        ngbButtonLabel
+                        style="width: 50% !important;"
+                        [attr.class]="
+                          submitted && contactForm.get('sex').status === 'INVALID'
+                            ? 'btn btn-outline-danger'
+                            : 'btn btn-default'
+                        "
+                      >
+                        <input ngbButton type="radio" value="M"/> H
+                      </label>
+                      <label
+                        ngbButtonLabel
+                        class="btn"
+                        style="width: 50% !important;"
+                        [attr.class]="
+                          submitted && contactForm.get('sex').status === 'INVALID'
+                            ? 'btn btn-outline-danger'
+                            : 'btn btn-default'
+                        "
+                      >
+                        <input ngbButton type="radio" value="F"/> F
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group-sm">
+                    <label translate>Date naissance</label>
+                    <input
+                      id="bio_dob"
+                      class="form-control bg-transparent"
+                      formControlName="bio_dob"
+                      #idDob="ngbDatepicker"
+                      [minDate]="appService.getMinDate()" [placement]="'bottom-right'" ngbDatepicker readonly
+                      (click)="idDob.toggle()"
+                    />
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group-sm">
+                    <label>Lieu</label>
+                    <input
+                      class="form-control"
+                      formControlName="bio_pob"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div class="row" *ngIf="!contactForm.controls.is_foreigner.value">
+                <div class="col-md-4">
+                  <div class="form-group-sm">
+                    <label for="phone">CIN</label>
+                    <input
+                      type="text"
+                      id="id_cin"
+                      class="form-control"
+                      formControlName="id_cin"
+                      mask="000 000 000 000"
+                    />
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group-sm" [formGroupName]="'meta'">
+                    <label for="id_cin_issued_date" translate>common.ISSUED_DATE</label>
+                    <input
+                      id="id_cin_issued_date"
+                      class="form-control bg-transparent"
+                      formControlName="id_cin_issued_date"
+                      #idCinIssued="ngbDatepicker"
+                      [minDate]="appService.getMinDate()" [placement]="'bottom-right'" ngbDatepicker readonly
+                      (click)="idCinIssued.toggle()"
+                    />
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group-sm" [formGroupName]="'meta'">
+                    <label for="id_cin_issued_place">Lieu délivrance</label>
+                    <input
+                      id="id_cin_issued_place"
+                      class="form-control"
+                      formControlName="id_cin_issued_place"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div class="row" *ngIf="contactForm.controls.is_foreigner.value">
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label for="id_passport" translate>account.PASSPORT</label>
+                    <input
+                      id="id_passport"
+                      class="form-control"
+                      formControlName="id_passport"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-lg">
+                <div class="form-group">
+                  <label for="email" translate>channel.EMAIL</label>
+                  <input type="text" formControlName="email" id="email" class="form-control">
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-lg-4 col">
+                <div class="form-group-sm">
+                  <label for="phone" translate>common.PHONE</label>
+                  <input
+                    type="text"
+                    mask="0*"
+                    [dropSpecialCharacters]="true"
+                    id="phone"
+                    class="form-control"
+                    formControlName="phone"
+                  />
+                </div>
+              </div>
+              <div class="col-md-8">
+                <div class="form-group">
+                  <label for="address" translate>common.ADDRESS</label>
+                  <input
+                    class="form-control"
+                    id="address"
+                    formControlName="address"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="other" role="tabpanel" class="tab-pane fade in ps" perfectScrollbar>
+          <div class="p-4">
+            <div class="font-weight-bold text-info text-uppercase mb-3" translate>
+              common.EMERGENCY_CONTACT
+            </div>
+
+            <div class="row" formGroupName="meta">
+              <div class="col-md-8 col">
+                <div class="form-group-sm">
+                  <label translate>common.NAME</label>
+                  <input
+                    class="form-control"
+                    formControlName="name"
+                  />
+                </div>
+              </div>
+              <div class="col-md-4 col">
+                <div class="form-group-sm">
+                  <label translate>common.PHONE</label>
+                  <input
+                    class="form-control"
+                    formControlName="phone"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div class="font-weight-bold text-info text-uppercase mb-3" translate>common.ADDITIONNAL_INFO</div>
+
+            <div [formGroupName]="'meta'">
+              <div class="row">
+                <div class="col">
+                  <div class="form-group-sm">
+                    <div
+                      class="btn-group btn-group-toggle width-100"
+                      formControlName="contact_type"
+                      ngbRadioGroup
+                    >
+                      <label
+                        ngbButtonLabel
+                        class="btn-default text-uppercase"
+                        style="width: 30% !important;"
+                      >
+                        <input ngbButton type="radio" [value]="'STUDENT'"/>
+                        {{'men.STUDENT' | translate}}
+                      </label>
+                      <label
+                        ngbButtonLabel
+                        class="btn-default text-uppercase"
+                        style="width: 30% !important;"
+                      >
+                        <input ngbButton type="radio" [value]="'PROFESSOR'"/>
+                        {{'men.PROFESSOR' | translate}}
+                      </label>
+                      <label
+                        ngbButtonLabel
+                        class="btn-default text-uppercase"
+                        style="width: 30% !important;"
+                      >
+                        <input ngbButton type="radio" [value]="'OFFICER'"/>
+                        {{'men.OFFICER' | translate}}
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- OFFICER -->
+              <div class="row" *ngIf="Meta.controls.contact_type.value === 'OFFICER'">
+                <div class="col-md-5">
+                  <div class="form-group">
+                    <label for="officer_serial">IM</label>
+                    <input
+                      class="form-control"
+                      id="officer_serial"
+                      formControlName="officer_serial"
+                    />
+                  </div>
+                </div>
+                <div class="col-md-7">
+                  <div class="form-group">
+                    <label for="officer_rank" translate>men.GRADE</label>
+                    <input
+                      id="officer_rank"
+                      class="form-control"
+                      formControlName="officer_rank"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div class="row" *ngIf="Meta.controls.contact_type.value === 'OFFICER'">
+                <div class="col-md">
+                  <div class="form-group">
+                    <label for="officer_worksite" translate>common.WORKPLACE</label>
+                    <input
+                      class="form-control"
+                      id="officer_worksite"
+                      formControlName="officer_worksite"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <!-- TEACHER -->
+              <div class="row" *ngIf="Meta.controls.contact_type.value === 'PROFESSOR'">
+                <div class="col-md-5 col">
+                  <div class="form-group-sm">
+                    <label translate>men.IM</label>
+                    <input
+                      class="form-control"
+                      formControlName="professor_serial"
+                    />
+                  </div>
+                </div>
+                <div class="col-md-7 col">
+                  <div class="form-group-sm">
+                    <label translate>men.GRADE</label>
+                    <input
+                      class="form-control"
+                      formControlName="professor_rank"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <!-- STUDENT -->
+              <div class="row" *ngIf="Meta.controls.contact_type.value === 'STUDENT'">
+                <div class="col-md-5 col">
+                  <div class="form-group-sm">
+                    <label>{{ 'men.SERIAL' | translate }} N°</label>
+                    <input class="form-control" formControlName="school_serial" />
+                  </div>
+                </div>
+                <div class="col-md-7 col">
+                  <div class="form-group-sm">
+                    <label translate>men.SCHOOL_GRADE</label>
+                    <ng-select [items]="school_grades" bindValue="label" bindLabel="label" formControlName="school_grade" [clearable]="true"></ng-select>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row bg-white fixed-bottom">
+        <div class="col-md">
+          <div class="px-4 pdd-vertical-20 border top">
+            <button type="submit" class="btn btn-info btn-block no-mrg-btm" appXhrBtnIndicator translate>
+              button.SAVE
+            </button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

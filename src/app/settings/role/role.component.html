@@ -1,0 +1,109 @@
+<div class="container-fluid">
+  <div class="pdd-horizon-30">
+    <div class="row mrg-btm-5">
+      <div class="col-lg">
+        <div class="card">
+          <div class="row">
+            <div class="col-lg">
+              <div class="table-responsive">
+                <table class="table table-striped no-border m-0">
+                  <tr>
+                    <td colspan="5" class="border-top-0">
+                      <button class="btn btn-info btn-sm pull-right mr-0" (click)="open()">
+                        Ajouter rôle</button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th class="width-5">ID</th>
+                    <th>Nom</th>
+                    <th>Label</th>
+                    <th>Description</th>
+                    <th class="width-10 text-center">Actions</th>
+                  </tr>
+                  <tr>
+                    <td class="text-center" colspan="5" *ngIf="roles?.length === 0">
+                      Aucun rôle
+                    </td>
+                  </tr>
+                  <tr *ngFor="let elem of roles">
+                    <td>{{elem.id}}</td>
+                    <td>{{elem.name}}</td>
+                    <td>{{elem.display_name}}</td>
+                    <td>{{elem.description}}</td>
+                    <td class="text-center">
+                      <a class="btn btn-sm btn-info btn-icon" href [routerLink]="['/settings/role/edit/', elem.id]">
+                        <i class="fa fa-pencil"></i>
+                      </a>
+                    </td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Side Panel START -->
+<div class="side-panel" [ngClass]="{'side-panel-open' : sidePanelOpen}">
+  <div class="side-panel-wrapper bg-white">
+    <ul class="nav nav-tabs" role="tablist">
+      <li class="nav-item active">
+        <a class="nav-link" href="#chat" role="tab" data-toggle="tab">
+          <span>{{role ? 'Modifier' : 'Nouveau'}} rôle</span>
+        </a>
+      </li>
+      <li class="panel-close">
+        <button class="side-panel-toggle" (click)="sidePanelOpen = !sidePanelOpen">
+          <i class="ti-close"></i>
+        </button>
+      </li>
+    </ul>
+
+    <div class="tab-content ps" perfectScrollbar>
+      <div class="p-4">
+        <form role="form" [formGroup]="roleForm" (ngSubmit)="save()" novalidate>
+          <div class="row">
+            <div class="col-lg-6">
+              <div class="form-group">
+                <label for="name">Nom</label>
+                <input type="text" id="name" class="form-control" placeholder="" formControlName="name"
+                  [class.error]="submitted && roleForm.get('name').status === 'INVALID'">
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="form-group">
+                <label for="display_name">Label</label>
+                <input type="text" id="display_name" class="form-control" placeholder="" formControlName="display_name"
+                  [class.error]="submitted && roleForm.get('display_name').status === 'INVALID'">
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="form-group">
+                <label for="description">Description</label>
+                <textarea id="description" class="form-control" placeholder="" rows="2"
+                  formControlName="description"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div class="row bg-white fixed-bottom">
+            <div class="col-lg-12">
+              <div class="px-4 pdd-vertical-20 border top">
+                <button type="submit" class="btn btn-info btn-block no-mrg-btm" appXhrBtnIndicator>
+                  Enregistrer
+                </button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Side Panel END -->

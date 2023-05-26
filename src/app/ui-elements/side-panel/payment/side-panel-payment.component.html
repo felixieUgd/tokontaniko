@@ -1,0 +1,169 @@
+<!-- Side-panel Payment START -->
+<div class="side-panel" [ngClass]="{'side-panel-open' : sidePanelOpen}">
+  <div class="side-panel-wrapper bg-white">
+    <ul class="nav nav-tabs" role="tablist">
+      <li class="nav-item active">
+        <a class="nav-link" href="#add-payment" role="tab" data-toggle="tab">
+          <span translate>button.ADD</span>
+        </a>
+      </li>
+      <li class="nav-item" *ngIf="facture?.Contact?.Reward">
+        <a class="nav-link" href="#cash-reward" role="tab" data-toggle="tab">
+          <span translate>payment.REWARD</span>
+        </a>
+      </li>
+      <li class="panel-close">
+        <button class="side-panel-toggle" (click)="close()">
+          <i class="ti-close"></i>
+        </button>
+      </li>
+    </ul>
+
+    <div class="tab-content ps" perfectScrollbar>
+      <!-- Add Payment -->
+      <div id="add-payment" role="tabpanel" class="tab-pane fade in active">
+        <div class="p-4">
+          <form role="form" [formGroup]="form" autocomplete="off" novalidate (ngSubmit)="save()">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="paid_at" class="timepicker-label">Date</label>
+                  <div class="input-group">
+                    <input type="text" id="paid_at" class="form-control" formControlName="paid_at" ngbDatepicker
+                      #f="ngbDatepicker" (click)="f.toggle()" (dateSelect)="onSelectDate($event, form)"
+                      [class.error]="submitted && form.controls.paid_at.invalid">
+                    <div class="input-group-append">
+                      <button type="button" class="btn btn-outline-secondary" (click)="updateLockState(form)">
+                        <i class="text-dark fa" [ngClass]="{
+                          'fa-lock': dateLocked,
+                          'fa-unlock': !dateLocked
+                        }"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="amount">Montant</label>
+                  <input type="number" id="amount" class="form-control" formControlName="amount"
+                    [class.error]="submitted && form.controls.amount.invalid">
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label>Compte</label>
+                  <ng-select [items]="accounts" bindLabel="name" bindValue="id" formControlName="account_id"
+                    [ngClass]="{'error': submitted && form.controls.account_id.invalid}">
+                    <ng-template ng-option-tmp let-item="item">
+                      {{item.id}} - {{item.name}}
+                    </ng-template>
+                  </ng-select>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label>Mode de paiement</label>
+                  <ng-select [items]="appService.paymentMethods" bindLabel="name" bindValue="code" formControlName="payment_method"
+                    [ngClass]="{'error': submitted && form.controls.payment_method.invalid}">
+                  </ng-select>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label for="description">Description</label>
+                  <textarea id="description" class="form-control" placeholder="" formControlName="description"
+                    rows="2"></textarea>
+                </div>
+              </div>
+            </div>
+            <div class="row bg-white fixed-bottom">
+              <div class="col-md-12">
+                <div class="px-4 pdd-vertical-20 border top">
+                  <button type="submit" class="btn btn-info btn-block no-mrg-btm" appXhrBtnIndicator translate>
+                    button.SAVE
+                  </button>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Add Reward -->
+      <div id="cash-reward" role="tabpanel" class="tab-pane fade">
+        <div class="p-4">
+          <form role="form" [formGroup]="rewardForm" autocomplete="off" novalidate (ngSubmit)="cashReward()">
+            <div class="row">
+              <div class="col-lg-auto">
+                <div class="form-group">
+                  <label for="contact_status" translate>common.STATUS</label>
+                  <div *ngIf="facture?.Contact?.Reward?.code">
+                    <img alt="" height="42" [src]="'assets/images/rewards/card_' + facture?.Contact?.Reward?.code + '.png'"
+                      [title]="facture?.Contact?.Reward?.code" *ngIf="facture?.Contact?.Reward?.code !== 'REGULAR'">
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg">
+                <div class="form-group">
+                  <label translate>common.DESCRIPTION</label>
+                  <input class="form-control-plaintext" [value]="'income.rewards.' + facture?.Contact?.Reward?.code | translate">
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-lg-6">
+                <div class="form-group">
+                  <label for="paid_at_reward" translate>income.PAID_AT</label>
+                  <div class="input-group">
+                    <input type="text" id="paid_at_reward" class="form-control" formControlName="paid_at" ngbDatepicker
+                      #dPayment="ngbDatepicker" (click)="dPayment.toggle()" (dateSelect)="onSelectDate($event, rewardForm)"
+                      [class.error]="submitted_reward && rewardForm.controls.paid_at.invalid">
+                    <div class="input-group-append">
+                      <button type="button" class="btn btn-outline-secondary" (click)="updateLockState(rewardForm)">
+                        <i class="text-dark fa" [ngClass]="{
+                          'fa-lock': dateLocked,
+                          'fa-unlock': !dateLocked
+                        }"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-6">
+                <div class="form-group">
+                  <label translate>common.ACCOUNT</label>
+                  <ng-select [items]="accounts" bindLabel="name" bindValue="id" formControlName="account_id" [clearable]="true"
+                    [ngClass]="{'error': submitted_reward && rewardForm.controls.account_id.invalid}">
+                  </ng-select>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-lg-12">
+                <div class="form-group">
+                  <label for="description" translate>common.DESCRIPTION</label>
+                  <textarea class="form-control" placeholder="" formControlName="description" rows="2"></textarea>
+                </div>
+              </div>
+            </div>
+            <div class="row bg-white fixed-bottom">
+              <div class="col-lg-12">
+                <div class="px-4 pdd-vertical-20 border top">
+                  <button class="btn btn-info btn-block no-mrg-btm" appXhrBtnIndicator translate>button.SAVE</button>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Side-panel Payment END -->

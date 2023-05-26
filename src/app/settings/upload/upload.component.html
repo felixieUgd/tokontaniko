@@ -1,0 +1,48 @@
+<div class="container-fluid">
+  <div class="pdd-horizon-30">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-heading border bottom">
+            <h4 class="card-title text-info">Upload image</h4></div>
+          <div class="card-block">
+
+            <div class="custom-file">
+              <input type="file" id="file" class="custom-file-input" (change)="fileChangeEvent($event)"/>
+              <label class="custom-file-label" for="file">Choisir une image...</label>
+            </div>
+
+            <div class="row mrg-top-20" [hidden]="!loaded">
+              <div class="col-md-12 text-center border right">
+                <image-cropper
+                  [autoCrop]="true"
+                  [outputType]="'base64'"
+                  [imageChangedEvent]="imageChangedEvent"
+                  [maintainAspectRatio]="true"
+                  [aspectRatio]="1/1"
+                  [resizeToWidth]="width"
+                  format="png"
+                  (imageCropped)="imageCropped($event)"
+                  (imageLoaded)="imageLoaded()"
+                  (loadImageFailed)="loadImageFailed()"
+                ></image-cropper>
+
+                <div class="mrg-top-10">
+                  <input type="number" class="form-control width-15 d-inline mrg-right-10" [(ngModel)]="width">
+                  <!--<select class="form-control width-10 d-inline mrg-right-10" [(ngModel)]="selected_ratio">
+                    <option *ngFor="let item of ratio" value="{{item}}">{{item}}</option>
+                  </select>-->
+                  <button type="button" class="btn btn-default mrg-right-10" (click)="imageCropper.rotateLeft()"><i class="fa fa-rotate-left"></i></button>
+                  <button type="button" class="btn btn-default mrg-right-10" (click)="imageCropper.rotateRight()"><i class="fa fa-rotate-right"></i></button>
+                  <button type="button" class="btn btn-default mrg-right-10" (click)="imageCropper.flipHorizontal()"><i class="fa fa-arrows-h"></i></button>
+                  <button type="button" class="btn btn-default mrg-right-10" (click)="imageCropper.flipVertical()"><i class="fa fa-arrows-v"></i></button>
+                  <button type="button" class="btn btn-info" (click)="crop()">Enregistrer</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

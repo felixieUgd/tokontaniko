@@ -1,0 +1,77 @@
+/*---------------------------------------------------------------------------
+  Template: Espire - Angular Web App Admin Template
+  Author: Theme_Nate
+----------------------------------------------------------------------------*/
+
+@import 'mixins'; // Mixins
+@import 'variables'; // Variables
+
+
+/*---------------------------------
+-------------- common -------------
+---------------------------------*/
+@import 'common/general'; //                 general
+@import 'common/helpers'; //                 helpers
+@import 'common/side-nav'; //                side-nav
+@import 'common/side-panel'; //              side-panel
+@import 'common/header'; //                  header
+@import 'common/footer'; //                  footer
+@import 'common/page-container'; //          page-container
+@import 'common/widgets'; //                 widgets
+@import 'common/themes'; //                  themes
+@import 'common/theme-configurator'; //      theme-configurator
+
+
+/*---------------------------------
+------------ plugins -------------
+---------------------------------*/
+@import 'plugins/slick'; //
+@import 'plugins/nouislider'; //
+@import 'plugins/ngSelect-default';
+@import 'plugins/toasty'; //
+@import 'plugins/datepicker'; //
+@import 'plugins/nvd3'; //
+@import 'plugins/rickshaw'; //
+@import 'plugins/sparkline'; //
+@import 'plugins/typeahead'; //
+@import 'plugins/summernote';
+
+
+/*---------------------------------
+------------ elements -------------
+---------------------------------*/
+@import 'elements/buttons'; //               buttons
+@import 'elements/modal'; //                 modal
+@import 'elements/form'; //                  form
+@import 'elements/list'; //                  list
+@import 'elements/label'; //         		 label
+@import 'elements/card'; //                  card
+@import 'elements/charts'; //                chart
+@import 'elements/page-title'; //            page title
+@import 'elements/dropdown'; //              dropdown
+@import 'elements/chat'; //                  chat
+@import 'elements/todo'; //                  todo
+@import 'elements/tabs'; //                  tabs
+@import 'elements/accordion'; //             accordion
+@import 'elements/noticfication'; //         noticfication
+@import 'elements/progress-bar'; //          progress bar
+@import 'elements/tables'; //   	         tables
+@import 'elements/wizard'; //   	         wizard
+@import 'elements/authentication'; //        authentication
+@import 'elements/icons'; //                 icons
+@import 'elements/seats'; //                 seats
+@import 'elements/rooms'; //                 timeline
+@import 'elements/timeline'; //                 rooms
+
+// 471852
+@import '~@fullcalendar/core/main.css';
+@import '~@fullcalendar/daygrid/main.css';
+@import '~@fullcalendar/timegrid/main.css';
+@import '~@fullcalendar/timeline/main.css';
+@import '~@fullcalendar/resource-timeline/main.css';
+
+/*---------------------------------
+-------------- apps ---------------
+---------------------------------*/
+@import 'apps/calendar'; //                  calendar
+

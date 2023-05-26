@@ -1,0 +1,13 @@
+ngb-typeahead-window {
+  z-index: 2000 !important;
+  max-height: 80vh;
+  overflow-y: scroll;
+
+  &.dropdown-menu {
+    .dropdown-item.active {
+      span {
+        color: $default-white !important;
+      }
+    }
+  }
+}

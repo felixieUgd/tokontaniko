@@ -1,0 +1,67 @@
+.diagnosticCode-holder {
+    position: relative;
+}
+
+.diagnosticCode-holder .select-container {
+    max-width: calc(100% - 23px);
+}
+
+.diagnosticCode-holder:first-of-type::before {
+    content: attr(data-rank);
+    display: inline-block;
+    margin-right: 7px;
+    color: #fff;
+    width: 16px;
+    height: 16px;
+    border-radius: 8px;
+    background-color: #b3bccb;
+    text-align: center;
+    font-size: 11.75px;
+    font-weight: 700;
+    left: -2.5px;
+    position: relative;
+}
+
+.diagnosticCode-holder:not(:first-of-type)::before {
+    content: "\f10c";
+    /* content: "\f13a"; */
+    display: inline-block;
+    font: normal normal normal 14px/1 FontAwesome;
+    margin-right: 10px;
+    color: #bac3d1;
+    text-rendering: auto;
+    font-size: inherit;
+    -webkit-font-smoothing: antialiased;
+}
+
+.diagnosticCode-holder:not(:last-of-type)::after {
+    content: "";
+    position: absolute;
+    top: 33px;
+    border-left: 2px dashed #d4deee;
+    height: 28px;
+    left: 5px;
+}
+
+.table th {
+    border-top: 0;
+}
+
+.label-primary {
+    background-color: #efedff;
+}
+
+.result-count {
+    height: 80px;
+    width: 80px;
+    margin: auto;
+    background-color: #f9fcff;
+    border-radius: 40px;
+    border: 3px solid #d4deee;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 30px;
+    color: #306ea7;
+    margin-bottom: 10px;
+}

@@ -1,0 +1,625 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-lg-3">
+      <div class="widget-profile-1 card">
+        <div class="profile border bottom">
+          <div class="container mrg-top-30">
+            <img class="img-thumbnail pdp pointer" [docType]="'photo'" (click)="preview(user?.photo, 'photo')" [docId]="getUserPhoto()" appImagesrc>
+            <span class="dot3 photo bg-dark border" (click)="photoInput.click()" appXhrBtnIndicator>
+              <i class="fa fa-camera"></i>
+            </span>
+            <input class="d-none" type="file" name="img-upload" id="img-upload" #photoInput
+              [uploader]="uploader" ng2FileSelect>
+          </div>
+
+          <h4 class="mrg-top-20 text-semibold">{{user?.name}}</h4>
+          <!-- <p>{{getUserPhoto()}}</p> -->
+        </div>
+
+        <div class="row justify-content-center">
+          <div class="col-auto text-center pdd-top-20">
+            <qrcode [qrdata]="user?.code" [size]="80" [level]="'L'"></qrcode>
+          </div>
+
+          <div class="col-lg-12 text-center mrg-top-5 pdd-btm-20">
+            <div class="mrg-top-5 text-semibold text-black">{{user?.code}}</div>
+          </div>
+        </div>
+
+        <div class="py-3 text-center border-top">
+          <a class="text-normal pointer" (click)="printBadge()">BADGE</a>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-9">
+      <div class="card">
+        <div class="tab-info">
+          <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item">
+              <a href="#info" class="nav-link active text-uppercase" role="tab" data-toggle="tab"
+                translate>nav.INFO</a>
+            </li>
+            <li class="nav-item">
+              <a href="#profile" class="nav-link text-uppercase" role="tab" data-toggle="tab" translate>
+                nav.PROFILE</a>
+            </li>
+            <li class="nav-item" *ngIf="activeMenu?.men?.root || activeMenu?.inventory?.root">
+              <a href="#geography" class="nav-link text-uppercase" role="tab" data-toggle="tab">
+                Géographie</a>
+            </li>
+            <li class="nav-item">
+              <a href="#history" class="nav-link text-uppercase" role="tab" data-toggle="tab">
+                Historique</a>
+            </li>
+            <li class="nav-item">
+              <a href="#authToken" class="nav-link text-uppercase" role="tab" data-toggle="tab">
+                Mobile</a>
+            </li>
+          </ul>
+          <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade in active" id="info">
+              <div class="p-4">
+                <form [formGroup]="userForm" (ngSubmit)="save()">
+                  <div class="row">
+                    <div class="col-lg-6">
+                      <div class="form-group">
+                        <label>Nom et prénom</label>
+                        <input type="text" placeholder="" class="form-control" formControlName="name"
+                          [class.error]="submitted && userForm.get('name').status === 'INVALID'">
+                      </div>
+                    </div>
+                    <div class="col-lg-6">
+                      <div class="form-group">
+                        <label>Adresse électronique</label>
+                        <input type="email" placeholder="" class="form-control" formControlName="email"
+                          [class.error]="submitted && userForm.get('email').status === 'INVALID'">
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-lg">
+                      <div class="row">
+                        <div class="col-12 col-lg">
+                          <div class="form-group">
+                            <label>Compagnies disponibles</label>
+
+                            <div class="picklist border ps" perfectScrollbar>
+                              <div class="list-group">
+                                <a class="list-group-item list-group-item-action pointer" tabindex="0"
+                                  [class.active]="Selected?.type === 'ADD' && item.id === Selected?.value.id"
+                                  (click)="onSelect(item, 'ADD')" *ngFor="let item of companies; let i=index;">
+                                  {{item['company_name']}}
+                                </a>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="col col-lg-1 align-self-center px-0">
+                          <button type="button" class="btn btn-default btn-block mb-2"
+                            [disabled]="!companies || companies?.length === 0" (click)="addRemove()">
+                            <i class="fa fa-caret-right"></i>
+                          </button>
+                          <button type="button" class="btn btn-default btn-block mb-2"
+                            [disabled]="!companies || companies?.length === 0" (click)="addAll()">
+                            <i class="fa fa-angle-double-right"></i>
+                          </button>
+                          <button type="button" class="btn btn-default btn-block mb-2"
+                            [disabled]="!user || user?.Companies?.length === 0" (click)="addRemove()">
+                            <i class="fa fa-caret-left"></i>
+                          </button>
+                          <button type="button" class="btn btn-default btn-block"
+                            [disabled]="!user || user?.Companies?.length === 0" (click)="clearAll()">
+                            <i class="fa fa-angle-double-left"></i>
+                          </button>
+                        </div>
+
+                        <div class="col-12 col-lg">
+                          <div class="form-group">
+                            <label>Compagnies sélectionnés</label>
+
+                            <div class="picklist border ps" perfectScrollbar>
+                              <div class="list-group">
+                                <a class="list-group-item list-group-item-action pointer" tabindex="0"
+                                  [class.active]="Selected?.type === 'REMOVE' && item.id === Selected?.value.id"
+                                  *ngFor="let item of this.user?.Companies; let i=index;"
+                                  (click)="onSelect(item, 'REMOVE')">
+                                  {{item['company_name']}}
+                                </a>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-lg-6">
+                      <div class="form-group">
+                        <label>Activer</label>
+                        <div class="toggle-checkbox toggle-info">
+                          <input type="checkbox" formControlName="enabled" id="toggle-enabled">
+                          <label for="toggle-enabled"></label>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="border top pt-3">
+                    <div class="text-right">
+                      <button class="btn btn-info" appXhrBtnIndicator>
+                        <i class="fa fa-save"></i>
+                      </button>
+                    </div>
+                  </div>
+                </form>
+
+                <div class="font-weight-bold text-info text-uppercase mt-2 mb-3" translate>
+                  common.ROLE
+                </div>
+
+                <form [formGroup]="roleForm" (ngSubmit)="updateRole()">
+                  <div class="row">
+                    <div class="col-lg">
+                      <div class="form-group">
+                        <!-- <label>Choisir</label> -->
+                        <div formGroupName="Roles">
+                          <div class="checkbox checkbox-inline checkbox-primary"
+                            *ngFor="let role of roles; let i = index;">
+                            <input id="form-2-{{i}}" name="form-1-{{i}}" type="checkbox"
+                              formControlName="{{role.id}}">
+                            <label for="form-2-{{i}}">{{role.display_name}}</label>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="border top pt-3">
+                    <div class="text-right">
+                      <button class="btn btn-info" appXhrBtnIndicator>
+                        <i class="fa fa-save"></i>
+                      </button>
+                    </div>
+                  </div>
+                </form>
+
+                <div class="font-weight-bold text-info text-uppercase mt-2 mb-3" translate>
+                  common.PASSWORD
+                </div>
+
+                <form [formGroup]="passwordForm" (ngSubmit)="updatePassword()">
+                  <div class="row">
+                    <div class="col-lg-6">
+                      <div class="form-group">
+                        <label>Nouveau mot de passe</label>
+                        <input type="password" class="form-control" name="password" formControlName="password"
+                          [class.error]="submittedPassword && passwordForm.get('password').status === 'INVALID'">
+
+                        <label class="error"
+                          *ngIf="submittedPassword && passwordForm.get('password').errors?.pattern"
+                          translate>validation.VULNERABLE_PASSWORD</label>
+
+                        <div class="mrg-top-15">
+                          <span class="font-size-13 font-italic">{{'common.PASSWORD_PATTERN' | translate}}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-lg-6">
+                      <div class="form-group">
+                        <label>Confirmation mot de passe</label>
+                        <input type="password" class="form-control" name="passwordConfirm"
+                          formControlName="passwordConfirm"
+                          [class.error]="submittedPassword && passwordForm.get('passwordConfirm').status === 'INVALID'">
+
+                        <label class="error d-block"
+                          *ngIf="submittedPassword && passwordForm.errors?.passwordDoNotMatch"
+                          translate>validation.PASSWORD_DO_NOT_MATCH</label>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="border top pt-3">
+                    <div class="text-right">
+                      <button class="btn btn-info" appXhrBtnIndicator>
+                        <i class="fa fa-save"></i>
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" id="profile">
+              <form role="form" [formGroup]="profileForm" (ngSubmit)="updateProfile()" novalidate>
+                <div class="p-4">
+                  <div class="row">
+                    <div class="col-lg-3">
+                      <div class="form-group">
+                        <label>Poste</label>
+                        <ng-select [items]="positions" bindLabel="title" formControlName="position"
+                          [clearable]="false"
+                          [class.error]="submittedProfile && this.profileForm.get('position').status === 'INVALID'">
+                          <ng-template ng-option-tmp let-item="item">
+                            {{item.title}}
+                          </ng-template>
+                        </ng-select>
+                      </div>
+                    </div>
+                    <div class="col-lg-3">
+                      <div class="form-group">
+                        <label>Date d'embauche</label>
+                        <div class="timepicker-input input-icon">
+                          <i class="ti-calendar"></i>
+                          <input type="text" class="form-control" formControlName="date_hire" ngbDatepicker
+                            #dhire="ngbDatepicker" (click)="dhire.toggle()" [readOnly]="true">
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-lg-3">
+                      <div class="form-group">
+                        <label>Date de licenciement</label>
+                        <div class="timepicker-input input-icon">
+                          <i class="ti-calendar"></i>
+                          <input type="text" class="form-control" formControlName="date_termination" ngbDatepicker
+                            #dterm="ngbDatepicker" (click)="dterm.toggle()" [readOnly]="true">
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-lg-3">
+                      <div class="form-group">
+                        <label>Salaire</label>
+                        <input type="number" class="form-control" name="salary" formControlName="salary">
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-lg">
+                      <div class="form-group">
+                        <label>Tel. Personnel</label>
+                        <input class="form-control" formControlName="phone_primary" mask="000 00 000 00"
+                          [class.error]="submittedProfile && this.profileForm.get('phone_primary').status === 'INVALID'">
+                      </div>
+                    </div>
+                    <div class="col-lg">
+                      <div class="form-group">
+                        <label>Tel. Business</label>
+                        <input class="form-control" formControlName="phone_work" mask="000 00 000 00"
+                          [class.error]="submittedProfile && this.profileForm.get('phone_primary').status === 'INVALID'">
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="font-weight-bold text-info text-uppercase mt-2 mb-3" translate>
+                    common.BIOGRAPHY
+                  </div>
+
+                  <div class="row">
+                    <div class="col-lg-3">
+                      <div class="form-group">
+                        <label translate>account.SEX</label>
+                        <div class="btn-group btn-group-toggle width-100" formControlName="sex" ngbRadioGroup>
+                          <label ngbButtonLabel class="btn-default" style="width: 50% !important;">
+                            <input ngbButton type="radio" value="M"> H
+                          </label>
+                          <label ngbButtonLabel class="btn-default" style="width: 50% !important;">
+                            <input ngbButton type="radio" value="F"> F
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-lg-3">
+                      <div class="form-group">
+                        <label>Nationalité</label>
+                        <input type="text" class="form-control" formControlName="bio_nationality">
+                      </div>
+                    </div>
+                    <div class="col-lg-3">
+                      <div class="form-group">
+                        <label>Date de naissance</label>
+                        <div class="timepicker-input input-icon">
+                          <i class="ti-calendar"></i>
+                          <input type="text" class="form-control" formControlName="bio_dob" ngbDatepicker
+                            #dob="ngbDatepicker" (click)="dob.toggle()" [minDate]="minDate" [readOnly]="true">
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-lg-3">
+                      <div class="form-group">
+                        <label>Lieu de naissance</label>
+                        <input type="text" class="form-control" name="bio_pob" formControlName="bio_pob">
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-lg-3">
+                      <div class="form-group">
+                        <label translate>common.MARITAL_STATUS</label>
+                        <ng-select [items]="marital_statuses" formControlName="marital_status" [clearable]="false"
+                          [class.error]="submittedProfile && this.profileForm.get('marital_status').status === 'INVALID'">
+                          <ng-template ng-label-tmp let-item="item">
+                            {{'marital_status.' + item | translate}}
+                          </ng-template>
+                          <ng-template ng-option-tmp let-item="item">
+                            {{'marital_status.' + item | translate}}
+                          </ng-template>
+                        </ng-select>
+                      </div>
+                    </div>
+                    <div class="col-lg-3">
+                      <div class="form-group">
+                        <label>CIN</label>
+                        <input type="text" class="form-control" name="id_cin" formControlName="id_cin"
+                          mask="000 000 000 000">
+                      </div>
+                    </div>
+                    <div class="col-lg-3">
+                      <div class="form-group">
+                        <label translate>account.PASSPORT</label>
+                        <input type="text" class="form-control" name="id_passport" formControlName="id_passport">
+                      </div>
+                    </div>
+                    <div class="col-lg-3">
+                      <div class="form-group">
+                        <label translate>common.DRIVER_LICENSE</label>
+                        <input type="text" class="form-control" name="id_driver_license"
+                          formControlName="id_driver_license">
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-sm-6">
+                      <div class="form-group">
+                        <label>Adresse</label>
+                        <input class="form-control" name="address" formControlName="address" />
+                      </div>
+                    </div>
+                    <div class="col-sm-6">
+                      <div class="form-group">
+                        <label>Note</label>
+                        <input class="form-control" name="note" formControlName="note" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row mt-2">
+                    <div class="col-lg-6">
+                      <div class="font-weight-bold text-info text-uppercase mb-3" translate>
+                        common.ATTACHMENTS</div>
+
+                        <app-file-attachment
+                          *ngIf="user"
+                          [route]="'users'"
+                          [id]="user?.id"
+                          [attachments]="user && !user.Profile? []: user?.Profile?.attachments"
+                          (onSuccess)="reset()"
+                          (onDelete)="deleteAttachment($event)">
+                        </app-file-attachment>
+                    </div>
+                    <div class="col-lg-6" formGroupName="custom_fields">
+                      <div class="font-weight-bold text-info text-uppercase mb-3" translate>
+                        Champs additionnels</div>
+
+                      <div class="row no-gutters"
+                        *ngFor="let item of user?.Profile?.Position?.custom_fields; let i = index;">
+                        <div class="col">
+                          <div class="form-group">
+                            <label>{{item.display_name}}</label>
+                            <input class="form-control" [formControlName]="item.key" *ngIf="item.type === 'string'">
+                            <input type="number" class="form-control" [formControlName]="item.key"
+                              *ngIf="item.type === 'int'">
+                            <div class="toggle-checkbox toggle-info toggle-sm" *ngIf="item.type === 'boolean'">
+                              <input type="checkbox" [formControlName]="item.key" id="toggle-custom-enabled" checked>
+                              <label for="toggle-custom-enabled"></label>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="border top">
+                  <div class="p-3 text-right">
+                    <button class="btn btn-info" appXhrBtnIndicator>
+                      <i class="fa fa-save"></i>
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" id="geography">
+              <div class="p-4">
+                <!-- <div class="row">
+                  <div class="col-lg-6">
+                    <div class="form-group">
+                      <label>Type</label>
+                      <ng-select
+                        bindValue="type"
+                        bindLabel="name"
+                        [clearable]="false"
+                        [items]="menService.geographyTypes"
+                        (ngModelChange)="changeGeographyType($event)"
+                        [(ngModel)]="selectedType"
+                      ></ng-select>
+                    </div>
+                  </div>
+                </div> -->
+                <div class="row">
+                  <div class="col-6 col-lg">
+                    <div class="form-group">
+                      <label>Géographies disponibles</label>
+
+                      <div class="input-icon form-group">
+                        <input type="search" name="filter-geo-available" [(ngModel)]="searchAvailable" placeholder="Filtrer ..." class="form-control">
+                        <i class="ti-filter"></i>
+                      </div>
+
+                      <div class="picklist border ps" perfectScrollbar>
+                        <div class="list-group">
+                          <a class="list-group-item list-group-item-action pointer" tabindex="0"
+                            [class.active]="SelectedGeography?.type === 'ADD' && item.id === SelectedGeography?.value.id"
+                            (click)="onSelectGeography(item, 'ADD')"
+                            *ngFor="let item of filterGeography(availableGeographies, searchAvailable); let i=index;">
+                            {{item.id}} - {{item?.name}}
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col col-lg-1 align-self-center">
+                    <button type="button" class="btn btn-default btn-block mb-2"
+                      [disabled]="!SelectedGeography?.type.localeCompare('REMOVE') || !availableGeographies?.length"
+                      (click)="addRemoveGeography()">
+                      <i class="fa fa-caret-right"></i>
+                    </button>
+                    <button type="button" class="btn btn-default btn-block mb-2"
+                      [disabled]="!availableGeographies?.length"
+                      (click)="addAllGeography()">
+                      <i class="fa fa-angle-double-right"></i>
+                    </button>
+                    <button type="button" class="btn btn-default btn-block mb-2"
+                      [disabled]="!SelectedGeography?.type.localeCompare('ADD') || !selectedGeographies?.length"
+                      (click)="addRemoveGeography()">
+                      <i class="fa fa-caret-left"></i>
+                    </button>
+                    <button type="button" class="btn btn-default btn-block"
+                      [disabled]="!selectedGeographies?.length"
+                      (click)="clearAllGeography()">
+                      <i class="fa fa-angle-double-left"></i>
+                    </button>
+                  </div>
+
+                  <div class="col-6 col-lg">
+                    <div class="form-group">
+                      <label>Géographies sélectionnées</label>
+
+                      <div class="input-icon form-group">
+                        <input type="search" name="filter-geo-selected" [(ngModel)]="searchSelected" placeholder="Filtrer ..." class="form-control">
+                        <i class="ti-filter"></i>
+                      </div>
+
+                      <div class="picklist border ps" perfectScrollbar>
+                        <div class="list-group">
+                          <a class="list-group-item list-group-item-action pointer" tabindex="0"
+                            [class.active]="SelectedGeography?.type === 'REMOVE' && item.id === SelectedGeography?.value.id"
+                            (click)="onSelectGeography(item, 'REMOVE')"
+                            *ngFor="let item of filterGeography(selectedGeographies, searchSelected); let i=index;">
+                            {{item.id}} - {{item?.name}}
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="border top pdd-vertical-15">
+                  <div class="row">
+                    <div class="col">
+                      <button type="button" class="btn btn-info pull-right mb-0 mr-0" (click)="updateGeography()" appXhrBtnIndicator>
+                        <i class="fa fa-save"></i></button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" id="history">
+              <div class="row mrg-vertical-30 pdd-horizon-30">
+                <div class="col-md-4">
+                  <div class="card">
+                    <div class="card-body">
+                      <div class="card-heading py-0">
+                        <h4 class="card-title inline-block pdd-top-5 mb-0">SCORE</h4>
+                      </div>
+
+                      <div class="widget-legends mrg-btm-10">
+                        <div class="relative mrg-top-15">
+                          <span class="status info"></span>
+                          <span class="pdd-left-20 font-size-16">{{'event_type.NOTE' | translate}}</span>
+                          <b class="text-dark pull-right">{{score.note}}</b>
+                        </div>
+                        <div class="relative mrg-top-15">
+                          <span class="status success"> </span>
+                          <span class="pdd-left-20 font-size-16">{{'event_type.CONTRIBUTION' | translate}}</span>
+                          <b class="text-dark pull-right">{{score.contribution}}</b>
+                        </div>
+                        <div class="relative mrg-top-15">
+                          <span class="status danger"> </span>
+                          <span class="pdd-left-20 font-size-16">{{'event_type.OFFENSE' | translate}}</span>
+                          <b class="text-dark pull-right">{{score.offense}}</b>
+                        </div>
+                        <div class="relative mrg-top-15">
+                          <span class="status primary"> </span>
+                          <span class="pdd-left-20 font-size-16">Moyenne</span>
+                          <b class="text-dark pull-right">{{score.average}}</b>
+                        </div>
+                     </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-8">
+                  <div class="padding-30">
+                    <ul class="timeline-event">
+                      <li class="tl-header">
+                        <button type="button" class="btn btn-info" (click)="openEventModal()" translate>button.ADD</button>
+                      </li>
+                      <li class="tl-item" *ngFor="let item of user?.Profile?.ProfileEvents">
+                        <ng-container
+                          [ngTemplateOutlet]="item.type === 'NOTE' ? itemDefault : itemOther"
+                          [ngTemplateOutletContext]="{
+                            event: item,
+                            color: item.type === 'CONTRIBUTION' ? 'success' : 'danger'
+                          }"
+                        >
+                        </ng-container>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" id="authToken">
+              <div class="row justify-content-center">
+                <div class="col-auto text-center py-4">
+                  <qrcode [qrdata]="loginToken" [size]="250" [level]="'L'"></qrcode>
+
+                  <div class="mrg-top-5 text-semibold">Auth Token</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #itemDefault let-event="event" let-color="color">
+  <div class="tl-wrap b-info">
+    <span class="tl-date">{{event.event_date | date:'dd.MM.yyyy'}}</span>
+    <div class="tl-content card">
+      <span class="arrow-event left pull-up"></span>
+      <div>{{event.comment}}</div>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #itemOther let-event="event" let-color="color">
+  <div class="tl-wrap b-{{color}}">
+    <span class="tl-date">{{event.event_date | date:'dd.MM.yyyy'}}</span>
+    <div class="tl-content card b-{{color}}">
+      <span class="arrow-event arrow-{{color}} left pull-up hidden-left"></span>
+      <span class="arrow-event arrow-{{color}} right pull-up visible-left"></span>
+      <div>
+        {{event.comment}}
+        <i class="d-block text-muted font-size-13">
+          Créé par {{event.User.name | slice:0:25}}. le {{event.created_at | date:'dd/MM/yyyy HH:mm'}}
+        </i>
+      </div>
+    </div>
+  </div>
+</ng-template>

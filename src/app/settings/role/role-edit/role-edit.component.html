@@ -1,0 +1,298 @@
+<div class="container-fluid">
+  <div class="row justify-content-center mrg-top-15">
+    <div class="col-lg-12">
+      <div class="card" style="overflow: hidden;">
+        <div class="tab-info">
+          <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item">
+              <a href="#tab-detail" class="nav-link text-uppercase active" role="tab" data-toggle="tab">
+                {{'common.ROLES' | translate}}
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="#tab-menu" class="nav-link text-uppercase" role="tab" data-toggle="tab">
+                {{'common.MENU' | translate}}
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="#tab-user" class="nav-link text-uppercase" role="tab" data-toggle="tab">
+                {{'common.USER' | translate}}s
+              </a>
+            </li>
+          </ul>
+          <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade in active" id="tab-detail">
+              <div class="p-4">
+                <form role="form" [formGroup]="roleForm" (ngSubmit)="save()" novalidate>
+                  <div class="row">
+                    <div class="col-lg-4">
+                      <div class="form-group">
+                        <label for="role-name">Nom</label>
+                        <input type="text" id="role-name" class="form-control" placeholder="" formControlName="name"
+                          [class.error]="submitted && roleForm.get('name').status === 'INVALID'">
+                      </div>
+                    </div>
+                    <div class="col-lg-4">
+                      <div class="form-group">
+                        <label for="display_name">Code</label>
+                        <input type="text" id="display_name" class="form-control" placeholder=""
+                          formControlName="display_name"
+                          [class.error]="submitted && roleForm.get('display_name').status === 'INVALID'">
+                      </div>
+                    </div>
+                    <div class="col-lg-4">
+                      <div class="form-group">
+                        <label for="default_route">Redirection</label>
+                        <input type="text" id="default_route" class="form-control" formControlName="default_route"
+                          [class.error]="submitted && roleForm.get('default_route').status === 'INVALID'">
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-lg-12">
+                      <div class="form-group">
+                        <label for="description">Description</label>
+                        <textarea id="description" class="form-control" placeholder="" rows="2"
+                          formControlName="description"></textarea>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-6 col-lg">
+                      <div class="form-group">
+                        <label>PERMISSIONS DISPONIBLES</label>
+
+                        <div class="input-icon form-group">
+                          <input type="search" name="filter-available" placeholder="Filtrer ..." class="form-control"
+                            formControlName="available">
+                          <i class="ti-filter"></i>
+                        </div>
+
+                        <div class="picklist border ps" perfectScrollbar>
+                          <div class="list-group">
+                            <a class="list-group-item list-group-item-action pointer" tabindex="0"
+                              [class.active]="Selected?.type === 'ADD' && item.id === Selected?.value.id"
+                              (click)="onSelect(item, 'ADD')"
+                              *ngFor="let item of filterPermission(permissions, roleForm.controls['available'].value); let i=index;">
+                              {{item.id}} - {{item?.display_name}}
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col col-lg-1 align-self-center">
+                      <button type="button" class="btn btn-default btn-block mb-2"
+                        [disabled]="!permissions || permissions?.length === 0" (click)="addRemove()">
+                        <i class="fa fa-caret-right"></i>
+                      </button>
+                      <button type="button" class="btn btn-default btn-block mb-2"
+                        [disabled]="!permissions || permissions?.length === 0" (click)="addAll()">
+                        <i class="fa fa-angle-double-right"></i>
+                      </button>
+                      <button type="button" class="btn btn-default btn-block mb-2"
+                        [disabled]="!role || role?.Permissions?.length === 0" (click)="addRemove()">
+                        <i class="fa fa-caret-left"></i>
+                      </button>
+                      <button type="button" class="btn btn-default btn-block"
+                        [disabled]="!role || role?.Permissions?.length === 0" (click)="clearAll()">
+                        <i class="fa fa-angle-double-left"></i>
+                      </button>
+                    </div>
+
+                    <div class="col-6 col-lg">
+                      <div class="form-group">
+                        <label>PERMISSIONS SÉLECTIONNÉS</label>
+
+                        <div class="input-icon form-group">
+                          <input type="search" name="filter-selected" placeholder="Filtrer ..." class="form-control"
+                            formControlName="selected">
+                          <i class="ti-filter"></i>
+                        </div>
+
+                        <div class="picklist border ps" perfectScrollbar>
+                          <div class="list-group">
+                            <a class="list-group-item list-group-item-action pointer" tabindex="0"
+                              [class.active]="Selected?.type === 'REMOVE' && item.id === Selected?.value.id"
+                              *ngFor="let item of filterPermission(this.role?.Permissions, roleForm.controls['selected'].value); let i=index;"
+                              (click)="onSelect(item, 'REMOVE')">
+                              {{item.id}} - {{item?.display_name}}
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="border top pdd-vertical-15">
+                    <div class="row">
+                      <div class="col">
+                        <button type="submit" class="btn btn-info pull-right mb-0 mr-0" appXhrBtnIndicator>
+                          <i class="fa fa-save"></i></button>
+                      </div>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" id="tab-menu">
+              <div class="p-4">
+                <div class="row align-items-start">
+                  <div class="col-lg-4 col">
+                    <div class="mb-3">
+                      <label for="import-json" class="pointer d-inline mr-3">
+                        <span class="btn btn-info btn-sm m-0">
+                          <i class="fa fa-upload"></i> {{ 'button.IMPORT' | translate }}
+                        </span>
+                        <input class="d-none" type="file" name="import-json" id="import-json" accept="json"
+                          (change)="importMenuJSON($event)">
+                      </label>
+                      <button class="btn btn-light btn-sm m-0 d-inline" (click)="exportMenuJSON()"><i class="fa fa-download"></i> {{ 'button.EXPORT' | translate }}</button>
+                    </div>
+                    <div>
+                      <ng-container [ngTemplateOutlet]="menuTree" [ngTemplateOutletContext]="{node: menus, pathIndex: '', path: '', parent: menus}"></ng-container>
+                    </div>
+                  </div>
+                  <div class="col-lg-3 col">
+                    <form role="form" [formGroup]="addForm" novalidate>
+                      <label class="text-uppercase font-weight-bold" translate>common.TITLE</label>
+
+                      <div class="row">
+                        <div class="col">
+                          <div class="form-group">
+                            <input class="form-control input-sm bg-white" formControlName="parent"
+                              [class.error]="submitted_add && addForm.controls.parent.invalid"
+                              [readonly]="selected_menu" required>
+                          </div>
+                        </div>
+                      </div>
+
+                      <label class="text-uppercase font-weight-bold">
+                        {{'common.MENU' | translate}}
+
+                        <button class="btn btn-info btn-inverse rounded-seat ml-1 mb-0" type="button"
+                          (click)="addMenu()">
+                          <i class="fa fa-plus"></i>
+                        </button>
+                      </label>
+
+                      <ng-container formArrayName="Children">
+                        <div class="row" *ngFor="let item of Children?.controls; let i=index">
+                          <div class="col" [formGroupName]="i">
+                            <div class="form-group">
+                              <div class="input-group mb-3">
+                                <input class="form-control input-sm bg-white" formControlName="title"
+                                  [class.error]="submitted_add && item.controls?.title.invalid"
+                                  [readonly]="!item.controls?.isNew?.value" required>
+                                <div class="input-group-append">
+                                  <button type="button" class="btn btn-outline-danger btn-sm" (click)="removeMenu(i)">
+                                    <i class="fa fa-trash"></i>
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="row">
+                          <div class="col">
+                            <!-- <button type="button" class="btn btn-default btn-sm" (click)="addMenu()">
+                              {{'button.ADD' | translate}}
+                            </button> -->
+                            <button type="button" class="btn btn-success btn-sm" (click)="validate()" translate>
+                              button.VALIDATE
+                            </button>
+                            <button type="button" class="btn btn-dark btn-sm" [title]="'button.RESET' | translate"
+                              (click)="clearMenu()">
+                              <i class="fa fa-refresh"></i>
+                            </button>
+                            <button type="button" class="btn btn-danger btn-sm" [title]="'button.DELETE' | translate"
+                              (click)="removeParentMenu()">
+                              <i class="fa fa-trash"></i>
+                            </button>
+                          </div>
+                        </div>
+                      </ng-container>
+                    </form>
+                  </div>
+                </div>
+
+                <div class="border top pdd-vertical-15">
+                  <div class="row">
+                    <div class="col">
+                      <button type="button" class="btn btn-info pull-right mb-0 mr-0"
+                        (click)="updateMenu()" appXhrBtnIndicator>
+                        <i class="fa fa-save"></i></button>
+                      <button type="button" class="btn btn-dark pull-right mb-0 mr-2" (click)="resetMenu()" appXhrBtnIndicator>
+                        <i class="fa fa-refresh"></i></button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" id="tab-user">
+              <table class="table mb-0">
+                <thead>
+                  <tr>
+                    <th class="w-5 border-top-0 text-center">ID</th>
+                    <th class="border-top-0">Nom</th>
+                    <th class="border-top-0">Adresse email</th>
+                    <th class="border-top-0">Téléphone</th>
+                    <th class="border-top-0 text-center w-10">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngIf="!users?.length">
+                    <td class="text-center" colspan="5" translate>common.NO_RECORD</td>
+                  </tr>
+                  <tr *ngFor="let user of users">
+                    <td class="text-center">{{user.id}}</td>
+                    <td>{{user.name}}</td>
+                    <td>{{user.email}}</td>
+                    <td>{{user.Profile?.phone_work}}</td>
+                    <td class="text-center">
+                      <a [routerLink]="['/settings/user/edit', user.id]" class="btn btn-info btn-sm"><i class="fa fa-pencil"></i></a>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #menuTree let-tree="node" let-pathIndex="pathIndex" let-parent="parent" let-path="path">
+  <div [class.mb-2]="hasChild(node.value)" *ngFor="let node of tree | keyvalue; index as i">
+    <div class="checkbox checkbox-primary" *ngIf="!hasChild(node.value)">
+      <input [id]="'checknew' + pathIndex + '-' + i" [(ngModel)]="tree[node.key]" type="checkbox">
+      <label [attr.for]="'checknew' + pathIndex + '-' + i" [class.text-danger]="node.key === 'root'">
+        {{ ('nav.' + node.key.toUpperCase()) | translate}}
+      </label>
+      <button *ngIf="node.key !== 'root'" (click)="edit(parent, node, path + node.key)" class="btn btn-info btn-inverse rounded-seat ml-1 mb-0" type="button">
+        <i class="fa fa-plus"></i>
+      </button>
+    </div>
+    <div *ngIf="hasChild(node.value)">
+      <div class="node-title">
+        <a *ngIf="hasChild(node)" (click)="node.toggle=!node.toggle" class="mr-3 ml-1 text-info">
+          <i *ngIf="!!node.toggle" class="ti ti-2x ti-angle-down ti-fw"></i>
+          <i *ngIf="!node.toggle" class="ti ti-2x ti-angle-right ti-fw"></i>
+        </a>
+        <label class="mb-1">
+          <b>{{ ('nav.' + node.key.toUpperCase()) | translate}}</b>
+          <button (click)="edit(parent, node, path + node.key)" class="btn btn-info btn-inverse rounded-seat ml-2 mb-0" type="button">
+            <i class="fa fa-pencil"></i>
+          </button>
+        </label>
+      </div>
+      <div *ngIf="node.toggle" class="ml-5">
+        <ng-container [ngTemplateOutlet]="menuTree" [ngTemplateOutletContext]="{node: node.value, parent: tree[node.key], path: path + node.key + '.', pathIndex: pathIndex + '-' + i}"></ng-container>
+      </div>
+    </div>
+  </div>
+</ng-template>

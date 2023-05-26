@@ -1,0 +1,15 @@
+<div *ngIf="!treeNodes?.length" class="text-muted">
+  {{ 'common.NO_RECORD' | translate }}
+</div>
+<div class="mb-3" *ngIf="treeNodes?.length">
+  <button class="btn btn-light btn-sm" (click)="expandAll()" translate>button.EXPAND_ALL</button>
+  <button class="btn btn-light btn-sm" (click)="collapseAll()" translate>button.COLLAPSE_ALL</button>
+</div>
+<health-tree-view-content 
+  [treeNodes]="treeNodes"
+  [displayOnly]="displayOnly"
+  [trueOnly]="trueOnly"
+  (openEditMode)="setEdit($event)"
+  (openAddChild)="setAddChild($event)"
+>
+</health-tree-view-content>

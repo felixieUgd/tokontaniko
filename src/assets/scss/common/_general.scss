@@ -1,0 +1,515 @@
+/*----------------------------
+--------- 1. General ---------
+----------------------------*/
+
+
+@import url('https://fonts.googleapis.com/css?family=Lato:300,400,700|Roboto:300,400,500,700');
+
+html, html a, body {
+   -webkit-font-smoothing: antialiased;
+}
+
+body {
+   font-family: $font-primary;
+   font-size: 15px;
+   background-color: $default-gray;
+   color: $default-text-color;
+   line-height: 1.5;
+   letter-spacing: 0.2px;
+   overflow: hidden;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	color: $default-dark;
+	font-family: $font-secondary;
+	letter-spacing: 0.5px;
+	font-weight: normal;
+	line-height: 1.5;
+
+	a {
+		font-family: $font-secondary;
+	}
+
+	small {
+		font-weight: 300;
+		color: lighten($default-dark,5%);
+	}
+}
+
+h1 {
+	font-size: 26px;
+}
+
+h2 {
+	font-size: 22px;
+}
+
+h3 {
+	font-size: 20px;
+}
+
+h4 {
+	font-size: 18px;
+}
+
+h5 {
+	font-size: 16px;
+}
+
+h6 {
+	font-size: 12px;
+}
+
+p {
+	font-family: $font-primary;
+	color: $default-text-color;
+	line-height: 1.9;
+}
+
+.lead {
+	font-size: 18px;
+}
+
+ul {
+	margin-bottom: 0px;
+}
+
+a {
+	color: $default-info;
+
+	&:hover,
+	&:focus {
+		text-decoration: none;
+		color: darken($default-info,10%);
+	}
+
+	&:focus {
+		outline: none;
+	}
+
+	&.text-gray {
+
+		&:hover,
+		&:focus,
+		&.active {
+			color: $default-dark !important;
+		}
+	}
+}
+
+:focus {
+	outline: none;
+}
+
+hr {
+    border-top: 1px solid $border-color;
+}
+
+.font-primary {
+	font-family: $font-primary;
+}
+
+.font-secondary {
+	font-family: $font-secondary;
+}
+
+.text-link {
+	cursor: pointer!important;
+	color: $default-info!important;
+
+	&:hover,
+	&:focus {
+		text-decoration: underline;
+	}
+}
+
+.text-opacity {
+	opacity: 0.85;
+}
+
+.text-normal {
+	color: $default-text-color !important;
+}
+
+.text-black {
+	color: #000000 !important;
+}
+
+.text-white {
+	color: $default-white !important;
+}
+
+.text-white-shadowed {
+	color: $default-white !important;
+  font-weight: 500;
+  letter-spacing: 1px;
+  text-shadow: .8px .8px 1px rgba(#000, 0.75);
+}
+
+.text-dark {
+	color: $default-dark !important;
+}
+
+.text-gray {
+	color: $default-text-color !important;
+}
+
+.text-primary {
+	color: $default-primary !important;
+}
+
+.text-success {
+	color: $default-success !important;
+}
+
+.text-underline {
+  text-decoration: underline;
+}
+
+.text-muted {
+  color: lighten($default-text-color, 15%) !important;
+}
+
+.text-info {
+	color: $default-info !important;
+}
+
+.text-warning {
+	color: $default-warning !important;
+}
+
+.text-danger {
+	color: $default-danger !important;
+}
+
+.bg-white {
+	background-color: $default-white !important;
+}
+
+.bg-dark {
+	background-color: $default-dark !important;
+}
+
+.bg-gray {
+	background-color: darken($default-gray, 3%) !important;
+}
+
+.bg-primary {
+	background-color: $default-primary !important;
+}
+
+.bg-info {
+	background-color: $default-info !important;
+}
+
+.bg-warning {
+	background-color: $default-warning !important;
+}
+
+.bg-danger {
+	background-color: $default-danger !important;
+}
+
+.bg-success {
+	background-color: $default-success !important;
+}
+
+.bg-primary-inverse {
+	@include background-opacity($default-primary, 0.1);
+}
+
+.bg-success-inverse {
+	@include background-opacity($default-success, 0.1);
+}
+
+.bg-info-inverse {
+	@include background-opacity($default-info, 0.1);
+}
+
+.bg-warning-inverse {
+	@include background-opacity($default-warning, 0.1);
+}
+
+.bg-danger-inverse {
+	@include background-opacity($default-danger, 0.1);
+}
+
+.bg {
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center center;
+}
+
+.ECONOMY, .LITE, .OTHER {
+	background-color: $lite !important;
+}
+
+.OTHER {
+	background-color: $other !important;
+}
+
+.PREMIUM, .PRIVILEGE {
+	background-color: $premium !important;
+}
+
+.VIP {
+	background-color: $vip !important;
+}
+
+.CLASSIC {
+	background-color: $classic !important;
+}
+
+.text-ECONOMY, .text-LITE {
+	color: $default-dark !important;
+}
+
+.text-OTHER {
+	color: $default-danger !important;
+}
+
+.text-PREMIUM, .text-PRIVILEGE {
+	color: $premium !important;
+}
+
+.text-VIP {
+	color: $vip !important;
+}
+
+.text-CLASSIC {
+	color: $classic !important;
+}
+
+.text-line-through {
+	text-decoration: line-through!important;
+}
+
+.shadow-success {
+  border: 0 !important;
+  box-shadow: 0 0 4px 3px $default-success;
+}
+
+.shadow-info {
+  border: 0 !important;
+  box-shadow: 0 0 4px 3px $default-info;
+}
+
+.shadow-primary {
+  border: 0 !important;
+  box-shadow: 0 0 4px 3px $default-primary;
+}
+
+.shadow-dark {
+  border: 0 !important;
+  box-shadow: 0 0 4px 3px $default-dark;
+}
+
+.shadow-danger {
+  border: 0 !important;
+  box-shadow: 0 0 4px 3px $default-danger;
+}
+
+.shadow-warning {
+  border: 0 !important;
+  box-shadow: 0 0 4px 3px $default-warning;
+}
+
+.overlay-dark {
+	position: relative;
+	overflow: hidden;
+	color: darken($default-white, 20%);
+
+
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
+		color: $default-white;
+	}
+
+	p {
+		color: darken($default-white, 20%);
+	}
+
+	&:before {
+		content:"";
+		background-color: $default-dark;
+		position: absolute;
+		width: 100%;
+		height: 100%;
+		opacity: 0.5;
+		top: 0px;
+		left: 0px;
+		z-index: 2
+	}
+
+	>div {
+		position: relative;
+		z-index: 3;
+	}
+}
+
+blockquote {
+    border-left: 0px;
+	padding-left: 30px;
+	position: relative;
+
+	&:before {
+		font-family: 'themify';
+		content: "\e67f";
+		position: absolute;
+		left: 0px;
+		color: $default-dark;
+	}
+}
+
+.fade {
+	&.in {
+		opacity: 1;
+	}
+}
+
+.collapse {
+	&.in {
+		display: block;
+	}
+}
+
+iframe {
+	border: 0;
+
+	@include screen-mobile {
+		min-height: 175px !important;
+		height: auto;
+	}
+}
+
+@include print {
+	body {
+		font-size: 10px;
+	}
+
+	.mrg-top-30,
+	.mrg-top-20 {
+		margin-top: 15px !important;
+	}
+
+	.print-invisible {
+		display: none;
+	}
+}
+
+.TWINS {
+  color: #ef7ebc !important;
+}
+
+.DOUBLE {
+  color: #7b87d6 !important;
+}
+
+.SINGLE {
+  color: #58d889 !important;
+}
+
+.DOUBLE_PANORAMIC {
+  color: #e7bd30 !important;
+}
+
+.BG_TWINS {
+  background-color: #ef7ebc !important;
+}
+
+.BG_DOUBLE {
+  background-color: #7b87d6 !important;
+}
+
+.BG_SINGLE {
+  background-color: #58d889 !important;
+}
+
+.BG_DOUBLE_PANORAMIC {
+  background-color: #e7bd30 !important;
+}
+
+.BG_SUITE {
+  background-color: #b9b9b9 !important;
+}
+
+.ORANGE {
+  color: #e89c7b;
+}
+
+/* Tooltip delay */
+.tooltip {
+	animation-name: delayedFadeIn;
+	animation-duration: 1s;
+}
+
+@keyframes delayedFadeIn {
+	0% {
+		opacity: 0;
+	}
+
+	75% {
+		opacity: 0;
+	}
+
+	100% {
+		opacity: 1;
+	}
+}
+
+.legend {
+	list-style-type: none;
+	padding-left: 0;
+
+	.legend-item {
+		display: inline-block;
+		margin-right: 15px;
+
+		.legend-item-circle {
+			width: 22px;
+			height: 22px;
+			border-radius: 22px;
+			margin-right: 7px;
+			display: inline-block;
+			cursor: pointer;
+		}
+
+		.legend-item-text {
+			vertical-align: super;
+			color: #868686;
+			cursor: pointer;
+			position: relative;
+
+			&::before {
+				content: "";
+				display: block;
+				position: absolute;
+				left: 0;
+				width: 0;
+				top: calc(50%);
+				height: 1px;
+				background-color: #898989;
+
+				transition: width 0.25s ease-in-out;
+			}
+
+			&.line-through::before {
+				width: 100%;
+			}
+		}
+	}
+}
+
+// perfect scrollbar
+.ps__rail-y {
+	z-index: 99;
+}

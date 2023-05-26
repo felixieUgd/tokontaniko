@@ -1,0 +1,69 @@
+<form [formGroup]="form" (submit)="save()" novalidate>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h5 class="modal-title text-info font-weight-bold" translate>button.ADD</h5>
+      <button type="button" class="close" data-dismiss="modal" (click)="activeModal.dismiss()" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col">
+          <div class="form-group">
+            <div class="btn-group btn-group-toggle width-100" formControlName="type" ngbRadioGroup>
+              <label ngbButtonLabel class="btn-default" style="width: 33.33% !important;"
+                *ngFor="let item of event_types"
+                [class.text-danger]="submitted && form.controls.type.invalid">
+                <input ngbButton type="radio" [value]="item"> {{item.substr(0,4)}}.
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <div class="form-group">
+            <label>Score</label>
+            <div class="btn-group btn-group-toggle width-100" formControlName="score" ngbRadioGroup>
+              <label ngbButtonLabel class="btn-default width-20 mr-0" *ngFor="let item of scores"
+                [class.text-danger]="submitted && form.controls.score.invalid">
+                <input ngbButton type="radio" [value]="item">{{item}}
+              </label>
+            </div>
+
+            <!-- <div class="mrg-top-15 font-size-13 font-italic">
+              <span [class.offense]="form.controls.score.value && form.controls.score.value < 3" translate>event_type.OFFENSE</span>
+              <span [ngClass]="['mr-1', 'pull-right', form.controls.score.value && form.controls.score.value > 3 ? 'contribution' : '']" translate>event_type.CONTRIBUTION</span>
+            </div> -->
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <div class="form-group">
+            <label>DATE</label>
+            <div class="timepicker-input input-icon">
+              <i class="ti-calendar"></i>
+              <input class="form-control" formControlName="event_date" ngbDatepicker
+                [class.error]="submitted && form.controls.event_date.invalid" #dtEvent="ngbDatepicker"
+                (click)="dtEvent.toggle()" [readOnly]="true">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <div class="form-group mb-0">
+            <label>Description</label>
+            <textarea class="form-control" formControlName="comment" rows="2"
+              [class.error]="submitted && form.controls.comment.invalid"></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer text-right p-0">
+      <!-- <button type="button" class="btn mb-0 no-border" (click)="activeModal.dismiss()" translate>button.CANCEL</button> -->
+      <button class="btn btn-info btn-block m-0 no-border text-uppercase" appXhrBtnIndicator translate>button.SAVE</button>
+    </div>
+  </div>
+</form>

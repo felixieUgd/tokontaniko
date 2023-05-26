@@ -1,0 +1,91 @@
+.form-control[readonly]:not([ngbdatepicker]) {
+    background-color: #fafafa;
+}
+
+.diagnostic-table thead th {
+    width: 50%;
+    text-align: center;
+}
+
+.diagnostic-table tbody td {
+    position: relative;
+    padding: 0;
+    height: 200px;
+}
+
+/* .diagnostic-table thead th {
+    border-top: 0;
+}
+
+.diagnostic-table td:first-of-type, .diagnostic-table th:first-of-type {
+    border-left: 0;
+}
+
+.diagnostic-table td:last-of-type, .diagnostic-table th:last-of-type {
+    border-right: 0;
+}
+
+.diagnostic-table tr:first-of-type td {
+    border-bottom: 0;
+}
+
+.diagnostic-table tr:last-of-type td {
+    border-bottom: 0;
+} */
+
+.diagnostic-table textarea {
+    border: 0;
+    width: 100%;
+    top: 0; left: 0; right: 0; bottom: 0;
+    height: calc(100% - 20px);
+    position: absolute;
+    resize: none;
+    background: transparent;
+}
+
+.clear-button {
+    position: absolute;
+    bottom: 4px;
+    right: 10px;
+    z-index: 5;
+}
+
+::ng-deep .submitted .ng-invalid, ::ng-deep .submitted .ng-invalid>*, .error {
+    border-color: #ff3c7e!important;
+    background-color: #ffeff4 !important;
+}
+
+::ng-deep .submitted app-typeahead-contact.ng-valid .form-control.ng-invalid {
+    border-color: #d4deee!important;
+    background-color: #fff !important;
+}
+
+::ng-deep label {
+    margin-bottom: 0.75rem;
+}
+
+::ng-deep .border-0 .ng-select-container {
+    border: 0!important;
+}
+
+.identity label {
+    margin-right: 5px;
+}
+
+.identity label::before {
+    content: "\f054";
+    font-family: 'FontAwesome';
+    text-rendering: auto;
+    vertical-align: middle;
+    margin-right: 8px;
+    font-size: 9px;
+}
+
+.identity label + span{
+    font-weight: 700;
+    font-size: 17px;
+}
+
+textarea.medium-height {
+    height: 150px!important;
+}

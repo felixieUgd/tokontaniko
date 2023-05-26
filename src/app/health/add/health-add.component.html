@@ -1,0 +1,25 @@
+<div class="container-fluid">
+  <div class="pdd-horizon-30">
+    <div class="row justify-content-center align-items-start">
+      <div class="col-lg-5">
+        <div class="card">
+          <div class="card-heading border bottom">
+            <h4 class="card-title text-info" translate>common.NEW_RECORD</h4>
+          </div>
+          <div class="card-block">
+            <div class="form-group mb-0">
+              <label translate>common.TYPE</label>
+              <ng-select [clearable]="false" [items]="requestTypes" bindLabel="name" [(ngModel)]="selectedType"></ng-select>
+            </div>
+          </div>
+          <div class="card-footer border top pdd-vertical-15 pdd-horizon-30">
+            <a *ngIf="selectedType" [routerLink]="[selectedType?.meta?.route + '/add']" [queryParams]="id? {id: id}: undefined" [state]="{ request_type_id: selectedType?.id }" class="btn btn-info pull-right m-0" appXhrBtnIndicator translate>
+              button.NEXT
+            </a>
+            <button *ngIf="!selectedType?.meta?.route" class="btn btn-info pull-right m-0 disabled" translate>button.NEXT</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

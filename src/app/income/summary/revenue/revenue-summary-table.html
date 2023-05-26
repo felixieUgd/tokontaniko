@@ -1,0 +1,281 @@
+<div class="row card-group">
+  <div class="col-md-12">
+    <div class="table-responsive" #table="stTable" stTable>
+      <table class="m-0 table no-border table-striped">
+        <thead>
+          <tr>
+            <td colspan="3" class="text-center no-border"></td>
+            <td colspan="4" class="no-border">
+              <button class="btn btn-sm btn-info pull-right" (click)="openSidePanel()">
+                Ajouter revenu
+              </button>
+              <button type="button" class="btn btn-link btn-sm pull-right"
+                    (click)="exportToExcel(table.items, 'revenues')" translate>
+                button.DOWNLOAD
+              </button>
+            </td>
+          </tr>
+          <tr>
+            <th stSort="paid_at" translate>income.PAID_AT</th>
+            <th class="width-20" translate>nav.CONTACT</th>
+            <th class="width-20" translate>common.CATEGORY</th>
+            <th class="width-20" translate>common.DESCRIPTION</th>
+            <th>Compte</th>
+            <th stSort="amount" class="text-right" translate>common.AMOUNT</th>
+            <th stSort="created_at" class="text-right" translate>status.CREATED</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td></td>
+            <td>
+              <ng-select appendTo="body" [items]="contact$ | async" bindValue="id" bindLabel="name" minTermLength="3"
+                [placeholder]="'placeholder.SEARCH' | translate" [(ngModel)]="selectedContact"
+                [typeahead]="contactInput$" [clearable]="true" (change)="onSelectContact($event)">
+                <ng-template ng-option-tmp let-item="item">
+                  {{item.name}}
+                  <span style="color:#6f748a;display:block;">{{item?.phone}}</span>
+                </ng-template>
+              </ng-select>
+            </td>
+            <td>
+              <ng-select appendTo="body" bindValue="id" bindLabel="name" [items]="categories" minTermLength="3"
+                [placeholder]="('placeholder.SELECT' | translate) + '...'"
+                [(ngModel)]="selectedCategory" (change)="onSelectCategory($event)">
+              </ng-select>
+            </td>
+            <td>
+              <input [placeholder]="'placeholder.SEARCH' | translate" type="search" class="form-control"
+                stDebounceTime="800" stSearch="description">
+            </td>
+            <td></td>
+            <td>
+              <ng-select [items]="paymentMethods" bindValue="code" bindLabel="name"
+                [(ngModel)]="selectedPaymentMethod" (change)="onSelectPaymentMethod($event)"
+                [placeholder]="('common.PAYMENT_METHOD' | translate) + '...'">
+              </ng-select>
+            </td>
+            <td></td>
+          </tr>
+          <tr [hidden]="table.busy" *ngFor="let item of table.items">
+            <td>
+              {{item.paid_at | date:'mediumDate'}}
+              <span class="text-opacity-6 d-block font-size-13">ID: {{item.id}}</span>
+            </td>
+            <td>
+              <a *ngIf="item.type === 'INVOICE_PAYMENT'" href
+                [routerLink]="['/income/invoice/detail', item?.invoice_id]">
+                {{item.contact_name || item?.Contact?.name}}
+              </a>
+              <span *ngIf="item?.type === 'INVOICE_PAYMENT'" class="text-opacity-6 d-block font-size-13">
+                <i class="fa fa-file-archive-o text-primary mr-1" aria-hidden="true"></i> Facture n°
+                {{item.invoice_id}}
+              </span>
+              <a class="text-link" *ngIf="item?.type !== 'INVOICE_PAYMENT'" (click)="edit(item)">
+                {{item.contact_name || item?.Contact?.name}}
+              </a>
+            </td>
+            <td>{{item?.Category?.name}}</td>
+            <td>
+              {{item.description || '-'}}
+            </td>
+            <td>
+              {{item?.Account.name}}
+              <span class="text-opacity-6 d-block font-size-13">{{item?.User?.Profile?.custom_fields?.location_id}}</span>
+            </td>
+            <td class="text-right" [class.text-danger]="item.amount < 0">
+              {{item.amount | currency:item.currency_code}}
+              <span class="text-opacity-6 d-block font-size-13">
+                {{'payment.' + item.payment_method | translate}}
+              </span>
+            </td>
+            <td class="text-right">
+              {{item?.User.name | slice:0:15}}.
+              <span class="text-opacity-6 d-block font-size-13">
+                {{item.created_at | date:'dd MMM yyyy HH:mm'}}
+              </span>
+            </td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr *ngIf="table.busy">
+            <td class="text-center" colspan="7">
+              <i class="fa fa-spin fa-spinner"></i>
+            </td>
+          </tr>
+          <tr *ngIf="table.items.length === 0 && !table.busy">
+            <td class="text-center" colspan="7" translate>common.NO_RECORD</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+</div>
+
+<hr style="margin: 0;" />
+
+<div class="row padding-10" stPagination #pager="stPagination">
+  <div class="col-lg">
+    <div style="width: 200px;">
+      <div class="d-inline">Afficher</div>
+      <select class="form-control d-inline mx-2 width-35" [(ngModel)]="pager.size"
+        (ngModelChange)="smartTableService.slice(_table, pager)">
+        <option [value]="item" *ngFor="let item of displayedRows">
+          {{item}}</option>
+      </select>
+      <div class="d-inline">lignes</div>
+    </div>
+  </div>
+
+  <div class="col-lg text-center">
+    <div class="btn btn-link disabled">
+      {{pager.length > 0 ? pager.lowerBoundIndex + 1 : 0}} - {{(pager.higherBoundIndex || -1) + 1}} sur
+      {{pager.length || 0}}
+    </div>
+  </div>
+
+  <div class="col-lg">
+    <div class="btn-group pagination pull-right">
+      <button type="button" class="btn btn-default" (click)="pager.selectPreviousPage()"
+        [disabled]="!pager.isPreviousPageEnabled()">
+        <i class="ti-arrow-left"></i>
+      </button>
+      <button type="button" class="btn btn-default" (click)="pager.selectNextPage()"
+        [disabled]="!pager.isNextPageEnabled()">
+        <i class="ti-arrow-right"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!--Side Panel START -->
+<div class="side-panel" [ngClass]="{'side-panel-open' : sidePanelOpen}">
+  <div class="side-panel-wrapper bg-white">
+    <ul class="nav nav-tabs" role="tablist">
+      <li class="nav-item active">
+        <a class="nav-link" href="#chat" role="tab" data-toggle="tab">
+          <span>{{selectedRevenue ? 'Modifier' : 'Nouveau'}} revenu</span>
+        </a>
+      </li>
+      <li class="panel-close">
+        <button class="side-panel-toggle" (click)="closeSidePanel()">
+          <i class="ti-close"></i>
+        </button>
+      </li>
+    </ul>
+
+    <div class="tab-content">
+      <div class="p-4">
+        <form role="form" [formGroup]="addRevenueForm" (ngSubmit)="save()" autocomplete="off" novalidate>
+          <div class="row mb-3">
+            <div class="col-lg-6">
+              <div class="form-group">
+                <label for="paid_at" class="control-label timepicker-label" translate>common.DATE</label>
+                <div class="timepicker-input input-icon">
+                  <i class="ti-time"></i>
+                  <input type="text" id="paid_at" class="form-control" formControlName="paid_at" ngbDatepicker
+                    [minDate]="minDate" #d="ngbDatepicker" (click)="d.toggle()" readonly
+                    [class.error]="submitted && addRevenueForm.controls.paid_at.invalid">
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="form-group">
+                <label for="category" class="control-label" translate>common.CATEGORY</label>
+                <ng-select [items]="categories" bindLabel="name" bindValue="id" formControlName="category_id"
+                  [ngClass]="{'error': submitted && addRevenueForm.controls.category_id.invalid}">
+                  <ng-template ng-option-tmp let-item="item">{{item.name}}</ng-template>
+                </ng-select>
+              </div>
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-lg-6">
+              <div class="form-group">
+                <label class="control-label" translate>common.ACCOUNT</label>
+                <ng-select [items]="accounts" bindLabel="name" bindValue="id" formControlName="account_id"
+                  [ngClass]="{'error': submitted && addRevenueForm.controls.account_id.invalid}">
+                  <ng-template ng-option-tmp let-item="item">{{item.name}}</ng-template>
+                </ng-select>
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="form-group">
+                <label for="contact" class="control-label">Contact</label>
+                <app-typeahead-contact formControlName="contact" [submitted]="submitted"></app-typeahead-contact>
+              </div>
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-lg-6">
+              <div class="form-group">
+                <label for="amount" class="control-label">
+                  {{'common.AMOUNT' | translate}}
+                  (<b class="text-muted">{{addRevenueForm.controls.currency.value ? 'Fmg' : 'Ar'}}</b>)
+                </label>
+                <div class="input-group">
+                  <input class="form-control" formControlName="amount" [min]="0" mask="separator"
+                    [class.error]="submitted && addRevenueForm.controls.amount.invalid">
+
+                  <div class="input-group-append">
+                    <div class="input-group-text">
+                      <input type="checkbox" class="pointer" formControlName="currency"
+                        (change)="convertAmount(addRevenueForm.controls.amount.value)">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="form-group">
+                <label for="payment_method" class="control-label" translate>common.PAYMENT_METHOD</label>
+                <ng-select [items]="paymentMethods" bindLabel="name" bindValue="code" formControlName="payment_method"
+                  [ngClass]="{'error': submitted && addRevenueForm.controls.payment_method.invalid}">
+                </ng-select>
+              </div>
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-lg-12">
+              <div class="form-group">
+                <label for="description" class="control-label" translate>common.DESCRIPTION</label>
+                <textarea id="description" class="form-control" formControlName="description" rows="2"
+                  [class.error]="submitted && addRevenueForm.controls.description.invalid">
+                </textarea>
+              </div>
+            </div>
+          </div>
+
+          <div class="row bg-white fixed-bottom">
+            <div class="col-md-12">
+              <div class="px-4 pdd-vertical-20 border top">
+                <button class="btn btn-info mb-0"
+                  [ngClass]="{'width-100': !selectedRevenue, 'width-85': selectedRevenue}" appXhrBtnIndicator translate>button.SAVE</button>
+                <button type="button" class="btn btn-danger btn-inverse pull-right mb-0" *ngIf="selectedRevenue"
+                  (click)="deleteRevenue()"><i class="fa fa-trash"></i></button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Side Panel END -->
+
+<ng-template #tpl let-r="result" let-t="term">
+  <ngb-highlight [result]="r?.name" [term]="t"></ngb-highlight>
+
+  <span style="color: #6f748a;" [ngClass]="{'d-block' : r, 'd-none': !r}">
+    {{r?.phone}} -
+    {{r?.id_cin}} -
+    {{r?.id_passport}}
+  </span>
+
+  <a class="d-block text-white py-2" *ngIf="!r">
+    <i class="fa fa-plus-circle mr-1"></i> Ajouter contact
+  </a>
+</ng-template>

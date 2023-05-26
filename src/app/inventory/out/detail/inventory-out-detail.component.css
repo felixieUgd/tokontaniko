@@ -1,0 +1,8 @@
+.table.table-item td {
+    padding: 0 !important;
+    vertical-align: top;
+}
+
+.form-control:read-only {
+  background-color: transparent !important;
+}

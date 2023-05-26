@@ -1,0 +1,130 @@
+<div class="container-fluid">
+  <div class="pdd-horizon-30">
+    <div class="row justify-content-center">
+      <div class="col-lg-9">
+        <form role="form" [formGroup]="form" autocomplete="off" novalidate (ngSubmit)="save()">
+          <div class="card">
+            <div class="card-heading border bottom">
+              <h4 class="card-title text-info">Nouvelle annonce</h4>
+            </div>
+
+            <div class="card-block">
+              <div class="form-group row">
+                <div class="col-lg">
+                  <label translate>common.TITLE</label>
+                  <input class="form-control" formControlName="title"
+                    [class.error]="submitted && form.get('title').status === 'INVALID'">
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <div class="col-lg">
+                  <label translate>common.CONTENT</label>
+                  <div formControlName="content" [ngxSummernote]="config"></div>
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <div class="col-lg-2">
+                  <label translate>common.PRIORITY</label>
+                  <input type="number" class="form-control" formControlName="priority"
+                    [min]="1" [max]="10"
+                    [class.error]="submitted && form.get('priority').status === 'INVALID'">
+                </div>
+                <div class="col-lg-5">
+                  <label translate>common.EXPIRATION_DATE</label>
+                  <div class="timepicker-input input-icon">
+                    <i class="ti-time"></i>
+                    <input class="form-control" #dt="ngbDatepicker" [placement]="'top'" [readOnly]="true"
+                      (click)="dt.toggle()" formControlName="expiration_date" [minDate]="minDate" ngbDatepicker>
+                  </div>
+                </div>
+                <div class="col-lg-5">
+                  <label translate>common.SIGNATURE</label>
+                  <div
+                    class="btn-group btn-group-toggle width-100"
+                    formControlName="is_signature_required"
+                    ngbRadioGroup
+                  >
+                    <label
+                      ngbButtonLabel
+                      style="width: 50% !important;"
+                      [attr.class]="
+                        submitted && form.get('is_signature_required').status === 'INVALID'
+                          ? 'btn btn-outline-danger'
+                          : 'btn btn-default'
+                      ">
+                      <input ngbButton type="radio" [value]="true"/> OUI
+                    </label>
+                    <label
+                      ngbButtonLabel
+                      class="btn"
+                      style="width: 50% !important;"
+                      [attr.class]="
+                        submitted && form.get('is_signature_required').status === 'INVALID'
+                          ? 'btn btn-outline-danger'
+                          : 'btn btn-default'
+                      ">
+                      <input ngbButton type="radio" [value]="false"/> NON
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <div class="col-lg-6">
+                  <label translate>common.ROLES</label>
+                  <ng-select [items]="roles" bindLabel="display_name" formControlName="permissions"
+                    [ngClass]="{'error': submitted && form.get('permissions').status === 'INVALID'}"
+                    [hideSelected]="true" [multiple]="true" [clearable]="true" [searchable]="true">
+                  </ng-select>
+                </div>
+                <div class="col-lg-6">
+                  <label translate>common.LOCATIONS</label>
+                  <ng-select [items]="['TNR']" bindLabel="title" formControlName="locations"
+                    [ngClass]="{'error': submitted && form.get('locations').status === 'INVALID'}"
+                    [hideSelected]="true" [multiple]="true" [clearable]="true">
+                    <ng-template ng-label-tmp let-item="item">
+                      {{item | uppercase}}
+                    </ng-template>
+                    <ng-template ng-option-tmp let-item="item">
+                      {{item | uppercase}}
+                    </ng-template>
+                  </ng-select>
+                </div>
+              </div>
+              <div class="form-group row">
+                <div class="col-lg-6">
+                  <label>SMS</label>
+                  <div class="btn-group btn-group-toggle width-100" formControlName="is_sms" ngbRadioGroup>
+                    <label ngbButtonLabel style="width: 50% !important;" [attr.class]="
+                                                        submitted && form.get('is_sms').status === 'INVALID'
+                                                          ? 'btn btn-outline-danger'
+                                                          : 'btn btn-default'
+                                                      ">
+                      <input ngbButton type="radio" [value]="true" /> OUI
+                    </label>
+                    <label ngbButtonLabel class="btn" style="width: 50% !important;" [attr.class]="
+                                                        submitted && form.get('is_sms').status === 'INVALID'
+                                                          ? 'btn btn-outline-danger'
+                                                          : 'btn btn-default'
+                                                      ">
+                      <input ngbButton type="radio" [value]="false" /> NON
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card-footer border top pdd-vertical-15 pdd-horizon-30">
+              <button type="submit" class="btn btn-info pull-right m-0" appXhrBtnIndicator>
+                <i class="fa fa-save"></i>
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+

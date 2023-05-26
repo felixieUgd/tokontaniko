@@ -1,0 +1,288 @@
+<div class="container-fluid">
+  <div class="row justify-content-center">
+    <div class="col-lg-12">
+      <div class="card">
+        <div class="tab-info">
+          <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item">
+              <a href="#tab-bill" class="nav-link active" role="tab" data-toggle="tab">FACTURE</a>
+            </li>
+            <li class="nav-item">
+              <a href="#tab-payment" class="nav-link" role="tab" data-toggle="tab">PAIEMENTS</a>
+            </li>
+            <li class="nav-item">
+              <a href="#tab-history" class="nav-link" role="tab" data-toggle="tab">HISTORIQUE</a>
+            </li>
+            <li class="nav-item">
+              <a href="#tab-attachments" class="nav-link" role="tab" data-toggle="tab">DOCUMENT</a>
+            </li>
+            <li class="col text-right">
+              <a class="nav-link">
+                <label class="label label-lg mb-0 text-uppercase label-{{utilityService.statusStyle(bill?.status).background}}-inverse">
+                  {{'status.' + bill?.status | translate}}</label>
+              </a>
+            </li>
+          </ul>
+
+          <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade in active" id="tab-bill">
+              <form role="form" [formGroup]="billForm" autocomplete="off" novalidate>
+                <div class="padding-30">
+                  <div class="row">
+                    <label class="col-lg-2 col-form-label text-lg-right">Fournisseur</label>
+
+                    <div class="col-lg-3">
+                      <div class="form-group">
+                        <app-typeahead-contact
+                          formControlName="contact"
+                          [submitted]="submitted"
+                        >
+                        </app-typeahead-contact>
+                      </div>
+                    </div>
+
+                    <label class="offset-lg-1 col-lg-3 col-form-label text-lg-right">ID</label>
+
+                    <label class="col-lg-3 col-form-label text-dark">{{bill?.id}}</label>
+                  </div>
+
+                  <div class="row">
+                    <label class="col col-form-label text-lg-right">Tél.</label>
+
+                    <label class="col-lg-3 col-form-label">{{bill?.Contact.phone | mask:'000 00 000 00'}}</label>
+
+                    <label class="offset-lg-1 col-lg-3 col-form-label text-lg-right">N° Facture</label>
+
+                    <label class="col-lg-3 col-form-label text-dark">
+                      {{bill?.bill_number}}</label>
+                  </div>
+
+                  <div class="row">
+                    <label class="col col-form-label text-lg-right">Email</label>
+
+                    <label class="col-lg-3 col-form-label text-dark">
+                      {{bill?.Contact?.email}}</label>
+
+                    <label class="offset-lg-1 col-lg-3 col-form-label text-lg-right">Facturé le</label>
+
+                    <label class="col-lg-3 col-form-label text-dark">
+                      {{bill?.billed_at | date:'mediumDate'}}</label>
+                  </div>
+
+                  <div class="row">
+                    <label class="col col-form-label text-lg-right">Catégorie</label>
+
+                    <div class="col-lg-3">
+                      <div class="form-group">
+                        <ng-select [items]="categories | async" bindLabel="name" formControlName="category" [clearable]="false"
+                          [ngClass]="{'error': submitted && billForm.controls.category.invalid}">
+                          <ng-template ng-option-tmp let-item="item">
+                            {{item.name}}
+                          </ng-template>
+                        </ng-select>
+                      </div>
+                    </div>
+
+                    <label class="offset-lg-1 col-lg-3 col-form-label text-lg-right">Date d'échéance</label>
+
+                    <div class="col-lg-3">
+                      <div class="form-group">
+                        <input type="text" class="form-control" formControlName="due_at" ngbDatepicker [minDate]="appService.getMinDate()"
+                          #dDue="ngbDatepicker" (click)="dDue.toggle()"
+                          [class.error]="submitted && billForm.controls.due_at.invalid">
+                      </div>
+                    </div>
+                  </div>
+
+                  <hr />
+
+                  <div class="row">
+                    <div class="col-md-12">
+                      <div formArrayName="BillItems">
+                        <div class="form-group m-0">
+                          <div class="">
+                            <label>Produits/services</label>
+                          </div>
+                          <table class="table bill-items table-bordered">
+                            <thead>
+                              <tr class="font-weight-bold bg-light">
+                                <th class="text-center" style="width: 5%;">
+                                  <i class="fa fa-navicon"></i>
+                                </th>
+                                <th class="">Nom</th>
+                                <th class="width-10 text-center">Quantité</th>
+                                <th class="width-15 text-right">Prix unitaire</th>
+                                <th class="width-20 text-right">Taxes</th>
+                                <th class="width-10 text-right">Total</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr *ngFor="let item of BillItems.controls; let i=index" [formGroupName]="i">
+                                <td class="text-center">
+                                  <button type="button" class="btn btn-link m-0" (click)="removeItem(i)">
+                                    <i class="fa fa-trash text-danger"></i>
+                                  </button>
+
+                                  <input type="hidden" name="item_id" formControlName="item_id">
+                                  <input type="hidden" name="sku" formControlName="sku">
+                                </td>
+                                <td>
+                                  <div class="input-group">
+                                    <input type="text" formControlName="name" class="form-control no-border"
+                                      placeholder="Rechercher..." (selectItem)="onSelectItem($event, item)"
+                                      [ngbTypeahead]="searchItem" [resultTemplate]="tplItem" [readOnly]="isNew(item)" [editable]="false"
+                                      [class.error]="submitted && !item.controls.name.valid">
+
+                                    <div class="input-group-append">
+                                      <button type="button" class="btn bg-transparent" data-toggle="collapse"
+                                        [attr.data-target]="'#collapse-' + i">
+                                        <i class="fa fa-pencil text-dark"></i>
+                                      </button>
+                                    </div>
+                                  </div>
+
+                                  <div class="collapse font-size-13 px-2 pt-0 pb-1" id="collapse-{{i}}"
+                                    [class.show]="item.controls.description?.value">
+                                    {{ item.controls.description?.value || 'Aucune description' }}
+                                  </div>
+                                </td>
+                                <td>
+                                  <input type="number" formControlName="quantity" class="form-control text-center" [min]="1" [readOnly]="isNew(item)"
+                                    [class.error]="submitted && !item.controls.quantity.valid">
+                                </td>
+                                <td>
+                                  <input type="number" formControlName="price" class="form-control text-right" [readOnly]="isNew(item)"
+                                    [class.error]="submitted && !item.controls.price.valid">
+                                </td>
+                                <td>
+                                  <ng-select class="no-border disabled" placeholder="Aucune" formControlName="Taxes" [items]="taxes" bindLabel="name"
+                                    [hideSelected]="true" [searchable]="false" [multiple]="true" [clearable]="false">
+                                  </ng-select>
+                                </td>
+                                <td class="text-right">
+                                  <input type="text" class="form-control text-right" readonly [value]="getItemTotal(item) | currency:'MGA':''">
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row mb-2">
+                    <div class="col-lg-4">
+                      <button type="button" class="btn btn-link" appXhrBtnIndicator (click)="addItem()" [disabled]="bill?.status === 'VOIDED'">
+                        Ajouter
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-lg-8">
+                      <div class="form-group" hidden>
+                        <label>Notes</label>
+                        <textarea [ngStyle]="{height: '170px'}" class="form-control" formControlName="notes"></textarea>
+                      </div>
+                    </div>
+                    <div class="col-lg-4">
+                      <br>
+                      <div class="list-group bill-group">
+                        <div class="list-group-item">
+                          <b class="width-50 inline-block text-right mrg-right-15">Sous-total</b>
+                          <span class="pull-right">{{Total.payment_due | currency:'MGA':''}}</span>
+                        </div>
+                        <div class="list-group-item">
+                          <b class="width-50 inline-block text-right mrg-right-15">Taxes</b>
+                          <span class="pull-right">{{Total.tax | currency:'MGA':''}}</span>
+                        </div>
+                        <div class="list-group-item">
+                          <b class="width-50 inline-block text-right mrg-right-15">Payé</b>
+                          <span class="pull-right">{{Total.payment | currency:'MGA':''}}</span>
+                        </div>
+                        <div class="list-group-item">
+                          <b class="width-50 inline-block text-right mrg-right-15">Reste à payer</b>
+                          <span class="pull-right font-weight-bold">{{Total.balance | currency:'MGA':'Ar '}}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="border top"></div>
+
+                <div class="padding-15 pdd-vertical-15 pdd-horizon-30">
+                  <div class="row">
+                    <div class="col-lg">
+                      <button type="button" class="btn btn-dark mb-0" (click)="print()"
+                        [disabled]="bill?.status === 'CANCELED'"><i class="fa fa-print"></i></button>
+                      <div class="dropdown inline-block">
+                        <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                          <span class="mrg-right-10">Autres actions</span>
+                          <i class="ti-angle-down font-size-9"></i>
+                        </button>
+                        <ul class="dropdown-menu">
+                          <li>
+                            <a (click)="openSidePanelPayment()">Ajouter paiement</a>
+                          </li>
+                          <li class="divider"></li>
+                          <li>
+                            <a (click)="print(true)">Facture groupée</a>
+                          </li>
+                          <li>
+                            <a class="text-normal pointer" (click)="updateStatus()">Marquer reçu</a>
+                          </li>
+                          <li class="divider"></li>
+                          <li>
+                            <a (click)="cancel()">Annuler</a>
+                          </li>
+                        </ul>
+                      </div>
+
+                      <button type="submit" class="btn btn-info mrg-right-10 m-0 pull-right" (click)="updateBill()"
+                        [disabled]="bill?.status === 'CANCELED'" appXhrBtnIndicator>
+                        <i class="fa fa-save"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+
+            <div role="tabpanel" class="tab-pane fade" id="tab-payment">
+              <app-list-payment [facture]="bill" [dataTable]="bill?.Payments"></app-list-payment>
+            </div>
+
+            <div role="tabpanel" class="tab-pane fade" id="tab-history">
+              <app-list-history
+                [dataId]="bill?.id"
+                [dataTable]="bill?.BillHistories"
+                [dataType]="'BILL'"
+              ></app-list-history>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" id="tab-attachments">
+              <div class="padding-30">
+                <div class="row">
+                  <div class="col-lg-4">
+                    <app-file-attachment *ngIf="bill" [route]="'bills'" [id]="id" [attachments]="bill.attachments"
+                      (onSuccess)="resetForm()" (onDelete)="deleteAttachment($event)">
+                    </app-file-attachment>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #tplItem let-r="result" let-t="term">
+  <ngb-highlight [result]="r?.id + ' - ' + r?.name + ' [' + r?.sku.toUpperCase() + '] - ' + r?.quantity" [term]="t" *ngIf="r">
+  </ngb-highlight>
+
+  <a class="d-block text-white py-2" *ngIf="!r">
+    <i class="fa fa-plus-circle mr-1"></i> Nouveau
+  </a>
+</ng-template>

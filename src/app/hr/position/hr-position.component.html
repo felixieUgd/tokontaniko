@@ -1,0 +1,106 @@
+<div class="container-fluid">
+  <div class="pdd-horizon-30">
+    <div class="row">
+      <div class="col-lg">
+        <div class="card">
+          <div class="row">
+            <div class="col-lg">
+              <table class="table table-lg table-striped no-border m-0">
+                <tr>
+                  <td colspan="6" class="border-top-0">
+                    <button class="btn btn-info btn-sm pull-right mr-0"
+                    (click)="sidePanelOpen = true">Ajouter position</button>
+                    <button (click)="printPay()" class="btn btn-sm pull-right btn-light">Imprimer Fiche de paie</button>
+                  </td>
+                </tr>
+                <tr>
+                  <th>ID</th>
+                  <th>Nom</th>
+                  <th>Congé payés</th>
+                  <th class="width-10 text-center">Actions</th>
+                </tr>
+                <tr>
+                  <td class="text-center" colspan="4" *ngIf="positions?.length === 0">
+                    Aucun compte
+                  </td>
+                </tr>
+                <tr *ngFor="let elem of positions">
+                  <td>{{elem.id}}</td>
+                  <td>{{elem.title}}</td>
+                  <td>{{elem.paid_leaves}}</td>
+                  <td class="text-center">
+                    <a href [routerLink]="['/hr/position/detail', elem.id]" class="btn btn-sm btn-info btn-icon">
+                      <i class="fa fa-pencil"></i>
+                    </a>
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Side Panel START -->
+<div class="side-panel" [ngClass]="{'side-panel-open' : sidePanelOpen}">
+  <div class="side-panel-wrapper bg-white">
+    <ul class="nav nav-tabs" role="tablist">
+      <li class="nav-item active">
+        <a class="nav-link" href="#chat" role="tab" data-toggle="tab">
+          <span>Nouvelle position</span>
+        </a>
+      </li>
+      <li class="panel-close">
+        <button class="side-panel-toggle" (click)="sidePanelOpen = !sidePanelOpen">
+          <i class="ti-close"></i>
+        </button>
+      </li>
+    </ul>
+
+    <div class="tab-content ps" perfectScrollbar>
+      <div class="p-4">
+        <form role="form" [formGroup]="addForm" (ngSubmit)="save()" novalidate>
+          <div class="row">
+            <div class="col-lg-6">
+              <div class="form-group">
+                <label for="title">Nom</label>
+                <input type="text" id="title" class="form-control" formControlName="title"
+                  [class.error]="submitted && addForm.get('title').status === 'INVALID'">
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="form-group">
+                <label for="number">Congés payés</label>
+                <input id="number" class="form-control" formControlName="paid_leaves"
+                  [class.error]="submitted && addForm.get('paid_leaves').status === 'INVALID'">
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-lg">
+              <div class="form-group">
+                <label for="description">Description</label>
+                <textarea id="description" class="form-control" rows="2" formControlName="description"
+                  [class.error]="submitted && addForm.get('description').status === 'INVALID'"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div class="row bg-white fixed-bottom">
+            <div class="col-lg-12">
+              <div class="px-4 pdd-vertical-20 border top">
+                <button class="btn btn-info btn-block mb-0">
+                  Enregistrer
+                </button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Side Panel END -->

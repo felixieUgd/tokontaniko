@@ -1,0 +1,128 @@
+<div class="container-fluid">
+  <div class="row mrg-btm-15 border-radius-4 border-white border-danger">
+    <div class="col-lg-4 text-center">
+      <form [formGroup]="dateForm" (submit)="filterResult()">
+        <div class="input-group">
+          <input type="text" class="form-control input-sm bg-white" formControlName="start" ngbDatepicker
+            #d1="ngbDatepicker" (click)="d1.toggle()"
+            [class.error]="dateFormSubmitted && dateForm.get('start').status === 'INVALID'" readonly />
+          <input type="text" class="form-control input-sm bg-white" formControlName="end" ngbDatepicker
+            #d2="ngbDatepicker" (click)="d2.toggle()"
+            [class.error]="dateFormSubmitted && dateForm.get('end').status === 'INVALID'" readonly />
+          <div class="input-group-append">
+            <button class="btn btn-info btn-sm m-0" type="submit" appXhrBtnIndicator>
+              <i class="fa fa-search"></i>
+            </button>
+            <button class="btn btn-dark btn-sm" type="button" (click)="resetForm()">
+              <i class="fa fa-refresh"></i>
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="row justify-content-center mrg-top-15">
+    <div class="col-lg-12">
+      <div class="card">
+        <div class="table-responsive" #table="stTable" stTable>
+          <table class="m-0 table no-border table-striped">
+            <tbody>
+              <tr>
+                <td colspan="2" class="text-center no-border">
+                  <input type="search" [placeholder]="('nav.SEARCH' | translate) + ' ID, Contact ...'"
+                    class="form-control input-sm" stSearch="id,contact_name">
+                </td>
+                <td colspan="4" class="no-border text-right">
+                  <button type="button" class="btn btn-link btn-sm mb-0" (click)="export(table.items)">
+                    {{'common.DOWNLOAD' | translate}} .xls
+                  </button>
+                  <a class="btn btn-info btn-sm" [routerLink]="['/income/group/add']">
+                    {{'button.ADD' | translate}}
+                  </a>
+                </td>
+              </tr>
+              <tr>
+                <th stSort="id" stSortCycle="true">{{'common.N°' | translate}}</th>
+                <th stSort="contact_name" translate>nav.CONTACT</th>
+                <th stSort="due_at" class="text-center" translate>income.DUE_AT</th>
+                <th class="text-center" translate>common.NUMBER</th>
+                <th class="text-right" translate>common.AMOUNT</th>
+                <th class="text-right" translate>status.CREATED</th>
+              </tr>
+              <tr>
+                <td class="text-center" colspan="6" *ngIf="table.busy">
+                  <i class="fa fa-spin fa-spinner"></i>
+                </td>
+              </tr>
+              <tr>
+                <td class="text-center" colspan="6" *ngIf="table.items.length === 0 && !table.busy">
+                  {{'common.NO_RECORD' | translate}}
+                </td>
+              </tr>
+              <tr [hidden]="table.busy" *ngFor="let item of table.items">
+                <td>
+                  <a href [routerLink]="['/income/group/detail', item.id]">{{item.id}}</a>
+                </td>
+                <td>
+                  <a href class="text-normal" [routerLink]="['/contact/detail', item.Contact.id]" *ngIf="item.Contact">
+                    {{item.Contact.name}}
+                  </a>
+                </td>
+                <td class="text-center">
+                  {{item.due_at | date:'dd MMM yyyy'}}
+                </td>
+                <td class="text-center">
+                  {{item.Invoices.length}}
+                </td>
+                <td class="text-right">
+                  {{item.meta.total | currency:'MGA':'Ar'}}
+                </td>
+                <td class="text-right text-muted">
+                  {{item.created_at | date:'dd MMM yyyy HH:mm'}}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <hr style="margin: 0;" />
+
+        <div class="row padding-10" stPagination #pager="stPagination">
+          <div class="col-lg">
+            <div style="width: 200px;">
+              <div class="d-inline" translate>button.DISPLAY</div>
+              <select class="form-control d-inline mx-2 width-35" [(ngModel)]="pager.size"
+                (ngModelChange)="smartTableService.slice(_table, pager)">
+                <option [value]="item" *ngFor="let item of appService.displayedRows">
+                  {{item}}</option>
+              </select>
+              <div class="d-inline">{{'common.ROWS' | translate | lowercase}}</div>
+            </div>
+          </div>
+
+          <div class="col-lg text-center">
+            <div class="btn btn-link disabled">
+              {{pager.length > 0 ? pager.lowerBoundIndex + 1 : 0}} - {{(pager.higherBoundIndex || -1) + 1}} sur
+              {{pager.length || 0}}
+            </div>
+          </div>
+
+          <div class="col-lg">
+            <div class="btn-group pagination pull-right">
+              <button type="button" class="btn btn-default" (click)="pager.selectPreviousPage()"
+                [disabled]="!pager.isPreviousPageEnabled()">
+                <i class="ti-arrow-left"></i>
+              </button>
+              <button type="button" class="btn btn-default" (click)="pager.selectNextPage()"
+                [disabled]="!pager.isNextPageEnabled()">
+                <i class="ti-arrow-right"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

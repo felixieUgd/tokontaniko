@@ -1,0 +1,54 @@
+.timeline-event {
+    margin-left: 15rem;
+}
+
+.tl-wrap {
+    max-width: 20rem;
+}
+
+.tl-wrap.b-danger {
+    padding-bottom: 0;
+}
+
+.arrow-event.right {
+    transform: rotate(180deg);
+    left: auto;
+    right: -9px;
+    margin-top: -9px;
+    border-left-width: 0;
+    border-right-color: rgba(0, 0, 0, 0.1);
+}
+
+.arrow-event.right::after {
+    left: auto;
+    bottom: -8px;
+    border-left-width: 0;
+    border-right-color: #fff;
+    right: -9px;
+    
+}
+
+.tl-content {
+    text-align: left;
+}
+
+.tl-item .text-history {
+    text-align: right;
+}
+
+.tl-date.card {
+    top: unset;
+    padding: 10px 15px;
+    text-align: left;
+    width: unset;
+    max-width: 20em;
+    margin-left: -22.5em;
+}
+
+.tl-date .timeline-actions {
+    flex-direction: row-reverse !important;
+}
+
+.tl-date .timeline-actions .text-history {
+    text-align: left !important;
+}

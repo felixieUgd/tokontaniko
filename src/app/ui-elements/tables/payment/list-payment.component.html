@@ -1,0 +1,62 @@
+<div class="table-responsive">
+  <table class="m-0 table no-border table-striped">
+    <thead>
+      <tr>
+        <th class="no-border text-center">
+          <i class="fa fa-navicon"></i>
+        </th>
+        <th class="no-border">ID</th>
+        <th class="no-border">Date de pmt.</th>
+        <th class="no-border width-25">Description</th>
+        <th class="no-border">Montant</th>
+        <th class="no-border">Moyen de pmt.</th>
+        <th class="no-border">Compte</th>
+        <th class="no-border text-right">Créé</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngIf="dataTable?.length === 0">
+        <td colspan="8" class="text-center" translate>common.NO_RECORD</td>
+      </tr>
+      <tr *ngFor="let revenue of dataTable">
+        <td class="text-center">
+          <span class="badge badge-primary pointer"
+            [ngbTooltip]="'income.REFUND' | translate" (click)="refund(revenue)"
+            *ngIf="!revenue.reconciled">
+            <i class="fa fa-undo"></i>
+          </span>
+          <span class="badge badge-danger pointer ml-1"
+            *ngIf="revenue.payment_method === 'REWARD'"
+            [ngbTooltip]="('income.REFUND' | translate) + ' ' + ('payment.REWARD' | translate)"
+            (click)="openConfirm(revenue)">
+            <i class="fa fa-backward"></i>
+          </span>
+        </td>
+        <td>{{revenue.id}}</td>
+        <td>{{revenue.paid_at | date:'dd MMM yyyy HH:mm'}}</td>
+        <td>{{revenue.description}}</td>
+        <td [class.text-danger]="revenue.amount < 0">
+          {{revenue.amount | currency:'MGA':''}}
+        </td>
+        <td>{{'payment.' + revenue.payment_method | translate}}</td>
+        <td>{{revenue.account_id}}</td>
+        <td class="text-right">
+          {{revenue?.User.name | slice:0:15}}.
+          <span class="text-muted font-size-13 d-block">
+            {{revenue?.created_at | date:'dd MMM yyyy HH:mm'}}
+          </span>
+        </td>
+      </tr>
+    </tbody>
+    <tfoot>
+      <tr>
+        <td colspan="8">
+          <button type="button" class="btn btn-link btn-sm pull-right"
+                (click)="exportToExcel(dataTable, 'list_payments')" translate>
+            button.DOWNLOAD
+          </button>
+        </td>
+      </tr>
+    </tfoot>
+  </table>
+</div>

@@ -1,0 +1,242 @@
+<div class="container-fluid">
+  <div class="pdd-horizon-30">
+    <div class="row">
+      <div class="col-lg-12">
+        <form role="form" [formGroup]="addInvoiceForm" autocomplete="off" novalidate (ngSubmit)="save()">
+          <div class="card">
+            <div class="card-heading border bottom">
+              <h4 class="card-title text-info">Nouvelle facture</h4>
+            </div>
+
+            <div class="card-block card-item">
+              <div class="row">
+                <div class="col-lg-12">
+                  <div class="row">
+                    <label class="col-lg-2 col-form-label text-lg-right">Client</label>
+
+                    <div class="col-lg-3">
+                      <div class="form-group">
+                        <app-typeahead-contact
+                          formControlName="contact"
+                          [submitted]="submitted"
+                        >
+                        </app-typeahead-contact>
+                      </div>
+                    </div>
+
+                    <label class="offset-lg-1 col-lg-3 col-form-label text-lg-right">N° Facture</label>
+
+                    <div class=" col-lg-3">
+                      <div class="form-group">
+                        <input type="text" class="form-control bg-transparent" formControlName="invoice_number"
+                          [readOnly]="true"
+                          [class.error]="submitted && addInvoiceForm.get('invoice_number').status === 'INVALID'">
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <label class="col col-form-label text-lg-right">Tél.</label>
+
+                    <label class="col-lg-3 col-form-label">{{addInvoiceForm.get('contact').value?.phone}}</label>
+
+                    <label class="offset-lg-1 col-lg-3 col-form-label text-lg-right">Facturé le</label>
+
+                    <div class="col-lg-3">
+                      <div class="form-group">
+                        <div class="timepicker-input input-icon">
+                          <i class="ti-time"></i>
+                          <input type="text" class="form-control" formControlName="invoiced_at"
+                            ngbDatepicker #d="ngbDatepicker" (click)="d.toggle()" [readonly]="true"
+                            [class.error]="submitted && addInvoiceForm.get('invoiced_at').status === 'INVALID'">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <label class="col col-form-label text-lg-right">Catégorie</label>
+
+                    <div class="col-lg-3">
+                      <div class="form-group">
+                        <ng-select [items]="categories | async" bindLabel="name" formControlName="category"
+                          [ngClass]="{'error': submitted && addInvoiceForm.get('category').status === 'INVALID'}">
+                        </ng-select>
+                      </div>
+                    </div>
+
+                    <label class="offset-lg-1 col-lg-3 col-form-label text-lg-right">Date d'échéance</label>
+
+                    <div class="col-lg-3">
+                      <div class="form-group">
+                        <div class="timepicker-input input-icon">
+                          <i class="ti-time"></i>
+                          <input type="text" class="form-control" formControlName="due_at" ngbDatepicker
+                            #e="ngbDatepicker" (click)="e.toggle()" readonly
+                            [class.error]="submitted && addInvoiceForm.get('due_at').status === 'INVALID'">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <hr />
+
+                  <div class="row">
+                    <div class="col-lg-12">
+                      <div formArrayName="InvoiceItems">
+                        <div class="form-group m-0">
+                          <div class="">
+                            <label>Produits/services</label>
+                          </div>
+                          <table class="table table-bordered table-item">
+                            <thead>
+                              <tr class="font-weight-bold bg-light">
+                                <th class="text-center" style="width:7%;">
+                                  <i class="fa fa-navicon"></i>
+                                </th>
+                                <th>Nom</th>
+                                <th class="width-10 text-center">Unité</th>
+                                <th class="width-10 text-center">Quantité</th>
+                                <th class="width-15 text-right">Prix unitaire</th>
+                                <th class="width-20">Taxes</th>
+                                <th class="width-15 text-right">Total</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr *ngFor="let item of InvoiceItems.controls; let i=index" [formGroupName]="i">
+                                <td class="text-center">
+                                  <button type="button" class="btn btn-link m-0" (click)="removeItem(i)">
+                                    <i class="fa fa-trash text-danger"></i>
+                                  </button>
+                                </td>
+                                <td class="relative">
+                                  <ng-select class="flex-grow-1 no-border" placeholder="Choisissez l'article..." [clearable]="false" appendTo="body"
+                                    [items]="items" formControlName="item" bindLabel="name" (change)="onSelectItem($event, item)"
+                                    [class.error]="submitted && item.controls.item.invalid">
+                                    <ng-template ng-option-tmp let-item="item">
+                                      <ng-container *ngIf="item">
+                                        {{ item?.name }}
+                                        <ng-container *ngIf="item.type !== 'SERVICES'">
+                                          <span style="color: #ff6879!important" class="font-weight-bold d-block font-size-13"
+                                            *ngIf="!item.available?.quantity"><i class="fa fa-exclamation-triangle"></i>&nbsp;&nbsp;Stock épuisé</span>
+                                          <span class="d-block font-size-13 text-muted" *ngIf="item.available?.quantity">
+                                            {{ item.available.quantity }} {{ item.available.ItemUnit?.name || 'UNITE' }}(S)
+                                          </span>
+                                        </ng-container>
+                                      </ng-container>
+                                    </ng-template>
+                                  </ng-select>
+
+                                  <button type="button" class="btn btn-link m-0" data-toggle="collapse" [attr.data-target]="'#collapse-' + i"
+                                    style="position: absolute; top: 0; right: 0;">
+                                    <i class="fa fa-pencil text-dark"></i>
+                                  </button>
+
+                                  <div class="collapse" id="collapse-{{i}}" [class.show]="item.controls.description.value">
+                                    <textarea class="form-control no-border" formControlName="description" placeholder="Entrer description"></textarea>
+                                  </div>
+                                </td>
+                                <td>
+                                  <ng-select class="no-border" placeholder="Choisir..." formControlName="unit_id"
+                                    [items]="item.controls.units?.value" bindLabel="name" bindValue="id"
+                                    [ngClass]="{'error': submitted && item.controls.unit_id.invalid}"
+                                    [hideSelected]="true" [clearable]="false" (change)="onSelectUnit($event, item)">
+                                  </ng-select>
+                                </td>
+                                <td>
+                                  <input type="number" formControlName="quantity" class="form-control text-center"
+                                    [min]="1" [class.error]="submitted && !item.controls.quantity.valid">
+                                </td>
+                                <td>
+                                  <input type="text" formControlName="price" class="form-control text-right"
+                                    mask="separator" [class.error]="submitted && !item.controls.price.valid">
+                                </td>
+                                <td>
+                                  <ng-select class="no-border" placeholder="Ajouter taxe" formControlName="Taxes"
+                                    [items]="taxes | async" bindLabel="name" [hideSelected]="true" [searchable]="true"
+                                    [multiple]="true" [clearable]="false">
+                                  </ng-select>
+                                </td>
+                                <td class="text-right">
+                                  <input type="text" class="form-control text-right bg-transparent" readonly
+                                    [value]="getTotal(item) | currency:'MGA':''">
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-lg-4">
+                      <button type="button" class="btn btn-link" (click)="addItem()">
+                        Ajouter produit/service
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="offset-8 col-lg-4">
+                      <div class="list-group">
+                        <div class="list-group-item">
+                          <b class="width-50 inline-block text-right mrg-right-15">Sous-total</b>
+                          <span class="pull-right">{{getPaymentDue() | currency:'MGA':''}}</span>
+                        </div>
+                        <div class="list-group-item">
+                          <b class="width-50 inline-block text-right mrg-right-15">Taxes</b>
+                          <span class="pull-right">{{getTotalTax() | currency:'MGA':''}}</span>
+                        </div>
+                        <div class="list-group-item">
+                          <b class="width-50 inline-block text-right mrg-right-15">Remise</b>
+                          <span class="pull-right">{{getTotalDiscount() | currency:'MGA':''}}</span>
+                        </div>
+                        <div class="list-group-item">
+                          <b class="width-50 inline-block text-right mrg-right-15">Total</b>
+                          <span class="pull-right font-weight-bold">{{getBalance() | currency:'MGA':'Ar '}}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card-footer border top text-right pdd-vertical-15 pdd-horizon-30">
+              <button type="submit" class="btn btn-info m-0" appXhrBtnIndicator>
+                <i class="fa fa-save"></i></button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #tplItem let-r="result" let-t="term">
+  <ngb-highlight [result]="r?.name + ' [' + r?.sku.toUpperCase() + '] - ' + r?.quantity" [term]="t" *ngIf="r">
+  </ngb-highlight>
+
+  <a class="d-block text-white py-2" *ngIf="!r">
+    <i class="fa fa-plus-circle mr-1"></i> Nouveau
+  </a>
+</ng-template>
+
+<ng-template #tpl let-r="result" let-t="term">
+  <ngb-highlight [result]="r?.name" [term]="t"></ngb-highlight>
+
+  <span style="color: #6f748a;" [ngClass]="{'d-block' : r, 'd-none': !r}">
+    {{r?.phone}} -
+    {{r?.id_cin}} -
+    {{r?.id_passport}}
+  </span>
+
+  <a class="d-block text-white py-2" *ngIf="!r">
+    <i class="fa fa-plus-circle mr-1"></i> Ajouter client
+  </a>
+</ng-template>
+
+<ng-template #tplCat let-r="result" let-t="term">
+  <ngb-highlight [result]="r.name" [term]="t"></ngb-highlight>
+</ng-template>

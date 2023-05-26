@@ -1,0 +1,130 @@
+<div class="container-fluid">
+  <div class="pdd-horizon-30">
+    <div class="row">
+      <div class="col-lg">
+        <div class="card">
+          <div class="row">
+            <div class="col-lg">
+              <div class="table-responsive">
+                <table class="table table-striped no-border m-0">
+                  <tbody>
+                    <tr>
+                      <td colspan="6" class="border-top-0">
+                        <button class="btn btn-info btn-sm pull-right mr-0" (click)="open()">
+                          Ajouter type</button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th class="text-center width-5">Statut</th>
+                      <th class="width-5">ID</th>
+                      <th>Nom</th>
+                      <th>Catégorie</th>
+                      <th>Description</th>
+                      <th class="width-10 text-center">Actions</th>
+                    </tr>
+                    <tr *ngFor="let type of extendedTypes">
+                      <td class="text-center">
+                        <i class="fa"
+                          [ngClass]="{'fa-check-circle text-success': type.enabled, 'fa-times-circle text-normal': !type.enabled}"></i>
+                      </td>
+                      <td>{{type.id}}</td>
+                      <td>{{type.name}}</td>
+                      <td>{{type.Category?.name}}</td>
+                      <td>{{type.description}}</td>
+                      <td class="text-center">
+                        <button class="btn btn-sm btn-info btn-icon" (click)="edit(type)">
+                          <i class="fa fa-pencil"></i>
+                        </button>
+                      </td>
+                    </tr>
+                    <tr *ngIf="extendedTypes?.length === 0">
+                      <td class="text-center" colspan="6">
+                        Aucun enregistrement
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Side Panel START -->
+<div class="side-panel" [ngClass]="{'side-panel-open' : sidePanelOpen}">
+  <div class="side-panel-wrapper bg-white">
+    <ul class="nav nav-tabs" role="tablist">
+      <li class="nav-item active">
+        <a class="nav-link" href="#chat" role="tab" data-toggle="tab">
+          <span>{{extendedType ? 'Modifier' : 'Nouveau'}} type intermédiaire</span>
+        </a>
+      </li>
+      <li class="panel-close">
+        <button class="side-panel-toggle" (click)="sidePanelOpen = !sidePanelOpen">
+          <i class="ti-close"></i>
+        </button>
+      </li>
+    </ul>
+
+    <div class="tab-content overflow-y-auto scrollable">
+      <div class="p-4">
+        <form role="form" [formGroup]="typeForm" (ngSubmit)="save()" novalidate>
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label for="name">Nom</label>
+                <input type="text" id="name" class="form-control" placeholder="" formControlName="name"
+                  [class.error]="submitted && typeForm.get('name').status === 'INVALID'">
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label for="category">Catégorie</label>
+                <ng-select id="category" [items]="categories" bindLabel="name" bindValue="id" formControlName="category_id"
+                  [class.error]="submitted && typeForm.get('category_id').status === 'INVALID'"></ng-select>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label for="description">Description</label>
+                <textarea id="description" class="form-control" formControlName="description"
+                  [class.error]="submitted && typeForm.get('description').status === 'INVALID'"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Activé</label>
+                <div class="toggle-checkbox toggle-info">
+                  <input type="checkbox" formControlName="enabled" id="toggle" checked>
+                  <label for="toggle"></label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row bg-white fixed-bottom">
+            <div class="col-md-12">
+              <div class="px-4 pdd-vertical-20 border top">
+                <button type="submit" class="btn btn-info btn-block no-mrg-btm" appXhrBtnIndicator>
+                  Enregistrer
+                </button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Side Panel END -->

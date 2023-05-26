@@ -1,0 +1,37 @@
+<ol class="tree" [class.display]="displayOnly" [class.tree-root]="level === 0" [class.tree-children]="level > 1">
+  <ng-container *ngFor="let node of treeNodes; let index=index">
+    <ng-container *ngIf="shouldShow(node)">
+      <li class="tree-branch" [id]="'treeBranchLevel-' + level" [ngClass]="{'tree-branch-has-children': hasChild(node), 'tree-branch-leaf': !hasChild(node), 'tree-branch-is-collapsed': !node.toggle}">
+        <div class="tree-branch-label">
+          <a *ngIf="hasChild(node)" 
+            (click)="node.toggle=!node.toggle" 
+            class="toggle">
+            <i *ngIf="!!node.toggle" class="fa fa-caret-down fa-fw"></i>
+            <i *ngIf="!node.toggle" class="fa fa-caret-right fa-fw"></i>
+          </a>
+          <span class="tree-branch-content">
+            <span class="tree-branch-content-name" [ngClass]="{'editable': !displayOnly, 'font-weight-bold': displayOnly && (MedicalService.isResponse(node) || (trueOnly && node.field_type === 'boolean'))}"  (click)="toggleAndEdit(node)">{{ node.title }}</span>
+            <ng-container *ngIf="!displayOnly">
+              <button class="btn btn-info btn-inverse rounded-seat ml-2 mb-0 tree-btn-action" type="button" (click)="performAddChild(node)">
+                <i class="fa fa-plus"></i>
+              </button>
+              <button class="btn btn-info btn-inverse rounded-seat mb-0 tree-btn-action" type="button" (click)="performEdit(node)">
+                <i class="fa fa-pencil"></i>
+              </button>
+              <!-- <button class="btn btn-info btn-inverse rounded-seat mb-0 tree-btn-action" type="button" [disabled]="index === 0" (click)="move(index, -1)">
+                <i class="fa fa-arrow-up"></i>
+              </button>
+              <button class="btn btn-info btn-inverse rounded-seat mb-0 tree-btn-action" type="button" [disabled]="index === treeNodes.length - 1" (click)="move(index, 1)">
+                <i class="fa fa-arrow-down"></i>
+              </button> -->
+            </ng-container>
+            <ng-container *ngIf="shouldShowValue(node)">
+                  <span class="tree-branch-text-value" *ngIf="node.value != null">{{ MedicalService.getValue(node) }}</span>
+              </ng-container>
+          </span>
+        </div>
+        <health-tree-view-content *ngIf="node.toggle && hasChild(node)" [displayOnly]="displayOnly" [trueOnly]="trueOnly" (openAddChild)="performAddChild($event)" (openEditMode)="performEdit($event)" [level]="level + 1" [treeNodes]="node.Child"></health-tree-view-content>
+      </li>
+    </ng-container>
+  </ng-container>
+</ol>

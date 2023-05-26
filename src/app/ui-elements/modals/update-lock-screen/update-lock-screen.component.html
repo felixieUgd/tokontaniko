@@ -1,0 +1,33 @@
+<div class="modal-body">
+  <div class="flex-column">
+    <ng-container *ngIf="message; else default">
+      <div class="image-container">
+        <img src="../../../../assets/images/icons/message.png" alt="Message">
+      </div>
+      <div class="content">
+        <h1>Message d'alerte</h1>
+        <p class="mb-4">
+          {{ message }}
+        </p>
+      </div>
+    </ng-container>
+  </div>
+</div>
+<ng-template #default>
+  <div class="image-container">
+    <img src="../../../../assets/images/icons/maintenance.png" class="medium-size" alt="Maintenance">
+  </div>
+  <div class="content">
+    <h1>Mis à jour en cours</h1>
+    <p class="mb-4">Pour améliorer la qualité de service, l'application est momentanément inaccessible<br>
+      Si vous avez des questions, contactez notre service clientèle au 032 11 031 21
+    </p>
+    <div class="row">
+      <div class="col">
+        <button class="btn btn-danger" (click)="logout()">
+          Se déconnecter
+        </button>
+      </div>
+    </div>
+  </div>
+</ng-template>

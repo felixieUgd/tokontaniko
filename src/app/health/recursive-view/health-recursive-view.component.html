@@ -1,0 +1,196 @@
+<!-- STEP-CONTAINER start -->
+<ng-container *ngFor="let node of treeNodes; let index=index">
+  <ng-container 
+    [ngTemplateOutlet]="level === 0? card: content" 
+    [ngTemplateOutletContext]="{diagnosticCode: node, position: index + 1, next: index < treeNodes.length - 1? treeNodes[index + 1]: null}"
+  >
+  </ng-container>
+</ng-container>
+<!-- STEP-CONTAINER end -->
+
+<!-- STEP-CARD start -->
+<ng-template #card let-diagnosticCode="diagnosticCode" let-next="next" let-position="position">
+  <div class="card" *ngIf="step === position">
+    <div class="card-header d-flex align-items-center">
+        <button class="btn btn-link btn-sm btn-back" (click)="setStep(step - 1)"><i class="fa fa-chevron-left"></i></button>
+        <h3 class="mb-0">{{ diagnosticCode.title }}</h3>
+    </div>
+    <div class="card-body">
+      <health-recursive-view 
+        *ngIf="diagnosticCode?.Child?.length > 0"
+        [treeNodes]="diagnosticCode?.Child"
+        [level]="level + 1"
+        [step]="step"
+        [parentNode]="diagnosticCode"
+        (onStepChange)="setStep($event)"
+      >
+      </health-recursive-view>
+    </div>
+    <div class="card-footer">
+      <button class="pull-left btn btn-info" (click)="nextStep(diagnosticCode)" *ngIf="next || !isLast" translate>button.NEXT</button>
+      <button class="pull-left btn btn-info" (click)="nextStep(diagnosticCode)" *ngIf="!next && isLast" translate>button.VIEW_RESULTS</button>
+    </div>
+  </div>
+</ng-template>
+<!-- STEP-CARD end -->
+
+<!-- CARD-CONTENT start -->
+<ng-template #content let-diagnosticCode="diagnosticCode">
+  <ng-container
+    [ngTemplateOutlet]="!MedicalService.isResponse(diagnosticCode)? default: response" 
+    [ngTemplateOutletContext]="{diagnosticCode: diagnosticCode, question: diagnosticCode?.ParentDiagnosticCode}"
+  >
+  </ng-container>
+</ng-template>
+<!-- CARD-CONTENT end -->
+
+<!-- SINGLE-CODE (label + control) start -->
+<ng-template #default let-diagnosticCode="diagnosticCode">
+  <div class="row">
+    <div class="form-group col mb-3 diagnostic-code" 
+      [ngClass]="{'pl-5': level > 1}"
+    >
+      <label
+        [ngClass]="{'text-uppercase': diagnosticCode.field_type === 'diagnosticCode' && level < 2}"
+      >
+        {{ diagnosticCode?.title }} <span class="font-weight-normal font-size-14 text-muted text-nowrap" *ngIf="diagnosticCode?.previousValue">&nbsp;<i class="fa fa-history"></i> {{ diagnosticCode.previousValue }}</span>
+      </label>
+      
+      <div *ngIf="MedicalService.isInput(diagnosticCode)">
+        <ng-container 
+          [ngTemplateOutlet]="diagnosticCode?.value_type === 'number'? number: text"
+          [ngTemplateOutletContext]="{diagnosticCode: diagnosticCode, question: diagnosticCode?.ParentDiagnosticCode}"
+        >
+        </ng-container>
+      </div>
+      <div *ngIf="diagnosticCode.field_type === 'boolean'" class="btn-group btn-group-toggle width-100" ngbRadioGroup>
+        <label ngbButtonLabel class="btn-default"
+          [class.radio-active]="!!diagnosticCode.value"
+          [class.error]="diagnosticCode.hasError"
+          (click)="toggleBoolean(diagnosticCode, true)"
+        >
+          <input 
+            ngbButton 
+            type="radio"
+          > {{ 'button.YES' | translate }}
+        </label>
+         <label ngbButtonLabel class="btn-default"
+          [class.radio-active]="diagnosticCode.value === false"
+          [class.error]="diagnosticCode.hasError"
+          (click)="toggleBoolean(diagnosticCode, false)"
+        >
+          <input 
+            ngbButton 
+            type="radio"
+          > {{ 'common.NO' | translate }}
+        </label>
+      </div>
+      <div *ngIf="diagnosticCode?.Child?.length > 0">
+        <health-recursive-view class="btn-group btn-toolbar btn-group-toggle width-100" *ngIf="diagnosticCode.field_type === 'radio'" ngbRadioGroup
+          [class.error]="diagnosticCode.hasError"
+          [treeNodes]="diagnosticCode?.Child"
+          [parentNode]="diagnosticCode"
+          [level]="level + 1"
+        >
+        </health-recursive-view>
+        <health-recursive-view *ngIf="diagnosticCode.field_type !== 'radio'"
+          [treeNodes]="diagnosticCode?.Child"
+          [parentNode]="diagnosticCode"
+          [class.error]="diagnosticCode.hasError"
+          [ngClass]="{'d-flex': diagnosticCode.field_type === 'checkbox'}"
+          [level]="level + 1"
+        >
+        </health-recursive-view>
+      </div>
+    </div>
+    <div *ngIf="diagnosticCode?.description != null" [class.col-12]="diagnosticCode.field_type === 'radio'" class="col text-muted mb-3 d-flex flex-grow-1 align-items-center" [innerHTML]="format(diagnosticCode?.description)">
+    </div>
+  </div>
+  <hr *ngIf="level < 2 && diagnosticCode?.Child?.length > 0">
+</ng-template>
+<!-- SINGLE-CODE end -->
+
+<!-- RESPONSE checkbox, radio start -->
+<ng-template #response let-diagnosticCode="diagnosticCode" let-question="question">
+  <div
+    *ngIf="question?.field_type === 'checkbox'"
+    class="mr-4" 
+    [ngClass]="{'d-inline-block': MedicalService.isQuestion(diagnosticCode?.ParentDiagnosticCode?.ParentDiagnosticCode)}"
+  >
+    <div [ngClass]="[question?.field_type, question?.field_type + '-info']">
+      <input
+        [type]="question?.field_type"
+        [id]="'response-' + diagnosticCode?.id"
+        [name]="'question-' + question?.id"
+        [checked]="!!diagnosticCode.value"
+        (click)="toggle(diagnosticCode)"
+      />
+      <label
+        class="font-weight-normal" 
+        [for]="'response-' + diagnosticCode?.id"
+      >
+        {{ diagnosticCode?.title }}
+      </label>
+    </div>
+  </div>
+  
+  <label 
+    *ngIf="question?.field_type === 'radio'"
+    ngbButtonLabel
+    class="btn-default mb-1"
+    [class.radio-active]="!!diagnosticCode.value"
+    (click)="toggle(diagnosticCode)"
+  >
+      <input
+        ngbButton
+        type="radio"
+      > {{ diagnosticCode?.title }}
+  </label>
+    <!-- <div 
+      [ngClass]="{'pl-5': level > 1}"
+      *ngIf="diagnosticCode?.Child?.length > 0 && !!diagnosticCode?.value"
+    >
+      <health-recursive-view 
+        [treeNodes]="diagnosticCode?.Child" 
+        [level]="level + 1" 
+        [parentNode]="diagnosticCode"
+      >
+      </health-recursive-view>
+    </div> -->
+</ng-template>
+<!-- RESPONSE checkbox, radio end -->
+
+<!-- RESPONSE number start -->
+<ng-template #number let-diagnosticCode="diagnosticCode">
+  <ng-container *ngIf="diagnosticCode?.value_max && diagnosticCode.value_max <= 10; else inputNumber">
+    <div class="btn-group btn-group-toggle width-100" ngbRadioGroup>
+      <label 
+        *ngFor="let f of [].constructor(diagnosticCode.value_max + 1); let i = index" 
+        ngbButtonLabel class="btn-default" [class.radio-active]="diagnosticCode.value == i"
+        [class.error]="diagnosticCode.hasError" (click)="setValue(diagnosticCode, i)"
+      >
+        <input ngbButton type="radio"> {{ i }}
+      </label>
+    </div>
+  </ng-container>
+  <ng-template #inputNumber>
+    <div class="input-group mb-0" [ngStyle]="{width: '125px'}">
+      <input type="number" (keypress)="isNumberKey($event)" [min]="diagnosticCode.value_min" healthResponseInput [diagnosticCode]="diagnosticCode" [class.error]="diagnosticCode.hasError"
+        (checkValidity)="isValid($event)" [(ngModel)]="diagnosticCode.value" class="form-control">
+      <div class="input-group-append" *ngIf="diagnosticCode?.value_max != null || diagnosticCode?.unit != null">
+        <span class="input-group-text">{{ diagnosticCode.value_max? '/' + diagnosticCode.value_max: diagnosticCode.unit
+          }}</span>
+      </div>
+    </div>
+  </ng-template>
+</ng-template>
+<!-- RESPONSE number end -->
+
+<!-- TEXT start -->
+<ng-template #text let-diagnosticCode="diagnosticCode">
+  <textarea rows="10" healthResponseInput
+      [diagnosticCode]="diagnosticCode"
+      [class.error]="diagnosticCode.hasError"
+      (checkValidity)="isValid($event)" [(ngModel)]="diagnosticCode.value" class="form-control"></textarea>
+</ng-template>
+<!-- TEXT end -->

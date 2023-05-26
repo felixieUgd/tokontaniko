@@ -1,0 +1,18 @@
+<div class="modal-content">
+  <div class="modal-header border-bottom pb-3 btn-{{type}}">
+    <span class="modal-title font-size-16">
+      <i class="fa fa-exclamation-triangle mr-2"></i>
+      <span [innerHTML]="title || 'En attente de confirmation'"></span>
+    </span>
+    <button type="button" class="close" (click)="modal.dismiss()" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body text-center">
+    <h4 class="mb-0" [innerHTML]="text || (('common.ARE_YOU_SURE' | translate) + '?')"></h4>
+  </div>
+  <div class="modal-footer">
+    <button class="btn mr-1" (click)="modal.dismiss()" translate>button.NO</button>
+    <button class="btn btn-info" ngbAutofocus (click)="modal.close(true)" translate>button.YES</button>
+  </div>
+</div>

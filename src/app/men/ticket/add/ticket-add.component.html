@@ -1,0 +1,237 @@
+<div class="container-fluid">
+  <div class="pdd-horizon-30">
+    <div class="row">
+      <div class="col-lg-12">
+        <form role="form" [formGroup]="form" autocomplete="off" novalidate (submit)="save()">
+          <div class="card">
+            <div class="card-heading border bottom">
+              <h4 class="card-title text-info" translate>men.NEW_TICKET</h4>
+            </div>
+
+            <div class="padding-30">
+              <div class="row">
+                <div class="col col-lg-6">
+                  <div class="table-responsive">
+                    <ul class="list-group mrg-btm-30">
+                      <li class="list-group-item">
+                        <h4 class="mb-0">Contact établissement</h4>
+                      </li>
+                      <li class="list-group-item" *ngFor="let item of facility?.Contacts; let i=index;">
+                        {{item.name}}
+                        <i class="fa fa-phone lh-1-2 font-size-19 text-primary pointer pull-right mrg-top-10" (click)="setContact(item)"></i>
+                        <span class="d-block font-size-13 text-muted">{{item.phone | mask:'000 00 000 00'}}</span>
+                      </li>
+                    </ul>
+
+                    <ul class="list-group">
+                      <li class="list-group-item">
+                        <h4 class="mb-0">Autres contact</h4>
+                      </li>
+                      <li class="list-group-item">
+                        <span class="font-weight-bold text-info mb-1">
+                          {{'men.REGION' | translate}} - {{facility?.Geography.Parent.Parent?.region}}
+                        </span>
+                        <ul class="list-unstyled mb-2">
+                          <li *ngFor="let item of facility?.Geography.Parent.Parent?.Users">
+                            {{item.name}}
+                            <br>
+                            <span class="text-muted">{{item?.phone || item.email}}</span>
+                          </li>
+                        </ul>
+
+                        <span class="font-weight-bold text-info mb-1">
+                          {{'men.DISTRICT' | translate}} - {{facility?.Geography.Parent?.district}}
+                        </span>
+                        <ul class="list-unstyled mb-2">
+                          <li
+                            [hidden]="!facility?.Geography.Parent?.Users?.length"
+                            *ngFor="let item of facility?.Geography.Parent?.Users"
+                          >
+                            {{item.name}}
+                            <br>
+                            <span class="text-muted">{{item?.phone || item.email}}</span>
+                          </li>
+                        </ul>
+
+                        <span class="font-weight-bold text-info mb-1">
+                          {{'men.TOWN' | translate}} - {{facility?.Geography?.commune}}
+                        </span>
+                        <ul class="list-unstyled">
+                          <li [hidden]="!facility?.Geography.Users" *ngFor="let item of facility?.Geography?.Users">
+                            {{item.name}}
+                            <span class="d-block font-size-13 text-muted">{{item?.phone || item.email}}</span>
+                          </li>
+                        </ul>
+                      </li>
+                      <li class="list-group-item" *ngIf="facility?.Geography.Users">
+                        <ul class="list-unstyled">
+                          <li *ngFor="let item of facility?.Geography?.Users">
+                            {{item.name}}
+                            <span class="d-block font-size-13 text-muted">{{item?.phone || item.email}}</span>
+                          </li>
+                        </ul>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+                <div class="col col-lg-6">
+                  <div class="row">
+                    <div class="col-lg-6">
+                      <div class="form-group">
+                        <label translate>common.DATE</label>
+                        <div class="timepicker-input input-icon">
+                          <i class="ti-time"></i>
+                          <input type="text" id="requested_at" class="form-control" #d4="ngbDatepicker"
+                                (click)="d4.toggle()" formControlName="requested_at" ngbDatepicker [readOnly]="true">
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-lg-6">
+                      <div class="form-group">
+                        <label>Type</label>
+                        <ng-select formControlName="request_type_id" bindValue="id"
+                          [items]="requestTypes | async" bindLabel="name">
+                          <ng-template ng-option-tmp let-item="item">
+                            <span [title]="item.name">{{ item.name }}</span>
+                          </ng-template>
+                        </ng-select>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-lg-6">
+                      <div class="form-group">
+                        <label translate>common.CATEGORY</label>
+                        <ng-select [items]="categories" bindLabel="name" formControlName="category"
+                            (change)="onSelectCategory($event)"
+                            [ngClass]="{'error': submitted && form.get('category').status === 'INVALID'}">
+                          <ng-template ng-option-tmp let-item="item">
+                            {{item.name}}
+                          </ng-template>
+                        </ng-select>
+                      </div>
+                    </div>
+                    <div class="col-lg-6">
+                      <div class="form-group">
+                        <label translate>common.STATUS</label>
+                        <ng-select [items]="statuses" formControlName="status"
+                                  [ngClass]="{'error': submitted && form.get('status').status === 'INVALID'}">
+                          <ng-template ng-label-tmp let-item="item">
+                            {{'status.' + item | translate}}
+                          </ng-template>
+                          <ng-template ng-option-tmp let-item="item">
+                            {{'status.' + item | translate}}
+                          </ng-template>
+                        </ng-select>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-lg-6">
+                      <div class="form-group">
+                        <label translate>nav.CONTACT</label>
+                        <ng-select [items]="contact$ | async" bindLabel="name"
+                          formControlName="contact"  minTermLength="3"
+                          typeToSearchText="{{('nav.SEARCH' | translate) + '...'}}"
+                          [class.error]="submitted && form.controls.contact.invalid"
+                          [typeahead]="contactInput$" [clearable]="true" [multiple]="true"
+                          (add)="onSelectContact($event)"
+                        >
+                          <ng-template ng-option-tmp let-item="item">
+                            {{item.name}}
+                            <br/>
+                            <span style="color: #6f748a;">
+                              {{item.phone}} -
+                              {{item.id_cin}} -
+                              {{item.id_passport}}
+                            </span>
+                          </ng-template>
+                        </ng-select>
+                      </div>
+                    </div>
+                    <div class="col-lg-6">
+                      <div class="form-group">
+                        <label translate>common.ASSIGNED_TO</label>
+                        <ng-select [items]="staff$ | async" bindLabel="name"
+                          formControlName="staff"  minTermLength="3"
+                          typeToSearchText="{{('nav.SEARCH' | translate) + '...'}}"
+                          [typeahead]="staffInput$" [clearable]="true" [multiple]="true"
+                          [class.error]="submitted && form.controls.staff.invalid">
+                          <ng-template ng-option-tmp let-item="item">
+                            {{item.name}}
+                            <br/>
+                            <span style="color: #6f748a;">
+                              {{item.email}}
+                            </span>
+                          </ng-template>
+                        </ng-select>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-lg">
+                      <div class="form-group">
+                        <label translate>common.TITLE</label>
+                        <input type="text" class="form-control" formControlName="title"
+                                [class.error]="submitted && form.get('title').status === 'INVALID'">
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-lg">
+                      <div class="form-group">
+                        <label translate>common.DESCRIPTION</label>
+                        <textarea id="description" class="form-control" formControlName="description"
+                                  [class.error]="submitted && form.get('description').status === 'INVALID'">
+                        </textarea>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card-footer border top pdd-vertical-15 pdd-horizon-30">
+              <button class="btn btn-info pull-right m-0" appXhrBtnIndicator>
+                <i class="fa fa-save"></i>
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #tpl let-r="result" let-t="term">
+  <ngb-highlight [result]="r?.name" [term]="t"></ngb-highlight>
+
+  <span style="color: #6f748a;" [ngClass]="{'d-block' : r, 'd-none': !r}">
+    {{r?.phone}} -
+    {{r?.id_cin}} -
+    {{r?.id_passport}}
+  </span>
+
+  <a class="d-block text-white py-2" *ngIf="!r">
+    <i class="fa fa-plus-circle mr-1"></i> {{'button.ADD' | translate}} {{'common.CUSTOMER' | translate}}
+  </a>
+</ng-template>
+
+<ng-template #tplUser let-r="result" let-t="term">
+  <div class="row align-items-center" *ngIf="r">
+    <div class="col">
+      <ngb-highlight [result]="r?.name" [term]="t"></ngb-highlight>
+      <span style="color: #6f748a;" [ngClass]="{'d-block' : r, 'd-none': !r}">
+        {{r?.email}}
+      </span>
+    </div>
+  </div>
+
+  <a class="d-block text-white py-2" [routerLink]="['/settings/user/add']" *ngIf="!r">
+    <i class="fa fa-plus-circle mr-1"></i> {{'button.ADD' | translate}} {{'common.USER' | translate}}
+  </a>
+</ng-template>

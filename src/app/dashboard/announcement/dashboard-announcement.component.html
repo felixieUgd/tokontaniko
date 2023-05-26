@@ -1,0 +1,83 @@
+<div class="custom-container">
+  <div class="row full-height no-gutters bg-white">
+    <div class="col-lg border-right">
+      <div class="card-body">
+        <button type="button" class="btn btn-info btn-block mt-2" [routerLink]="['/dashboard/announcement/add']">
+          Ajouter
+        </button>
+        <ul class="menu mt-3">
+					<li>
+						<a [class.text-info]="active_menu === 'UNREAD'"
+              (click)="display(unread, 'UNREAD')">
+							<i class="ti-menu-alt"></i>
+							<span>Non lu</span>
+							<span class="label label-primary">{{unread?.length}}</span>
+						</a>
+					</li>
+					<li>
+						<a [class.text-info]="active_menu === 'READ'"
+              (click)="display(read, 'READ')">
+							<i class="ti-archive"></i>
+							<span>Archives</span>
+              <span class="label label-primary">{{read?.length}}</span>
+						</a>
+					</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-lg border-right ps" style="height: 100vh;" perfectScrollbar>
+      <ul class="list-unstyled">
+        <li class="border-bottom pointer pt-1 pdd-horizon-15">
+          <input type="search" class="form-control no-border input-lg" [(ngModel)]="searchKeyword"
+            [placeholder]="'placeholder.SEARCH' | translate">
+          <i class="ei ei-unchecked text-muted pointer" style="position:absolute;right:25px;top:22px;z-index:100;"
+            (click)="searchKeyword = ''" *ngIf="searchKeyword.length > 0"></i>
+        </li>
+        <li class="border-bottom pointer pdd-vertical-20 pdd-horizon-15 inbox"
+          *ngFor="let item of filterInbox(announcements)" (click)="onSelectFeed(item)"
+          [class.bg-light]="item.id === selected?.id">
+          <h6 class="mb-0">
+            {{item.User.name | slice:0:10}}.
+            <small class="pull-right">{{fromNow(item.created_at)}}</small>
+          </h6>
+          <span class="d-block font-weight-bold my-2">
+            {{item.title | slice:0:20}}
+            {{item.title.length > 20 ? '...' : ''}}
+          </span>
+          <span class="d-block">
+            {{item['content_text'] | slice:0:40}}
+            {{item['content_text'].length > 40 ? '...' : ''}}
+          </span>
+        </li>
+      </ul>
+    </div>
+    <div class="col-lg-7">
+      <div class="p-5 ps" *ngIf="selected" perfectScrollbar>
+        <div class="vertical-align-middle">
+          <div class="info">
+            <span class="font-size-16">{{selected?.User.name}}</span>
+            <ul class="list-unstyled pull-right">
+              <li class="d-inline">
+                <a href class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                  <i class="ti-more-alt"></i>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-right">
+                  <li>
+                    <a (click)="edit(selected)">Modifier</a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+            <span class="d-block text-muted">
+              <small>{{selected?.created_at | date:'dd MMM yyyy HH:mm'}}</small>
+            </span>
+          </div>
+        </div>
+
+        <h4 class="mrg-vertical-20">{{selected?.title}}</h4>
+
+        <div [innerHTML]="selected?.content"></div>
+      </div>
+    </div>
+  </div>
+</div>

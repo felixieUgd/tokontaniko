@@ -1,0 +1,206 @@
+<div class="container-fluid">
+  <div class="pdd-horizon-30">
+    <div class="row justify-content-center">
+      <div class="col-lg-12 col-xl-9">
+        <form role="form" [formGroup]="requestForm" autocomplete="off" novalidate (ngSubmit)="save()">
+          <div class="card">
+            <div class="card-heading border bottom">
+              <h4 class="card-title text-info">Nouvelle commande</h4>
+            </div>
+
+            <div class="card-block">
+              <div class="row">
+                <div class="col-md-12">
+                  <div class="row justify-content-center">
+                    <div class="col-lg-12">
+                      <div class="form-group row">
+                        <div class="col-lg-6">
+                          <label>Catégorie</label>
+                          <ng-select [items]="categories | async" bindLabel="name" formControlName="category"
+                            [ngClass]="{'error': submitted && category.status === 'INVALID'}" [clearable]="false">
+                            <ng-template ng-option-tmp let-item="item">
+                              {{item.name}}
+                            </ng-template>
+                          </ng-select>
+                        </div>
+                        <div class="col-lg-6">
+                          <label>Date</label>
+                          <div class="timepicker-input input-icon">
+                            <i class="ti-time"></i>
+                            <input class="form-control" #d3="ngbDatepicker" (click)="d3.toggle()"
+                              formControlName="requested_at" ngbDatepicker [readOnly]="true">
+                          </div>
+                        </div>
+                      </div>
+                      <div class="form-group row">
+                        <div class="col-lg-6">
+                          <label>Etablissement</label>
+                          <ng-select [items]="searchFacility$ | async" bindLabel="name" formControlName="facility"
+                            typeToSearchText="{{('common.TYPE_TO_SEARCH' | translate) + '...'}}"
+                            notFoundText="Aucun enregistrement" [typeahead]="facilityInput$" [clearable]="true"
+                            [class.error]="submitted && requestForm.controls.facility.invalid">
+                            <ng-template ng-option-tmp let-item="item">
+                              {{item?.name}}
+                              <br />
+                              <span style="color: #6f748a;">
+                                {{item?.code}}
+                              </span>
+                            </ng-template>
+                          </ng-select>
+                        </div>
+                        <div class="col-lg-6">
+                          <label>Local</label>
+                          <ng-select [items]="filteredRooms" bindLabel="title" formControlName="room"
+                            [class.error]="submitted && requestForm.controls.room.invalid">
+                            <ng-template ng-label-tmp let-item="item">
+                              {{item.title}}
+                            </ng-template>
+                            <ng-template ng-option-tmp let-item="item">
+                              {{item.title}} - {{item.RoomType.name}}
+                            </ng-template>
+                          </ng-select>
+                        </div>
+                      </div>
+                      <div class="row form-group">
+                        <div class="col-lg-6">
+                          <label>Assigné à</label>
+                          <ng-select [items]="staff$ | async" bindLabel="name" formControlName="staff" minTermLength="3"
+                            typeToSearchText="{{('nav.SEARCH' | translate) + '...'}}" [typeahead]="staffInput$" [clearable]="true"
+                            [multiple]="true" [class.error]="submitted && requestForm.controls.staff.invalid">
+                            <ng-template ng-option-tmp let-item="item">
+                              {{item.name}}
+                              <br />
+                              <span style="color: #6f748a;">
+                                {{item.email}}
+                              </span>
+                            </ng-template>
+                          </ng-select>
+                        </div>
+                        <div class="col-lg-6">
+                          <label>Origine</label>
+                          <ng-select [items]="contact$ | async" bindLabel="name" formControlName="contact" minTermLength="3"
+                            typeToSearchText="{{('nav.SEARCH' | translate) + '...'}}" [typeahead]="contactInput$" [clearable]="true"
+                            [multiple]="true" (add)="onSelectContact($event)">
+                            <ng-template ng-option-tmp let-item="item">
+                              {{item.name}}
+                              <ng-container *ngIf="item.id">
+                                <br />
+                                <span style="color: #6f748a;">
+                                  {{item.phone}} -
+                                  {{item.id_cin}} -
+                                  {{item.id_passport}}
+                                </span>
+                              </ng-container>
+                            </ng-template>
+                          </ng-select>
+                        </div>
+                      </div>
+                      <div class="row form-group">
+                        <div class="col-lg-6">
+                          <label>Motif</label>
+                          <ng-select formControlName="reason" [items]="inventoryService.orderReasons" [clearable]="false"
+                            (change)="onSelectReason($event)">
+                          </ng-select>
+                          <textarea id="description" class="form-control mt-2" formControlName="description"
+                            *ngIf="requestForm.controls.reason?.value === 'Autres'"
+                            [class.error]="submitted && requestForm.controls.description.invalid"></textarea>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <hr />
+
+                  <div class="row">
+                    <div class="col-md-12">
+                      <div formArrayName="OrderItems">
+                        <div class="form-group m-0">
+                          <div>
+                            <label>Produits</label>
+                          </div>
+                          <table class="table table-bordered table-item">
+                            <thead>
+                              <tr class="font-weight-bold bg-light">
+                                <th class="text-center width-5">
+                                  <i class="fa fa-navicon"></i>
+                                </th>
+                                <th>Nom</th>
+                                <th class="width-30">Unité</th>
+                                <th class="width-10 text-center">Quantité</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr *ngFor="let item of OrderItems.controls; let i=index" [formGroupName]="i">
+                                <td class="text-center">
+                                  <button type="button" class="btn btn-link m-0" (click)="removeItem(i)">
+                                    <i class="fa fa-trash text-danger"></i>
+                                  </button>
+                                </td>
+                                <td class="relative">
+                                  <input type="search" formControlName="name" class="form-control no-border" placeholder="Rechercher..."
+                                    (selectItem)="onSelectItem($event, item)" [ngbTypeahead]="searchItem" [editable]="true" [resultTemplate]="tplItem"
+                                    [class.error]="submitted && (item.controls.name.invalid || item.controls.item_id.invalid)">
+
+                                  <button type="button" class="btn btn-link m-0" data-toggle="collapse"
+                                    [attr.data-target]="'#collapse-' + i" style="position: absolute; top: 0; right: 0;">
+                                    <i class="fa fa-pencil text-dark"></i>
+                                  </button>
+
+                                  <div class="collapse" id="collapse-{{i}}"
+                                    [class.show]="item.controls.description.value">
+                                    <textarea class="form-control no-border" formControlName="description"
+                                      placeholder="Entrer description"></textarea>
+                                  </div>
+                                </td>
+                                <td>
+                                  <ng-select class="no-border" placeholder="Choisir..." formControlName="unit_id"
+                                    [ngClass]="{'error': submitted && item.controls.unit_id.invalid}"
+                                    [items]="units" bindValue="id" [hideSelected]="true"[clearable]="false" bindLabel="name">
+                                  </ng-select>
+                                </td>
+                                <td>
+                                  <input type="number" formControlName="quantity" class="form-control text-center"
+                                    [min]="1" [class.error]="submitted && item.controls.quantity.invalid">
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-lg-4">
+                      <button type="button" class="btn btn-link" appXhrBtnIndicator (click)="addItem()">
+                        Ajouter
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card-footer border top pdd-vertical-15 pdd-horizon-30">
+              <button type="submit" class="btn btn-info pull-right m-0" appXhrBtnIndicator>
+                <i class="fa fa-save"></i>
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #tplItem let-r="result" let-t="term">
+  <ng-container *ngIf="r">
+    <ngb-highlight [result]="r?.name" [term]="t">
+    </ngb-highlight>
+    <span style="color: #ff6879!important" class="font-weight-bold d-block" *ngIf="!r.available"><i
+        class="fa fa-exclamation-triangle"></i>&nbsp;&nbsp;Stock épuisé</span>
+    <span class="d-block font-size-13" *ngIf="r.available">
+      {{ r.available.quantity }} {{ r.available.ItemUnit?.name || 'UNITE' }}(S)
+    </span>
+  </ng-container>
+</ng-template>

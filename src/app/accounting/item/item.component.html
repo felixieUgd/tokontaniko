@@ -1,0 +1,249 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-lg">
+      <div class="card">
+        <div class="tab-info">
+          <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item">
+              <a href="#tab-list" class="nav-link active" role="tab" data-toggle="tab">
+                STOCK
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="#tab-report" class="nav-link" role="tab" data-toggle="tab">
+                REPORT
+              </a>
+            </li>
+          </ul>
+          <div class="tab-content">
+            <div id="tab-list" role="tabpanel" class="tab-pane fade in active">
+              <div class="row">
+                <div class="col-lg">
+                  <div class="table-responsive" #table="stTable" stTable>
+                    <table class="table table-striped no-border m-0">
+                      <tr>
+                        <td colspan="3" class="text-center no-border"></td>
+                        <td colspan="6" class="no-border">
+                          <button type="button" class="btn btn-info btn-sm pull-right" (click)="open()">
+                            Ajouter produit
+                          </button>
+
+                          <button type="button" class="btn btn-dark btn-sm pull-right"
+                            (click)="report('PDF')">
+                            Inventaire
+                          </button>
+
+                          <button type="button" class="btn btn-link btn-sm pull-right"
+                            (click)="report('XLS')">
+                            Télécharger .xls
+                          </button>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th class="width-5" stSort="id">ID</th>
+                        <th class="text-center width-5">Etat</th>
+                        <th class="width-20" stSort="name">Nom</th>
+                        <th class="text-center">Categorie</th>
+                        <th class="width-15 text-center" stSort="type">Type</th>
+                        <th class="text-center" stSort="quantity">Quantité</th>
+                        <th stSort="purchase_price">Prix d'achat / vente</th>
+                        <!-- <th stSort="created_at" stSortCycle="true">Créé</th> -->
+                        <th class="text-center">Actions</th>
+                      </tr>
+                      <tr>
+                        <td></td>
+                        <td></td>
+                        <td>
+                          <input type="search" class="form-control input-sm" stSearch="name,sku"
+                            placeholder="Rechercher...">
+                        </td>
+                        <td></td>
+                        <td>
+                          <select id="type" class="form-control input-sm text-center"
+                            style="width: 100% !important;" [(ngModel)]="selectedFilter"
+                            (ngModelChange)="filterByType($event)">
+                            <option [value]="item" class="text-uppercase" *ngFor="let item of types">
+                              {{'item_type.' + item | translate}}
+                            </option>
+                          </select>
+                        </td>
+                        <td colspan="5"></td>
+                      </tr>
+                      <tr>
+                        <td class="text-center" colspan="9" *ngIf="table.busy">
+                          <i class="fa fa-spin fa-spinner"></i>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="text-center" colspan="9" *ngIf="table.items.length === 0 && !table.busy">
+                          Aucun produit
+                        </td>
+                      </tr>
+                      <tr *ngFor="let item of table.items" [hidden]="table.busy">
+                        <td>{{item.id}}</td>
+                        <td class="text-center">
+                          <i class="fa"
+                            [ngClass]="{'fa-check-circle text-success': item.enabled, 'fa-times-circle text-normal': !item.enabled}"></i>
+                        </td>
+                        <td>
+                          {{item.name}}
+                          <span class="text-muted font-size-13 d-block">{{item?.sku}}</span>
+                        </td>
+                        <td class="text-center">
+                          {{item?.Category?.name}}
+                        </td>
+                        <td class="text-uppercase text-center">
+                          {{'item_type.' + item?.type | translate}}
+                        </td>
+                        <td class="text-center">
+                          <b>{{item.quantity}}</b>
+                        </td>
+                        <td>
+                          {{item.purchase_price | currency:'MGA':'Ar '}}
+                          /
+                          {{item.sale_price | currency:'MGA':'Ar '}}
+                        </td>
+                        <!-- <td>{{item.created_at | date:'dd MMM yyyy HH:mm'}}</td> -->
+                        <td class="text-center">
+                          <a class="btn btn-sm btn-info btn-icon" href
+                            [routerLink]="['/accounting/item/detail/', item.id]">
+                            <i class="fa fa-pencil"></i>
+                          </a>
+                        </td>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              <hr style="margin: 0;" />
+
+              <div class="row padding-10" stPagination #pager="stPagination">
+                <div class="col-lg">
+                  <div style="width: 200px;">
+                    <div class="d-inline">Afficher</div>
+                    <select class="form-control d-inline mx-2 width-35" [(ngModel)]="pager.size"
+                      (ngModelChange)="smartTableService.slice(_table, pager)">
+                      <option [value]="item" *ngFor="let item of appService.displayedRows">
+                        {{item}}</option>
+                    </select>
+                    <div class="d-inline">lignes</div>
+                  </div>
+                </div>
+
+                <div class="col-lg text-center">
+                  <div class="btn btn-link disabled">
+                    {{pager.length > 0 ? pager.lowerBoundIndex + 1 : 0}} - {{(pager.higherBoundIndex || -1) + 1}} sur
+                    {{pager.length || 0}}
+                  </div>
+                </div>
+
+                <div class="col-lg">
+                  <div class="btn-group pagination pull-right">
+                    <button type="button" class="btn btn-default" (click)="pager.selectPreviousPage()"
+                      [disabled]="!pager.isPreviousPageEnabled()">
+                      <i class="ti-arrow-left"></i>
+                    </button>
+                    <button type="button" class="btn btn-default" (click)="pager.selectNextPage()"
+                      [disabled]="!pager.isNextPageEnabled()">
+                      <i class="ti-arrow-right"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div role="tabpanel" class="tab-pane fade" id="tab-report">
+              <div class="row">
+                <div class="col-lg">
+                  <div class="table-overflow">
+                    <table class="table table-striped no-border m-0">
+                      <tr>
+                        <td colspan="3" class="text-center no-border">
+                          <form [formGroup]="reportForm" (submit)="getVariations()">
+                            <div class="input-group">
+                              <input type="text" class="form-control bg-white" formControlName="start" ngbDatepicker
+                                      #d1="ngbDatepicker" (click)="d1.toggle()"
+                                      [class.error]="submitted && reportForm.controls.start.invalid" readonly/>
+
+                              <input type="text" class="form-control bg-white" formControlName="end" ngbDatepicker
+                                      #d2="ngbDatepicker" (click)="d2.toggle()"
+                                      [class.error]="submitted && reportForm.controls.end.invalid" readonly/>
+
+                              <div class="col-lg-4 p-0 text-left">
+                                <ng-select placeholder="Choisir ..." formControlName="item_type" [items]="types" [clearable]="true"
+                                  [class.error]="submitted && reportForm.controls.item_type.invalid">
+                                  <ng-template ng-option-tmp let-item="item">
+                                    {{'item_type.' + item | translate | uppercase}}
+                                  </ng-template>
+                                  <ng-template ng-label-tmp let-item="item">
+                                    {{'item_type.' + item | translate | uppercase}}
+                                  </ng-template>
+                                </ng-select>
+                              </div>
+
+                              <div class="input-group-append">
+                                <button class="btn btn-info btn-sm m-0" type="submit" appXhrBtnIndicator>
+                                  <i class="fa fa-search"></i>
+                                </button>
+                                <button class="btn btn-dark btn-sm" type="button" (click)="reset()">
+                                  <i class="fa fa-refresh"></i>
+                                </button>
+                              </div>
+                            </div>
+                          </form>
+                        </td>
+                        <td colspan="3" class="no-border">
+                          <button type="button" class="btn btn-link btn-sm pull-right"
+                            (click)="downloadReport()">
+                            Télécharger .xls
+                          </button>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th class="width-15">Facture</th>
+                        <th class="width-5 text-center" translate>N°</th>
+                        <th class="" translate>common.NAME</th>
+                        <th>Type</th>
+                        <th class="text-center width-10">Entrée</th>
+                        <th class="text-center width-10">Sortie</th>
+                        <th class="text-right">Créé</th>
+                      </tr>
+                      <tr *ngFor="let item of variations">
+                        <td>{{'income.' + item['doc_type'] | translate}}</td>
+                        <td class="text-center">
+                          <a href [routerLink]="
+                            item['doc_type'] === 'BILL' ? ['/expense/bill/detail/', item['doc_id']] : ['/income/invoice/detail/', item['doc_id']]
+                          ">
+                            {{item['doc_id']}}
+                          </a>
+                        </td>
+                        <td>{{item.name}}</td>
+                        <td>
+                          {{'item_type.' + item.item_type | translate | uppercase}}
+                        </td>
+                        <td class="text-center">
+                          <span class="ml-1" *ngIf="item['doc_type'] === 'BILL'">{{item.quantity}}</span>
+                        </td>
+                        <td class="text-center">
+                          <span class="ml-1" *ngIf="item['doc_type'] !== 'BILL'">{{item.quantity}}</span>
+                        </td>
+                        <td class="text-right">
+                          {{item['created_at'] | date:'dd MMM yyyy HH:mm'}}
+                        </td>
+                      </tr>
+                      <tr class="text-center" *ngIf="!variations?.length">
+                        <td colspan="6" translate>common.NO_RECORD</td>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

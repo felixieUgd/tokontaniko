@@ -1,0 +1,558 @@
+<div class="container-fluid">
+  <div class="pdd-horizon-30">
+    <div class="row">
+      <div class="col-lg">
+        <div class="card">
+          <div class="tab-info">
+            <ul class="nav nav-tabs" role="tablist">
+              <li class="nav-item" *ngIf="activeMenu?.inventory?.list?.item">
+                <a href="#tab-list" class="nav-link active" role="tab" data-toggle="tab">
+                  STOCK
+                </a>
+              </li>
+              <li class="nav-item" *ngIf="activeMenu?.inventory?.list?.inventory">
+                <a href="#tab-inventory" class="nav-link" role="tab" data-toggle="tab">
+                  INVENTAIRE
+                </a>
+              </li>
+              <li class="nav-item" *ngIf="activeMenu?.inventory?.list?.report">
+                <a href="#tab-report" class="nav-link" role="tab" data-toggle="tab">
+                  RAPPORT
+                </a>
+              </li>
+              <li class="nav-item" *ngIf="activeMenu?.inventory?.list?.configuration">
+                <a href="#tab-configuration" class="nav-link" role="tab" data-toggle="tab">
+                  CONFIGURATION
+                </a>
+              </li>
+              <li class="nav-item" *ngIf="activeMenu?.inventory?.list?.conversion">
+                <a href="#tab-conversion" class="nav-link" role="tab" data-toggle="tab">
+                  CONVERSION
+                </a>
+              </li>
+            </ul>
+            <div class="tab-content">
+              <div id="tab-list" role="tabpanel" class="tab-pane fade in active" *ngIf="activeMenu?.inventory?.list?.item">
+                <div class="row">
+                  <div class="col-lg">
+                    <div class="table-responsive" #table="stTable" stTable>
+                      <table class="table table-striped no-border m-0">
+                        <tr>
+                          <td colspan="3" class="text-center no-border"></td>
+                          <td colspan="5" class="no-border">
+                            <button type="button" class="btn btn-info btn-sm pull-right" (click)="open()">
+                              Ajouter produit
+                            </button>
+                          </td>
+                        </tr>
+                        <tr>
+                          <th class="width-5" stSort="id">ID</th>
+                          <th class="text-center width-5">Etat</th>
+                          <th class="width-20" stSort="name">Nom</th>
+                          <th class="text-center">Categorie</th>
+                          <th class="width-15 text-center" stSort="type">Type</th>
+                          <th stSort="purchase_price">Prix d'achat / vente</th>
+                          <th stSort="created_at" stSortCycle="true">Créé</th>
+                          <th class="text-center">Actions</th>
+                        </tr>
+                        <tr>
+                          <td></td>
+                          <td></td>
+                          <td colspan="2">
+                            <input type="search" class="form-control input-sm" stSearch="name,sku"
+                              placeholder="Rechercher Nom, SKU...">
+                          </td>
+                          <td>
+                            <select id="type" class="form-control input-sm text-center"
+                              style="width: 100% !important;" [(ngModel)]="selectedFilter"
+                              (ngModelChange)="filterByType($event)">
+                              <option [value]="item" class="text-uppercase" *ngFor="let item of types">
+                                {{'item_type.' + item | translate}}
+                              </option>
+                            </select>
+                          </td>
+                          <td colspan="4"></td>
+                        </tr>
+                        <tr>
+                          <td class="text-center" colspan="8" *ngIf="table.busy">
+                            <i class="fa fa-spin fa-spinner"></i>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class="text-center" colspan="8" *ngIf="table.items.length === 0 && !table.busy">
+                            {{'common.NO_RECORD' | translate}}
+                          </td>
+                        </tr>
+                        <tr *ngFor="let item of table.items" [hidden]="table.busy">
+                          <td>{{item.id}}</td>
+                          <td class="text-center">
+                            <i class="fa"
+                              [ngClass]="{'fa-check-circle text-success': item.enabled, 'fa-times-circle text-normal': !item.enabled}"></i>
+                          </td>
+                          <td>
+                            {{item.name}}
+                            <span class="text-muted font-size-13 d-block">{{item?.sku}}</span>
+                          </td>
+                          <td class="text-center">
+                            {{item?.Category?.name}}
+                          </td>
+                          <td class="text-uppercase text-center">
+                            {{'item_type.' + item?.type | translate}}
+                          </td>
+                          <td>
+                            {{item.purchase_price | currency:'MGA':'Ar '}}
+                            /
+                            {{item.sale_price | currency:'MGA':'Ar '}}
+                          </td>
+                          <td>{{item.created_at | date:'dd MMM yyyy HH:mm'}}</td>
+                          <td class="text-center">
+                            <a class="btn btn-sm btn-info btn-icon" href
+                              [routerLink]="['/inventory/detail/', item.id]">
+                              <i class="fa fa-pencil"></i>
+                            </a>
+                          </td>
+                        </tr>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+
+                <hr style="margin: 0;" />
+
+                <div class="row padding-10" stPagination #pager="stPagination">
+                  <div class="col-lg">
+                    <div style="width: 200px;">
+                      <div class="d-inline">Afficher</div>
+                      <select class="form-control d-inline mx-2 width-35" [(ngModel)]="pager.size"
+                        (ngModelChange)="smartTableService.slice(_table, pager)">
+                        <option [value]="item" *ngFor="let item of appService.displayedRows">
+                          {{item}}</option>
+                      </select>
+                      <div class="d-inline">lignes</div>
+                    </div>
+                  </div>
+
+                  <div class="col-lg text-center">
+                    <div class="btn btn-link disabled">
+                      {{pager.length > 0 ? pager.lowerBoundIndex + 1 : 0}} - {{(pager.higherBoundIndex || -1) + 1}} sur
+                      {{pager.length || 0}}
+                    </div>
+                  </div>
+
+                  <div class="col-lg">
+                    <div class="btn-group pagination pull-right">
+                      <button type="button" class="btn btn-default" (click)="pager.selectPreviousPage()"
+                        [disabled]="!pager.isPreviousPageEnabled()">
+                        <i class="ti-arrow-left"></i>
+                      </button>
+                      <button type="button" class="btn btn-default" (click)="pager.selectNextPage()"
+                        [disabled]="!pager.isNextPageEnabled()">
+                        <i class="ti-arrow-right"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div id="tab-inventory" role="tabpanel" class="tab-pane fade" *ngIf="activeMenu?.inventory?.list?.inventory">
+                <div class="row">
+                  <div class="col-lg">
+                    <div class="table-responsive">
+                      <table class="table table-striped no-border m-0">
+                        <tr>
+                          <td colspan="2">
+                          </td>
+                          <td>
+                          </td>
+                          <td colspan="3" class="border-top-0 text-right">
+                            <button type="button" class="btn btn-link btn-sm" appXhrBtnIndicator (click)="exportInventoryExcel()">Télécharger .xls</button>
+                            <button type="button" class="btn btn-dark btn-sm" appXhrBtnIndicator (click)="exportInventoryPdf()">Inventaire</button>
+                          </td>
+                        </tr>
+                        <tr>
+                          <th class="width-5">ID</th>
+                          <th>Designation</th>
+                          <th>Type</th>
+                          <th>Unité</th>
+                          <th class="width-15 text-center">Quantité</th>
+                          <th class="text-center width-10">Actions</th>
+                        </tr>
+                        <tr>
+                          <td></td>
+                          <td>
+                            <input type="search" class="form-control input-sm" [(ngModel)]="searchInventory" placeholder="Rechercher Nom...">
+                          </td>
+                          <td><select id="type" class="form-control input-sm text-center" style="width: 100% !important;" [(ngModel)]="selectedType">
+                            <option [value]="item" class="text-uppercase" *ngFor="let item of types">
+                              {{item? ('item_type.' + item | translate): 'Tout'}}
+                            </option>
+                          </select></td>
+                          <td></td>
+                          <td></td>
+                          <td>
+                            <button type="button" class="btn btn-link btn-sm" appXhrBtnIndicator (click)="getInventory()"><i
+                                class="fa fa-refresh"></i> Actualiser</button>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class="text-center" colspan="6" *ngIf="!inventoryDisplay">
+                            <i class="fa fa-spin fa-spinner"></i>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class="text-center" colspan="6" *ngIf="inventoryDisplay && inventoryDisplay.length === 0" translate>
+                            {{'common.NO_RECORD' | translate}}
+                          </td>
+                        </tr>
+                        <tr *ngFor="let line of filterInventory(inventoryDisplay)">
+                          <td>{{line.item_id}}</td>
+                          <td>
+                            <a [routerLink]="['/inventory/detail/', line.item_id]">
+                              {{line.item_name}}
+                            </a>
+                            <span class="d-block text-muted font-size-13">
+                              {{ line.item_sku }}
+                            </span>
+                          </td>
+                          <td>
+                            {{ line.item_type? ('item_type.' + line.item_type | translate | uppercase): '' }}
+                          </td>
+                          <td>
+                            {{ line.unit_name }}
+                          </td>
+                          <td class="text-center">
+                            <b>{{ line.quantity }}</b>
+                          </td>
+                          <td class="text-center">
+                            <a class="btn btn-info btn-sm" [routerLink]="['/inventory/detail/', line.item_id]">
+                              <i class="fa fa-pencil"></i>
+                            </a>
+                          </td>
+                        </tr>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div id="tab-configuration" role="tabpanel" class="tab-pane fade" *ngIf="activeMenu?.inventory?.list?.configuration">
+                <div class="row">
+                  <div class="col-lg">
+                    <div class="p-3">
+                      <div class="row justify-content-between">
+                        <div class="col-lg-auto">
+                          <div class="input-group">
+                            <app-room-select (change)="activeRoom = $event" [keepSession]="true" [submitted]="submitted_inventory_room_config"></app-room-select>
+                            <div class="input-group-append">
+                              <button class="btn btn-info m-0" type="button" (click)="getInventoryConfigByRoom()">
+                                <i class="fa fa-search"></i>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-lg-auto">
+                          <button type="button" *ngIf="submitted_inventory_room_config && activeRoom" class="btn btn-info btn-sm pull-right" data-toggle="modal" data-target="#inventoryModal"
+                            translate>button.ADD</button>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div *ngIf="submitted_inventory_room_config && activeRoom" class="table-responsive">
+                      <table class="table table-striped table-top no-border m-0">
+                        <tr>
+                          <th class="width-5">ID</th>
+                          <th>Designation</th>
+                          <th>Unité</th>
+                          <th class="width-15 text-center">Quantité</th>
+                          <th class="text-center width-15">Actions</th>
+                        </tr>
+                        <tr>
+                          <td></td>
+                          <td>
+                            <input type="search" class="form-control input-sm" [(ngModel)]="searchInventoryConfig" placeholder="Rechercher Nom...">
+                          </td>
+                          <td colspan="3" class="text-right">
+                            <button type="button" class="btn btn-link btn-sm" appXhrBtnIndicator (click)="getInventoryConfigByRoom()"><i
+                                class="fa fa-refresh"></i> Actualiser</button>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class="text-center" colspan="5" *ngIf="!inventoryByItem">
+                            <i class="fa fa-spin fa-spinner"></i>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class="text-center" colspan="5" *ngIf="inventoryByItem && inventoryByItem.length === 0" translate>
+                            {{'common.NO_RECORD' | translate}}
+                          </td>
+                        </tr>
+                        <tr *ngFor="let inventories of filterConfig(inventoryByItem)">
+                          <td>{{inventories.Item?.id}}</td>
+                          <td>
+                            <a href [routerLink]="['/inventory/detail/', inventories.Item?.id]" *ngIf="inventories.Item">
+                              {{inventories.Item?.name}}
+                            </a>
+                          </td>
+                          <td>
+                            <ul class="list-unstyled">
+                              <li [class.mb-2]="index < inventories.values.length - 1"
+                                *ngFor="let inventory of inventories.values; let index=index">
+                                {{ inventory.ItemUnit.name }}
+                              </li>
+                            </ul>
+                          </td>
+                          <td class="text-center">
+                            <ul class="list-unstyled">
+                              <li [class.mb-2]="index < inventories.values.length - 1"
+                                *ngFor="let inventory of inventories.values let index=index">
+                                <b>{{ inventory.quantity }}</b>
+                              </li>
+                            </ul>
+                          </td>
+                          <td class="text-center">
+                            <button type="button" data-toggle="modal" data-target="#copyModal" (click)="selectedInventoryGroup = inventories"
+                              class="btn btn-sm btn-primary pull-right"><i class="fa fa-copy"></i></button>
+                            <button type="button" data-toggle="modal" data-target="#inventoryModal"
+                              (click)="setSelectedProduct(inventories.Item)" class="btn btn-sm btn-info pull-right"><i
+                                class="fa fa-plus"></i></button>
+                          </td>
+                        </tr>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div id="tab-conversion" role="tabpanel" class="tab-pane fade" *ngIf="activeMenu?.inventory?.list?.conversion">
+                <div class="row">
+                  <div class="col-lg">
+                    <div class="table-responsive">
+                      <table class="table table-top table-striped no-border m-0">
+                        <tr>
+                          <td colspan="2" class="border-top-0">
+                          </td>
+                          <td colspan="3" class="border-top-0 text-right">
+                            <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#conversionModal" translate>button.ADD</button>
+                          </td>
+                        </tr>
+                        <tr>
+                          <th class="width-5">ID</th>
+                          <th>Produit</th>
+                          <th>De</th>
+                          <th>A</th>
+                          <th class="text-center width-10">Actions</th>
+                        </tr>
+                        <tr>
+                          <td></td>
+                          <td>
+                            <input type="search" class="form-control input-sm" [(ngModel)]="searchConversion" placeholder="Rechercher Nom...">
+                          </td>
+                          <td colspan="3"></td>
+                        </tr>
+                        <tr>
+                          <td class="text-center" colspan="5" *ngIf="conversions?.length === 0" translate>
+                            {{'common.NO_RECORD' | translate}}
+                          </td>
+                        </tr>
+                        <tr *ngFor="let conversions of filterConversion(conversionByItem)">
+                          <td>{{conversions.Item?.id}}</td>
+                          <td>
+                            <a href [routerLink]="['/inventory/detail/', conversions.Item?.id]" *ngIf="conversions.Item">
+                              {{conversions.Item?.name}}
+                            </a>
+                            <span class="d-block text-muted font-size-13">
+                              {{'item_type.' + conversions.Item?.type | translate | uppercase}}
+                            </span>
+                          </td>
+                          <td>
+                            <ul class="list-unstyled">
+                              <li [class.mb-2]="index < conversions.values.length - 1" *ngFor="let conv of conversions.values; let index=index">
+                                <b>1</b> {{conv.From?.name}}
+                              </li>
+                            </ul>
+                          </td>
+                          <td>
+                            <ul class="list-unstyled">
+                              <li [class.mb-2]="index < conversions.values.length - 1" *ngFor="let conv of conversions.values; let index=index">
+                                <b>{{conv.conversion_factor}}</b> {{conv.To?.name}}
+                              </li>
+                            </ul>
+                          </td>
+                          <td class="text-center">
+                            <button type="button" data-toggle="modal" data-target="#conversionModal"
+                              (click)="setSelectedProduct(conversions.Item)" class="btn btn-sm btn-info"><i
+                                class="fa fa-plus"></i></button>
+                          </td>
+                        </tr>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div role="tabpanel" class="tab-pane fade" id="tab-report">
+                <app-inventory-report-list></app-inventory-report-list>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="inventoryModal" class="modal fade" role="dialog">
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content">
+      <div class="modal-header border-bottom pb-3">
+        <h5 class="modal-title text-info"><b>INVENTAIRE</b></h5>
+        <button type="button" class="close" (click)="closeInventoryModal()" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form role="form" [formGroup]="inventoryForm" novalidate>
+          <div class="row">
+            <div class="col">
+              <div class="form-group">
+                <label>Produit</label>
+                <input type="search" formControlName="search" class="form-control" placeholder="Rechercher..."
+                  (selectItem)="onSelectItem(inventoryForm, $event)" [ngbTypeahead]="searchItem" [resultTemplate]="tplItem"
+                  [editable]="false"
+                  [class.error]="submitted_inventory && (inventoryForm?.controls?.item?.invalid || inventoryForm?.controls?.item_id?.invalid)">
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col">
+              <div class="form-group">
+                <label class="control-label">Unité</label>
+                <ng-select [items]="units" formControlName="units" bindLabel="name" [multiple]="true"
+                  [ngClass]="{'error': submitted_inventory && inventoryForm?.controls?.units?.invalid}"
+                  [clearable]="false">
+                </ng-select>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <button class="btn btn-info btn-block no-mrg no-border" (click)="addInventory()" appXhrBtnIndicator>
+        <span class="text-uppercase" translate>button.SAVE</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div id="copyModal" class="modal fade" role="dialog">
+  <div class="modal-dialog modal-md" role="document">
+    <div class="modal-content">
+      <div class="modal-header border-bottom pb-3">
+        <h5 class="modal-title text-info"><b>COPIER INVENTAIRE VERS</b></h5>
+        <button type="button" class="close" (click)="closeCopyModal()" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="py-2">
+          <div class="input-group">
+            <app-room-select id="inventoryCopy" [keepSession]="true" (change)="destinationRoom = $event" [submitted]="submitted_inventory_copy">
+            </app-room-select>
+            <div class="input-group-append">
+              <button class="btn btn-info m-0" type="button" appXhrBtnIndicator (click)="copyInventoryToDestinationRoom()">
+                <i class="fa fa-save"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="conversionModal" class="modal fade" role="dialog">
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content">
+      <div class="modal-header border-bottom pb-3">
+          <h5 class="modal-title text-info"><b>CONVERSION</b></h5>
+          <button type="button" class="close" (click)="closeModal()" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+      </div>
+      <div class="modal-body">
+        <form role="form" [formGroup]="conversionForm" novalidate>
+          <div class="row">
+            <div class="col">
+              <div class="form-group">
+                <label>Produit</label>
+                <input type="search" formControlName="search" class="form-control"
+                  placeholder="Rechercher..." (selectItem)="onSelectItem(conversionForm, $event)"
+                  [ngbTypeahead]="searchItem" [resultTemplate]="tplItem" [editable]="false"
+                  [class.error]="submitted_conversion && (conversionForm?.controls?.item?.invalid || conversionForm?.controls?.item_id?.invalid)">
+
+                <!-- <ng-select [items]="itemInput$ | async" bindLabel="name" bindValue="item_id"
+                  formControlName="item_id" minTermLength="3"
+                  typeToSearchText="{{('nav.SEARCH' | translate) + '...'}}"
+                  [typeahead]="selectItem$" [clearable]="true"
+                  [ngClass]="{'error': submitted_conversion && conversionForm.controls.item_id.invalid}"
+                  (change)="onSelectItem($event)"
+                >
+                  <ng-template ng-option-tmp let-item="item">
+                    {{item?.name + ' [' + item?.sku.toUpperCase() + '] - ' + item?.quantity}}
+                  </ng-template>
+                </ng-select> -->
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col">
+              <div class="form-group">
+                <label class="control-label">De</label>
+                <ng-select [items]="units" formControlName="from_unit_id" bindLabel="name" bindValue="id"
+                  [ngClass]="{'error': submitted_conversion && conversionForm?.controls?.from_unit_id?.invalid}"
+                  [clearable]="false">
+                </ng-select>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col">
+              <div class="form-group">
+                <label class="control-label">A</label>
+                <ng-select [items]="units" formControlName="to_unit_id" bindLabel="name" bindValue="id"
+                  [ngClass]="{'error': submitted_conversion && conversionForm.controls?.to_unit_id?.invalid}"
+                  [clearable]="false">
+                </ng-select>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col">
+              <div class="form-group">
+                <label class="control-label">Nombre</label>
+                <input type="number" class="form-control" formControlName="conversion_factor"
+                  [class.error]="submitted_conversion && conversionForm.controls?.conversion_factor?.invalid">
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <button class="btn btn-info btn-block no-mrg no-border" (click)="convertUnit()" appXhrBtnIndicator>
+        <span class="text-uppercase" translate>button.SAVE</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<ng-template #tplItem let-r="result" let-t="term">
+  <ngb-highlight [result]="r?.name + ' [' + r?.sku.toUpperCase() + ']'" [term]="t" *ngIf="r">
+  </ngb-highlight>
+
+  <a class="d-block text-white py-2" *ngIf="!r">
+    <i class="fa fa-plus-circle mr-1"></i> Nouveau
+  </a>
+</ng-template>

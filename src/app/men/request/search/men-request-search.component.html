@@ -1,0 +1,20 @@
+<div class="row justify-content-center mt-4">
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-body">
+        <form role="form" [formGroup]="searchForm" (ngSubmit)="search()">
+          <div class="form-group mb-0">
+            <label for="term" class="d-block">RECHERCHER INTERVENTION PAR ID</label>
+            <div class="input-group">
+              <input type="search" id="term" class="form-control" placeholder="ID Intervention" formControlName="term"
+                [class.error]="submitted && searchForm.controls.term.invalid">
+              <div class="input-group-append">
+                <button type="submit" class="btn btn-info mr-0"><i class="fa fa-search"></i></button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

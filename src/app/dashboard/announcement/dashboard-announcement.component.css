@@ -1,0 +1,36 @@
+.custom-container {
+  margin: -35px -15px -15px -15px;
+}
+
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+}
+
+.menu > li {
+  position: relative;
+  display: block;
+}
+
+.menu > li > a {
+  position: relative;
+  display: block;
+  padding: 15px;
+  cursor: pointer;
+  color: #888da8;
+}
+
+.menu > li > a i {
+  padding-right: 10px;
+}
+
+.menu > li > a .label {
+  float: right;
+  margin-top: 4px;
+}
+
+.inbox:hover {
+  background-color: #f6f7fb;
+}

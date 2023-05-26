@@ -1,0 +1,37 @@
+<form role="form" [formGroup]="form" (ngSubmit)="saveHistory()">
+  <table class="table table-striped no-border m-0">
+    <thead>
+    <tr>
+      <th class="no-border" translate>common.DESCRIPTION</th>
+      <th class="no-border width-20" translate>status.CREATED</th>
+      <th class="no-border width-15" translate>common.ACTION</th>
+      <th class="no-border width-20 text-right" translate>common.USER</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngIf="dataTable?.length === 0">
+      <td colspan="4" class="text-center" translate>common.NO_RECORD</td>
+    </tr>
+    <tr *ngFor="let item of sortedData">
+      <td [innerHTML]="displayItems(item)"></td>
+      <td>{{item.created_at | date:'dd MMM yyyy HH:mm'}}</td>
+      <td>{{'status.' + item.status_code | translate}}</td>
+      <td class="text-right">
+        {{item?.User ? item.User.name : item?.user_id}}
+      </td>
+    </tr>
+    </tbody>
+    <tfoot>
+    <tr>
+      <td colspan="3">
+        <input type="text" class="form-control input-sm no-border p-0" formControlName="description"
+               placeholder="Entrer description ..."
+               [class.error]="submitted && form.controls.description.invalid">
+      </td>
+      <td>
+        <button class="btn btn-success btn-sm width-100" appXhrBtnIndicator translate>button.ADD</button>
+      </td>
+    </tr>
+    </tfoot>
+  </table>
+</form>

@@ -1,0 +1,13 @@
+<div class="card" [ngStyle]="{ 'background': 'linear-gradient(45deg, ' + startColor +', ' + endColor +')', 'color': textColor }">
+  <div class="card-body">
+    <div class="h-100 text-center">
+      <div class="mb-2">
+        <i [class]="'fa fa-3x ' + icon" aria-hidden="true"></i>
+      </div>
+      <div>
+        <p>{{ title }}</p>
+        <h1>{{ value}}</h1>
+      </div>
+    </div>
+  </div>
+</div>

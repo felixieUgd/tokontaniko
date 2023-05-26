@@ -1,0 +1,190 @@
+<div class="modal-header border bottom">
+  <h4 class="card-title text-info mb-2">Insértion facture / dépenses</h4>
+  <button type="button" class="close" (click)="activeModal.dismiss()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+
+<form role="form" [formGroup]="addBillForm" autocomplete="off" novalidate (ngSubmit)="save()">
+  <div class="padding-30 ps" style="height: 70vh" perfectScrollbar>
+    <div class="row">
+      <div class="col-md-12">
+        <div class="row">
+          <label class="col-lg-2 col-form-label text-lg-right">Bénéficiaire</label>
+          <div class="col-lg-3">
+            <ng-select [items]="contacts" formControlName="contact" bindLabel="name"
+              [ngClass]="{'error': submitted && addBillForm.controls.contact.invalid}"
+            >
+              <ng-template ng-label-tmp let-item="item">
+                {{item.name}}
+              </ng-template>
+              <ng-template ng-option-tmp let-item="item">
+                {{item.name}}
+                <br/>
+                <span style="color: #6f748a;">
+                  {{item.phone}} -
+                  {{item.id_cin}} -
+                  {{item.id_passport}}
+                </span>
+              </ng-template>
+            </ng-select>
+          </div>
+
+          <label class="offset-lg-1 col-lg-3 col-form-label text-lg-right">N° Facture</label>
+          <div class="col-lg-3">
+            <div class="form-group">
+              <input type="text" class="form-control bg-transparent" formControlName="bill_number"
+                  [class.error]="submitted && addBillForm.get('bill_number').status === 'INVALID'" readonly>
+            </div>
+          </div>
+        </div>
+
+        <div class=" row">
+          <label class="col col-form-label text-lg-right">Tél.</label>
+          <label class="col-lg-3 col-form-label">{{addBillForm.controls.contact.value?.phone | mask:'000 00 000 00'}}</label>
+
+          <label class="offset-lg-1 col-lg-3 col-form-label text-lg-right">Crée le</label>
+          <div class="col-lg-3">
+            <div class="form-group">
+              <div class="timepicker-input input-icon">
+              <i class="ti-time"></i>
+              <input type="text" class="form-control bg-white" formControlName="billed_at" ngbDatepicker
+                #dtBilledAt="ngbDatepicker" [readOnly]="true"
+                [class.error]="submitted && addBillForm.get('billed_at').status === 'INVALID'">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <label class="col col-form-label text-lg-right">Catégorie</label>
+          <div class="col-lg-3">
+            <div class="form-group">
+              <ng-select [items]="categories" bindLabel="name" formControlName="category"
+                [ngClass]="{'error': submitted && addBillForm.get('category').status === 'INVALID'}"
+              >
+                <ng-template ng-option-tmp let-item="item">
+                  {{item.name}}
+                </ng-template>
+              </ng-select>
+            </div>
+          </div>
+
+          <label class="offset-lg-1 col-lg-3 col-form-label text-lg-right">Date d'échéance</label>
+          <div class="col-lg-3">
+            <div class="form-group">
+              <div class="timepicker-input input-icon">
+                <i class="ti-time"></i>
+                <input type="text" class="form-control bg-white" formControlName="due_at" ngbDatepicker
+                  #dtDueAt="ngbDatepicker" (click)="dtDueAt.toggle()" [readOnly]="true"
+                  [class.error]="submitted && addBillForm.get('due_at').status === 'INVALID'">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <hr />
+
+        <div class="row">
+          <div class="col-md-12">
+            <div formArrayName="BillItems">
+              <div class="form-group m-0">
+                <div>
+                  <label>Produits/services</label>
+                </div>
+                <table class="table table-bordered table-item">
+                  <tr class="font-weight-bold bg-light">
+                    <th class="text-center" style="width: 5%;">
+                      <i class="fa fa-navicon"></i>
+                    </th>
+                    <th class="">Nom</th>
+                    <th class="width-10 text-center">Quantité</th>
+                    <th class="width-15 text-right">Prix unitaire</th>
+                    <th class="width-15 text-right">Total</th>
+                  </tr>
+                  <tr *ngFor="let item of BillItems.controls; let i=index" [formGroupName]="i">
+                    <td class="text-center">
+                      <button type="button" class="btn btn-link m-0" (click)="removeItem(i)">
+                        <i class="fa fa-trash text-danger"></i>
+                      </button>
+                    </td>
+                    <td class="relative">
+                      <input type="search" formControlName="name" class="form-control no-border"
+                        placeholder="{{ 'common.ENTER_ITEM' | translate }}" (selectItem)="onSelectItem($event, item);"
+                        [ngbTypeahead]="searchItem" [resultTemplate]="tplItem" [editable]="false"
+                        [class.error]="submitted && (!item.controls.name.valid || !item.controls.item_id.valid)">
+
+                      <button type="button" class="btn btn-link m-0" data-toggle="collapse"
+                        [attr.data-target]="'#collapse-' + i" style="position: absolute; top: 0; right: 0;">
+                        <i class="fa fa-pencil text-dark"></i>
+                      </button>
+
+                      <div class="collapse" id="collapse-{{i}}"
+                        [class.show]="item.controls.description.value">
+                        <textarea class="form-control no-border" formControlName="description"
+                          placeholder="Entrer description"></textarea>
+                      </div>
+                    </td>
+                    <td class="">
+                      <input type="number" formControlName="quantity" class="form-control text-center"
+                        [min]="1" [class.error]="submitted && !item.controls.quantity.valid">
+                    </td>
+                    <td>
+                      <input type="number" (focus)="clearIfZero(item.controls.price)" formControlName="price" class="form-control text-right"
+                        [class.error]="submitted && !item.controls.price.valid">
+                    </td>
+                    <td class="text-right">
+                      <input class="form-control text-right bg-transparent" readonly
+                        [value]="getTotal(item) | currency:'MGA':''">
+                    </td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-lg-4">
+            <button type="button" class="btn btn-link" (click)="addItem()">
+              Ajouter
+            </button>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="offset-8 col-lg-4">
+
+            <div class="list-group">
+              <div class="list-group-item">
+                <b class="width-50 inline-block text-right mrg-right-15">Total</b>
+                <span class="pull-right">
+                  {{invoiceService.getPaymentDue(BillItems.value) | currency:'MGA':''}}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-footer border top pdd-vertical-15 pdd-horizon-30 bg-white text-right">
+    <button type="submit" class="btn btn-info m-0" appXhrBtnIndicator>
+      <i class="fa fa-save"></i>
+    </button>
+  </div>
+</form>
+
+<ng-template #tplItem let-r="result" let-t="term">
+  <ngb-highlight [result]="r?.name + ' [' + r?.sku.toUpperCase() + '] - ' + r?.quantity" [term]="t" *ngIf="r">
+  </ngb-highlight>
+
+  <a class="d-block text-white py-2" *ngIf="!r">
+    <i class="fa fa-plus-circle mr-1"></i> Nouveau
+  </a>
+</ng-template>
+
+<ng-template #tplCat let-r="result" let-t="term">
+  <ngb-highlight [result]="r.name" [term]="t"></ngb-highlight>
+</ng-template>

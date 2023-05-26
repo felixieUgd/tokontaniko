@@ -1,0 +1,257 @@
+<div class="card">
+  <div class="tab-info">
+    <ul class="nav nav-tabs" role="tablist">
+      <li class="nav-item">
+        <a href="#details" class="nav-link active" role="tab" data-toggle="tab">FICHE</a>
+      </li>
+      <li class="nav-item">
+        <a href="#settings" class="nav-link" role="tab" data-toggle="tab">PARAMÈTRES</a>
+      </li>
+      <li class="nav-item">
+        <a href="#items" class="nav-link" role="tab" data-toggle="tab">PRESCRIPTIONS</a>
+      </li>
+      <li class="nav-item">
+        <a href="#history" class="nav-link" role="tab" data-toggle="tab">HISTORIQUE</a>
+      </li>
+      <li class="col px-0 text-right">
+        <span class="nav-link mt-1">
+          <label class="label label-lg mb-0 mr-3 text-uppercase label-{{bgColor(document?.status)}}-inverse">
+            <span *ngIf="document?.status">{{'status.'+document?.status | translate}}</span>
+            <span *ngIf="!document?.status">-</span>
+          </label>
+          <button class="btn btn-default mr-0 btn-xs" (click)="close()"><i class="fa fa-times"></i> Fermer</button>
+        </span>
+      </li>
+    </ul>
+    <div class="tab-content">
+      <div role="tabpanel" class="tab-pane fade in active" id="details">
+        <form novalidate [formGroup]="requestForm" (submit)="saveDocument()">
+          <div class="p-4">
+            <div class="row">
+              <div class="col">
+                <div class="form-group">
+                  <label class="mb-0">Document n° <span class="text-dark">{{ document?.id }}</span></label>
+                </div>
+                <div class="form-group">
+                  <label>Type</label>
+                  <div>
+                    <label class="text-dark mb-0">{{ requestForm?.get('RequestType')?.value?.name || '-' }}</label>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label translate>men.ESTABLISHMENT</label>
+                  <div>
+                    <label class="text-dark mb-0">{{ requestForm?.get('Facility')?.value?.name || '-' }}</label>
+                  </div>
+                </div>
+                <!-- <div class="form-group">
+                  <label>Titre</label>
+                  <div>
+                    <input type="text" class="form-control" formControlName="title"
+                      [class.error]="submitted && requestForm.get('title').status === 'INVALID'">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label>Description</label>
+                  <div>
+                    <textarea class="form-control" formControlName="description" style="min-height: 170px;"
+                      [class.error]="submitted && requestForm.get('description').status === 'INVALID'"></textarea>
+                  </div>
+                </div> -->
+          
+                <div class="form-group">
+                  <label>Assigné à</label>
+                  <div>
+                    <ng-select [items]="staff$ | async" bindLabel="name" formControlName="staff" minTermLength="3"
+                      typeToSearchText="{{('nav.SEARCH' | translate) + '...'}}"
+                      [class.error]="submitted && requestForm.controls.staff.invalid" [typeahead]="staffInput$" [clearable]="false"
+                      [multiple]="true" (add)="onAddStaff($event)" (remove)="onRemoveStaff($event)">
+                      <ng-template ng-option-tmp let-item="item">
+                        {{item?.name}}
+                        <br />
+                        <span style="color: #6f748a;">
+                          {{item?.email}}
+                        </span>
+                      </ng-template>
+                    </ng-select>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label translate>health.MEDICAL_CONCLUSION</label>
+                  <input type="text" class="form-control" formControlName="comments">
+                </div>
+                <div class="form-group">
+                  <label translate>health.MEDICAL_GUIDANCE</label>
+                  <textarea class="form-control medium-height" formControlName="medical_guidance"></textarea>
+                </div>
+                <div class="form-group">
+                  <label translate>health.PEDAGOGICAL_GUIDANCE</label>
+                  <textarea class="form-control medium-height" formControlName="pedagogical_guidance"></textarea>
+                </div>
+                <div class="form-group">
+                  <label translate>health.OBSERVATION_REFERENCE</label>
+                  <textarea class="form-control medium-height" formControlName="observation"></textarea>
+                </div>
+                <div class="form-group">
+                  <label>Créé par</label>
+                  <div>
+                    <label class="text-dark">
+                      {{document?.User?.name || '-'}}
+                    </label>
+                  </div>
+                </div>
+                <div class="form-group mb-0">
+                  <label>Créé le</label>
+                  <div>
+                    <label class="text-dark">
+                      {{document?.created_at | date:'dd MMM yyyy HH:mm'}}
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="border top px-4 pdd-vertical-15">
+            <button appXhrBtnIndicator (click)="print()" type="button" class="btn btn-dark"><i class="fa fa-print"></i></button>
+            <div class="dropdown inline-block">
+              <button appXhrBtnIndicator class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                <span class="mrg-right-10">Autres actions</span>
+                <i class="ti-angle-down font-size-9"></i>
+              </button>
+              <ul class="dropdown-menu">
+                <li>
+                  <a (click)="updateStatus('COMPLETED')">Marquer terminé</a>
+                </li>
+                <li>
+                  <a (click)="updateStatus('ON_HOLD')">Marquer en attente</a>
+                </li>
+                <li>
+                  <a (click)="updateStatus('IN_PROGRESS')">Marquer en cours</a>
+                </li>
+                <li>
+                  <a (click)="updateStatus('APPROVED')">Marquer approuvé</a>
+                </li>
+              </ul>
+            </div>
+            <button appXhrBtnIndicator class="btn btn-info pull-right"><i class="fa fa-save"></i></button>
+          </div>
+        </form>
+      </div>
+      <div role="tabpanel" class="tab-pane fade" id="settings">
+        <div class="p-4">
+          <health-tree-view [treeNodes]="document?.HealthDiagnosticCodes" [trueOnly]="true" [displayOnly]="true"></health-tree-view>
+        </div>
+      </div>
+      <div role="tabpanel" class="tab-pane fade" id="items">
+        <form [formGroup]="prescriptionForm">
+          <div class="p-4">
+            <div class="row">
+              <div class="col-lg-12">
+                <div class="form-group mb-3">
+                  <h5 class="font-weight-bold text-uppercase text-info mb-3">Traitement</h5>
+                  <div formArrayName="RequestItems">
+                    <table class="table table-bordered table-item">
+                      <thead>
+                        <tr class="font-weight-bold bg-light">
+                          <th class="text-center width-5">
+                            <i class="fa fa-navicon"></i>
+                          </th>
+                          <th>Préscription</th>
+                          <th class="width-10">Quantité</th>
+                          <th class="width-15">Unité</th>
+                          <th>Posologie</th>
+                          <th class="width-15">Voie</th>
+                          <th class="width-15">Durée</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr *ngFor="let item of RequestItems.controls; let i = index;" [formGroupName]="i">
+                          <td class="text-center">
+                            <button [class.disabled]="isCompleted" type="button" class="btn btn-link m-0" appXhrBtnIndicator (click)="removeProduct(i, item.controls.id?.value)">
+                              <i class="fa fa-trash text-danger"></i>
+                            </button>
+                          </td>
+                          <td>
+                            <div class="input-group">
+                              <ng-select [ngStyle]="{'max-width': '280px'}" class="flex-grow-1 no-border disabled"
+                                placeholder="Choisissez l'article..." [clearable]="false" [hideSelected]="true"
+                                [searchable]="false" [items]="items" formControlName="item" bindLabel="name">
+                              </ng-select>
+                            </div>
+                          </td>
+                          <td>
+                            <input readonly type="number" formControlName="quantity" class="form-control text-center" [min]="1">
+                          </td>
+                          <td>
+                            <ng-select [searchable]="false" class="no-border disabled" placeholder="Unité"
+                              formControlName="unit_id"
+                              [items]="inventoryUnits" bindLabel="name"
+                              bindValue="id" [hideSelected]="true" [clearable]="false">
+                            </ng-select>
+                          </td>
+                          <td>
+                            <input readonly type="text" formControlName="dosage" class="form-control">
+                          </td>
+                          <td>
+                            <ng-select [searchable]="false" [items]="modes" [clearable]="false" class="border-0 disabled" formControlName="administration_mode">
+                            </ng-select>
+                          </td>
+                          <td>
+                            <div class="input-group">
+                              <input readonly type="text" formControlName="duration" class="form-control border-0">
+                              <div class="input-group-prepend">
+                                <span class="input-group-text font-size-14" [ngStyle]="{borderTop: '0', borderBottom: '0'}">jour(s)</span>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <div class="row" *ngIf="!isCompleted">
+                    <div class="col-lg-4">
+                      <button appXhrBtnIndicator type="button" class="btn btn-default" (click)="openAppendModal()">
+                        Ajouter
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div role="tabpanel" class="tab-pane fade" id="history">
+        <app-list-history [dataId]="document?.id" [dataTable]="document?.RequestHistories" [dataType]="'MAINTENANCE'"
+          (onSubmit)="resetForm()">
+        </app-list-history>
+      </div>
+    </div>
+  </div>
+</div>
+<ng-template #facilityTemplate let-r="result" let-t="term">
+  <ngb-highlight [result]="r?.name" [term]="t"></ngb-highlight>
+
+  <span style="color: #6f748a;" [ngClass]="{ 'd-block': r, 'd-none': !r }">
+    {{ r?.code }}
+  </span>
+
+  <span class="d-block text-muted py-2" *ngIf="!r">
+    {{ 'common.NO_RECORD' | translate }}
+  </span>
+</ng-template>
+<ng-template #itemTemplate let-r="result" let-t="term">
+  <ng-container *ngIf="r">
+    <ngb-highlight [result]="r?.name" [term]="t">
+    </ngb-highlight>
+    <span style="color: #ff6879!important" class="d-block font-weight-bold" *ngIf="!r.available"><i
+        class="fa fa-exclamation-triangle"></i>&nbsp;&nbsp;Stock épuisé</span>
+    <span class="d-block font-size-13" *ngIf="r.available">
+      {{ r.available.quantity }} {{ r.available.ItemUnit?.name || 'UNITE' }}(S)
+    </span>
+  </ng-container>
+
+  <span style="color: #6f748a;" *ngIf="!r">
+    Aucun résultat
+  </span>
+</ng-template>

@@ -1,0 +1,93 @@
+<div class="modal-header">
+  <h4 class="card-title text-info mb-2" *ngIf="!selected">Ajouter article</h4>
+  <h4 class="card-title text-info mb-2" *ngIf="selected">Modifier article</h4>
+  <button type="button" class="close" (click)="activeModal.dismiss()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<form (submit)="save()" novalidate [formGroup]="form">
+  <div class="modal-body">
+    <div class="form-group">
+      <label>Nom</label>
+      <ng-select
+        #itemSelect
+        placeholder="Recherchez l'article..." [class.disabled]="selected" [clearable]="false" [searchable]="!selected" [hideSelected]="true" [items]="items$ | async" [typeahead]="searchItem$" formControlName="item" bindLabel="name"
+        (change)="onSelectItem($event)" [class.error]="submitted && form.controls.item.invalid">
+        <ng-template ng-option-tmp let-item="item">
+          <ng-container *ngIf="item">
+            {{ item?.name }}
+            <ng-container *ngIf="item.type !== 'SERVICES'">
+              <span style="color: #ff6879!important" class="font-weight-bold d-block font-size-13" *ngIf="!item.available?.quantity"><i
+                  class="fa fa-exclamation-triangle"></i>&nbsp;&nbsp;Stock épuisé</span>
+              <span class="d-block font-size-13 text-muted" *ngIf="item.available?.quantity">
+                {{ item.available.quantity }} {{ item.available.ItemUnit?.name || 'UNITE' }}(S)
+              </span>
+            </ng-container>
+          </ng-container>
+        </ng-template>
+      </ng-select>
+    </div>
+    <div class="form-group">
+      <label>Description</label>
+      <textarea class="form-control" #descriptionField formControlName="description" [ngClass]="{'error': submitted && form.controls.description.invalid}"></textarea>
+    </div>
+    <div class="row">
+      <div class="col-md-4 form-group">
+        <label>Unité</label>
+        <ng-select [placeholder]="selected? 'Unité': 'Choisir...'" [class.disabled]="selected"
+          formControlName="unit_id" [ngClass]="{'error': submitted && form.controls.unit_id.invalid}" [searchable]="!selected" (change)="onSelectUnit($event)"
+          [items]="selected? units: (form.controls.units?.value || [])" bindLabel="name" bindValue="id"
+          [hideSelected]="true" [clearable]="false">
+        </ng-select>
+      </div>
+      <div class="col-md-4 form-group">
+        <label>Quantité</label>
+        <input type="number" formControlName="quantity" [readonly]="selected"
+          class="form-control" [min]="1" [class.error]="submitted && form.controls.quantity.invalid">
+      </div>
+      <div class="col-md-4 form-group">
+        <label>Prix unitaire</label>
+        <input type="number" formControlName="price" class="form-control" [readonly]="selected" [min]="0"
+          [class.error]="submitted && form.controls.quantity.invalid">
+      </div>
+    </div>
+    <div class="row" *ngIf="hasTaxes">
+      <div class="col-md-12 form-group">
+        <label>Taxes</label>
+        <ng-select placeholder="Ajouter taxe" formControlName="Taxes" [items]="taxes$ | async" bindLabel="name"
+          [hideSelected]="true" [searchable]="true" [multiple]="true" [clearable]="false">
+        </ng-select>
+      </div>
+    </div>
+    <div class="row" *ngIf="type === 'HEALTH'" formGroupName="meta">
+      <div class="col-md-4">
+        <label>Posologie</label>
+        <input type="text" formControlName="dosage" class="form-control">
+      </div>
+      <div class="col-md-4">
+        <label>Voie</label>
+        <ng-select [searchable]="false" [items]="modes" [clearable]="false"
+          formControlName="administration_mode">
+        </ng-select>
+      </div>
+      <div class="col-md-4">
+        <label>Durée</label>
+        <div class="input-group">
+          <input type="text" formControlName="duration" class="form-control">
+          <div class="input-group-prepend">
+            <span class="input-group-text font-size-14" >jour(s)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer justify-content-between">
+    <div>
+      <h5 class="mb-0">Total: <b>{{ form.controls.total.value | currency: 'MGA': '' }}</b></h5>
+    </div>
+    <div>
+      <button class="btn btn-light" type="button" (click)="activeModal.dismiss()">Annuler</button>
+      <button class="btn btn-info">Enregistrer</button>
+    </div>
+  </div>
+</form>

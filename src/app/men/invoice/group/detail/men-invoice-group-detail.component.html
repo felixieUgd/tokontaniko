@@ -1,0 +1,253 @@
+<div class="container-fluid">
+  <div class="text-info font-weight-bold mb-3">
+    <button class="btn bg-info rounded-seat">1</button>
+    {{'nav.SEARCH' | translate | uppercase}}
+  </div>
+  <div class="row">
+    <div class="col-lg">
+      <div class="card">
+        <div class="card-body">
+          <form [formGroup]="searchForm" (submit)="submitSearch()">
+            <div class="row">
+              <div class="col-lg-3">
+                <label translate>common.START</label>
+                <div class="timepicker-input input-icon">
+                  <i class="ti-calendar"></i>
+                  <input type="text" class="form-control" formControlName="start" ngbDatepicker #d1="ngbDatepicker"
+                    (click)="d1.toggle()" [class.error]="submitted && searchForm.controls.start.invalid"
+                    [readonly]="true" />
+                </div>
+              </div>
+              <div class="col-lg-3">
+                <label translate>common.END</label>
+                <div class="timepicker-input input-icon">
+                  <i class="ti-calendar"></i>
+                  <input type="text" class="form-control" formControlName="end" ngbDatepicker #d2="ngbDatepicker"
+                    (click)="d2.toggle()" [class.error]="submitted && searchForm.controls.end.invalid"
+                    [readonly]="true" />
+                </div>
+              </div>
+              <div class="col-lg-3">
+                <label translate>men.ESTABLISHMENT</label>
+                <input class="form-control" formControlName="facility" placeholder="Rechercher..." minlength="4"
+                  [ngClass]="{'error': submitted && searchForm.get('facility').errors?.required}" [inputFormatter]="formatter"
+                  [ngbTypeahead]="searchFacility" [placement]="'bottom-left'" [resultTemplate]="facilityTemplate"
+                  [editable]="false" />
+              </div>
+              <div class="col-lg">
+                <label class="d-block">&nbsp;</label>
+                <button class="btn btn-info m-0" appXhrBtnIndicator>
+                  <i class="fa fa-search"></i>
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row position-relative">
+    <div class="col-3 sticky-lg-top">
+      <div class="text-info font-weight-bold mb-3">
+        <button class="btn bg-info rounded-seat">2</button>
+        SELECTION
+      </div>
+
+      <div class="card position-relative">
+        <div class="form-group mb-0 p-3">
+          <input type="search" class="form-control" stSearch="contact_name" placeholder="Rechercher contact...">
+        </div>
+        <div class="scrollable ps" perfectScrollbar>
+          <div class="table-responsive" stTable #table="stTable">
+            <table class="table table-hover mb-0">
+              <tbody>
+                <tr *ngIf="table.busy">
+                  <td>
+                    <div class="text-center pdd-top-30 pdd-btm-30">
+                      <i class="fa fa-spinner fa-spin"></i>
+                    </div>
+                  </td>
+                </tr>
+                <tr class="pointer" (click)="addInvoice(item, i)" *ngFor="let item of table.items; let i=index"
+                  [hidden]="table.busy" [attr.title]="item.id">
+                  <td class="vertical-align-middle">
+                    <h2 class="no-mrg-vertical">{{item.amount | currency:'MGA':'Ar'}}</h2>
+                    <div class="mb-1">
+                      <p class="mb-0">{{item.Category.name}}</p>
+                      <p class="mb-0" *ngIf="item.contact_name as cname">{{ cname }}</p>
+                      <p class="text-opacity font-size-13 mb-0" *ngIf="item.invoice_group_id !== null">
+                        <i class="fa fa-file-archive-o text-primary mr-1" aria-hidden="true"></i>
+                        Versement n° {{item.invoice_group_id}}
+                      </p>
+                    </div>
+                    <div>
+                      <div class="pull-left">
+                        <span class="label text-uppercase label-{{utilityService.statusStyle(item?.status).background}}">
+                          {{'status.' + item.status | translate}}
+                        </span>
+                      </div>
+                      <div class="pull-right text-muted font-size-13">
+                        {{ item.created_at | date: 'dd MMM yyyy' }}
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                <tr *ngIf="!table.busy && table.items?.length === 0">
+                  <td>
+                    <div class="text-center pdd-top-30 pdd-btm-30">
+                      <i class="fa fa-calendar-times-o fa-2x"></i>
+                      <p class="mt-2" translate>common.NO_RECORD</p>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <hr style="margin: 0;" />
+        <div class="row padding-10 align-items-center" stPagination #pager="stPagination">
+          <div class="col-lg-auto">
+            <div class="btn btn-link btn-sm disabled">
+              {{pager.length > 0 ? pager.lowerBoundIndex + 1 : 0}} - {{(pager.higherBoundIndex || -1) + 1}} sur
+              {{pager.length || 0}}
+            </div>
+          </div>
+        
+          <div class="col-lg">
+            <div class="btn-group pagination pull-right">
+              <button type="button" class="btn btn-default" (click)="pager.selectPreviousPage()"
+                [disabled]="!pager.isPreviousPageEnabled()">
+                <i class="ti-arrow-left"></i>
+              </button>
+              <button type="button" class="btn btn-default" (click)="pager.selectNextPage()"
+                [disabled]="!pager.isNextPageEnabled()">
+                <i class="ti-arrow-right"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-9">
+      <div class="text-info font-weight-bold mb-3">
+        <button class="btn bg-info rounded-seat">3</button>
+        ETAT DE VERSEMENT
+      </div>
+
+      <div class="card">
+        <div class="card-body">
+          <div class="row">
+            <label class="col-lg-2 col-form-label text-lg-right" translate>ID</label>
+            <label class="col-lg-3 col-form-label text-dark">
+              {{invoiceGroup?.id}}
+            </label>
+
+            <label class="col-lg-2 col-form-label text-lg-right">CISCO</label>
+            <label class="col-lg col-form-label text-dark">
+              {{invoiceGroup?.Contact?.name}}
+            </label>
+          </div>
+
+          <div class="row mrg-btm-20">
+            <label class="col-lg-2 col-form-label text-lg-right">Année scolaire</label>
+            <label class="col-lg-3 col-form-label text-dark">
+              {{invoiceGroup?.meta?.school_year}}
+            </label>
+
+            <label class="col-lg-2 col-form-label text-lg-right" translate>common.NUMBER</label>
+            <label class="col-lg col-form-label text-dark">
+              {{invoiceGroup?.Invoices?.length}}
+            </label>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table table-bordered">
+              <thead>
+                <tr class="font-weight-bold bg-light">
+                  <th class="text-center width-5">
+                    <i class="fa fa-navicon"></i>
+                  </th>
+                  <th class="text-center width-10">ID</th>
+                  <th translate>nav.CONTACT</th>
+                  <th class="text-center width-10" translate>income.QUANTITY</th>
+                  <th class="text-center width-15" translate>common.STATUS</th>
+                  <th class="width-15 text-right" translate>common.AMOUNT</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of invoiceGroup['InvoiceItems']; let i=index;">
+                  <td class="text-center">
+                    <a class="pointer" data-toggle="modal" data-target="#modal-confirm"
+                      (click)="dropInvoice(item.id, i)">
+                      <i class="fa fa-trash text-danger"></i>
+                    </a>
+                  </td>
+                  <td class="text-center">
+                    <a href [routerLink]="['/men/invoice/detail', item.id]">
+                      {{item.id}}
+                    </a>
+                  </td>
+                  <td>
+                    {{item?.description || item?.Category?.name}}
+                    <br />
+                    <span class="font-size-13 text-muted">{{item?.Contact?.name || item.contact_name}}</span>
+                  </td>
+                  <td class="text-center">
+                    {{item?.quantity}}
+                  </td>
+                  <td class="text-center">
+                    <span class="label text-uppercase label-{{utilityService.statusStyle(item?.status).background}}">
+                      {{'status.' + item.status | translate}}
+                    </span>
+                  </td>
+                  <td class="text-right">{{item?.amount | currency:'MGA':''}}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="row my-4">
+            <div class="offset-7 col-lg-5">
+              <div class="list-group">
+                <div class="list-group-item">
+                  <b class="width-50 inline-block text-right mrg-right-15" translate>common.SUBTOTAL</b>
+                  <span class="pull-right">{{Total?.payment_due | currency:'MGA':''}}</span>
+                </div>
+                <div class="list-group-item">
+                  <b class="width-50 inline-block text-right mrg-right-15" translate>common.PAYMENT</b>
+                  <span class="pull-right">{{Total?.payment | currency:'MGA':''}}</span>
+                </div>
+                <div class="list-group-item">
+                  <div class="width-100">
+                    <b class="width-50 text-right inline-block" translate>payment.BALANCE</b>
+                    <b class="pull-right">{{Total?.balance | currency:'MGA':'Ar'}}</b>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="border-top pdd-horizon-30 pdd-vertical-15">
+
+          <button type="button" class="btn btn-info m-0 pull-right" appXhrBtnIndicator (click)="updateGroup()">
+            <i class="fa fa-save"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #facilityTemplate let-r="result" let-t="term">
+  <ngb-highlight [result]="r?.name" [term]="t"></ngb-highlight>
+
+  <span style="color: #6f748a;" [ngClass]="{ 'd-block': r, 'd-none': !r }">
+    {{ r?.code }}
+  </span>
+
+  <span class="d-block text-muted py-2" *ngIf="!r">
+    {{ 'common.NO_RECORD' | translate }}
+  </span>
+</ng-template>

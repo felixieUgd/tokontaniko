@@ -1,0 +1,231 @@
+<div class="container-fluid">
+  <div class="row justify-content-center">
+    <div class="col-lg-12">
+      <div class="card">
+        <div class="tab-info">
+          <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item">
+              <a href="#tab-detail" class="nav-link active" role="tab" data-toggle="tab">
+                DETAILS
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="#tab-history" class="nav-link" role="tab" data-toggle="tab">
+                HISTORIQUE
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="#attachment" class="nav-link text-uppercase" role="tab" data-toggle="tab">
+                {{'common.FILE' | translate}}
+              </a>
+            </li>
+            <li class="col text-right">
+              <a class="nav-link">
+                <label class="label label-lg label-default-inverse mb-0 text-uppercase">
+                  {{'nav.ITEM' | translate}} - {{Item?.sku}}
+                </label>
+              </a>
+            </li>
+          </ul>
+          <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade in active" id="tab-detail">
+              <div class="padding-30">
+                <form class="form-horizontal h-100" [formGroup]="form" (ngSubmit)="save()" autocomplete="off"
+                  novalidate>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label for="name" class="control-label">Nom</label>
+                        <input type="text" class="form-control" formControlName="name" placeholder=""
+                          [class.error]="submitted && form.controls.name.invalid">
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label for="ref" class="control-label">Référence</label>
+                        <input type="text" id="ref" class="form-control" formControlName="sku" placeholder=""
+                          [class.error]="submitted && form.controls.sku.invalid">
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-12">
+                      <div class="form-group">
+                        <label for="description" class="control-label">Description</label>
+                        <textarea id="description" name="description" class="form-control" rows="2" placeholder=""
+                          formControlName="description" [class.error]="submitted && form.controls.description.invalid">
+                            </textarea>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-3 col-12">
+                      <div class="form-group">
+                        <label for="purchase_price" class="control-label">Prix d'achat</label>
+                        <input type="text" id="purchase_price" class="form-control" formControlName="purchase_price"
+                          placeholder="" [class.error]="submitted && form.controls.purchase_price.invalid">
+                      </div>
+                    </div>
+                    <div class="col-md-3 col-12">
+                      <div class="form-group">
+                        <label for="sale_price" class="control-label">Prix de vente</label>
+                        <input type="text" id="sale_price" class="form-control" formControlName="sale_price"
+                          placeholder="" [class.error]="submitted && form.controls.sale_price.invalid">
+                      </div>
+                    </div>
+                    <div class="col-md">
+                      <div class="form-group">
+                        <label class="control-label">Type</label>
+                        <ng-select [items]="types" formControlName="type" [ngClass]="{'error': submitted && form.controls.type.invalid}"
+                          [clearable]="false">
+                          <ng-template ng-label-tmp let-item="item">
+                            <span class="text-uppercase">{{'item_type.' + item | translate}}</span>
+                          </ng-template>
+                          <ng-template ng-option-tmp let-item="item">
+                            <span class="text-uppercase">{{'item_type.' + item | translate}}</span>
+                          </ng-template>
+                        </ng-select>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-3">
+                      <div class="form-group">
+                        <label for="category" class="control-label">Catégorie</label>
+                        <ng-select [items]="categories" bindLabel="name" formControlName="category"
+                          [ngClass]="{'error': submitted && form.controls.category.invalid}" [clearable]="false">
+                          <ng-template ng-option-tmp let-item="item">
+                            {{item.name}}
+                          </ng-template>
+                        </ng-select>
+                      </div>
+                    </div>
+                    <div class="col-md-3">
+                      <div class="form-group">
+                        <label class="control-label">Taxes</label>
+                        <ng-select placeholder="Ajouter taxe" formControlName="Taxes" [items]="taxes | async"
+                          bindLabel="name" [hideSelected]="true" [searchable]="true" [multiple]="true"
+                          [clearable]="false">
+                        </ng-select>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col col-md-6">
+                      <div class="form-group">
+                        <label class="control-label">Activé</label>
+                        <div class="toggle-checkbox toggle-info">
+                          <input type="checkbox" formControlName="enabled" id="toggle-enabled" checked
+                            [class.error]="submitted && form.controls.enabled.invalid">
+                          <label for="toggle-enabled"></label>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="border top pdd-vertical-15 text-right">
+                    <button type="submit" class="btn btn-info mr-0">
+                      <i class="fa fa-save"></i>
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+
+            <div role="tabpanel" class="tab-pane fade" id="tab-history">
+              <div class="padding-15">
+                <div class="row justify-content-between">
+                  <div class="col-sm-auto">
+                    <div class="input-group">
+                      <input type="text" class="form-control input-sm bg-white" ngbDatepicker readonly #d1="ngbDatepicker"
+                        (click)="d1.toggle()" [(ngModel)]="startDate">
+                      <div class="input-group-append">
+                        <button class="btn btn-info btn-sm m-0" type="button" (click)="onDateSelect()">
+                          <i class="fa fa-search"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <div *ngIf="Item?.variations as variations" class="col-sm-auto">
+                    <button class="btn btn-link btn-sm" (click)="exportExcel(variations)">Exporter .xlsx</button>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-lg">
+                  <div class="table-overflow">
+                    <table class="table table-striped no-border m-0">
+                      <tr>
+                        <th class="width-15">Document</th>
+                        <th class="width-5 text-center" translate>N°</th>
+                        <th>Source</th>
+                        <th>Destination</th>
+                        <th>Unité</th>
+                        <th class="text-center width-15">Entrée</th>
+                        <th class="text-center width-15">Sortie</th>
+                        <th class="text-right">Créé</th>
+                      </tr>
+                      <ng-container *ngFor="let item of Item?.variations">
+                        <tr>
+                          <td>{{'income.' + item.type | translate}}</td>
+                          <td class="text-center">
+                            <a href *ngIf="getDocId(item) as id" [routerLink]="[getDocLink(item), id]">
+                              {{id}}
+                            </a>
+                          </td>
+                          <td>
+                            {{ item.InventoryStorage?.Room?.title }}
+                          </td>
+                          <td>
+                            {{ item.Request?.Room?.title }}
+                          </td>
+                          <td>
+                            {{ item.ItemUnit?.name }}
+                          </td>
+                          <td class="text-center">
+                            <ng-container *ngIf="item.type === 'BILL'">
+                              <i class="fa fa-arrow-up text-success"></i>
+                              <span class="ml-1">{{item.quantity}}</span>
+                            </ng-container>
+                          </td>
+                          <td class="text-center">
+                            <ng-container *ngIf="item.type !== 'BILL'">
+                              <i class="fa fa-arrow-down text-danger"></i>
+                              <span class="ml-1">{{item.quantity}}</span>
+                            </ng-container>
+                          </td>
+                          <td class="text-right">
+                            {{item.created_at | date:'dd MMM yyyy HH:mm'}}
+                          </td>
+                        </tr>
+                      </ng-container>
+                      <tr class="text-center" *ngIf="!Item?.variations?.length">
+                        <td colspan="7" translate>common.NO_RECORD</td>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div role="tabpanel" class="tab-pane fade" id="attachment">
+              <div class="padding-30">
+                <div class="row">
+                  <div class="col-lg-4">
+                    <app-file-attachment [type]="'photo'" [route]="'items'" [id]="Item?.id"
+                      [attachments]="Item?.attachments" (onDelete)="deleteAttachment($event)" (onSuccess)="reset()">
+                    </app-file-attachment>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

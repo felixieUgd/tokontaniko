@@ -1,0 +1,214 @@
+<div class="container-fluid">
+  <div class="text-info font-weight-bold mb-3">
+    <button class="btn bg-info rounded-seat">1</button>
+    {{'nav.SEARCH' | translate | uppercase}}
+  </div>
+  <div class="row">
+    <div class="col-lg">
+      <div class="card">
+        <div class="card-body">
+          <form [formGroup]="searchForm">
+            <div class="row">
+              <div class="col-lg-3">
+                <label translate>common.START</label>
+                <div class="timepicker-input input-icon">
+                  <i class="ti-calendar"></i>
+                  <input type="text" class="form-control" formControlName="start" ngbDatepicker #d1="ngbDatepicker"
+                    (click)="d1.toggle()" [class.error]="submitted_search && searchForm.controls.start.invalid"
+                    [readonly]="true" />
+                </div>
+              </div>
+              <div class="col-lg-3">
+                <label translate>common.END</label>
+                <div class="timepicker-input input-icon">
+                  <i class="ti-calendar"></i>
+                  <input type="text" class="form-control" formControlName="end" ngbDatepicker #d2="ngbDatepicker"
+                    (click)="d2.toggle()" [class.error]="submitted_search && searchForm.controls.end.invalid"
+                    [readonly]="true" />
+                </div>
+              </div>
+              <div class="col-lg-3">
+                <label translate>nav.CONTACT</label>
+                <app-typeahead-contact
+                  formControlName="contact"
+                  [submitted]="submitted_search"
+                  (selectContact)="onSelectContact($event)"
+                ></app-typeahead-contact>
+              </div>
+              <div class="col-lg">
+                <label class="d-block">&nbsp;</label>
+                <button type="button" class="btn btn-info m-0" (click)="submitSearch()" appXhrBtnIndicator>
+                  <i class="fa fa-search"></i>
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-3">
+      <div class="text-info font-weight-bold mb-3">
+        <button class="btn bg-info rounded-seat">3</button>
+        {{'common.SCAN' | translate | uppercase}}
+      </div>
+
+      <div class="card">
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <tbody>
+              <tr>
+                <td class="border-top-0">
+                  <form role="form" [formGroup]="scanForm" (ngSubmit)="submittedScan()">
+                    <div class="form-group mb-0">
+                      <input type="search" class="form-control" formControlName="invoice_id"
+                        placeholder="Placez le curseur ici..."
+                        [class.error]="submitted_scan && scanForm.get('invoice_id').status === 'INVALID'">
+                    </div>
+                  </form>
+                </td>
+              </tr>
+              <tr class="pointer" (click)="addInvoice(item, i)"
+                *ngFor="let item of invoices; let i=index" [attr.title]="item.id">
+                <td class="vertical-align-middle">
+                  <h1 class="no-mrg-vertical">{{item.amount | currency:'MGA':'Ar'}}</h1>
+                  <p class="mb-0">{{item.Category.name}}</p>
+                  <p class="text-opacity font-size-13 mb-0" *ngIf="item.invoice_group_id !== null">
+                    <i class="fa fa-file-archive-o text-primary mr-1" aria-hidden="true"></i>
+                    {{'income.GROUP' | translate}} n° {{item.invoice_group_id}}
+                  </p>
+                  <p class="mb-0">
+                    <span class="label text-uppercase label-{{utilityService.statusStyle(item?.status).background}}">
+                      {{'status.' + item.status | translate}}
+                    </span>
+                  </p>
+                </td>
+              </tr>
+              <tr *ngIf="!invoices || invoices?.length === 0">
+                <td>
+                  <div class="text-center pdd-top-70 pdd-btm-70">
+                    <i class="fa fa-calendar-times-o fa-2x"></i>
+                    <p class="mt-2" translate>common.NO_RECORD</p>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="col-9">
+      <div class="text-info font-weight-bold mb-3">
+        <button class="btn bg-info rounded-seat">2</button>
+        {{'common.INVOICE' | translate | uppercase}}
+      </div>
+
+      <div class="card">
+        <form [formGroup]="invoiceForm" (ngSubmit)="save()">
+          <div class="card-body">
+            <div class="row mt-2">
+              <label class="col-lg-3 col-form-label text-lg-right" translate>income.DUE_AT</label>
+              <div class="col-lg-3">
+                <div class="form-group">
+                  <div class="timepicker-input input-icon">
+                    <i class="ti-calendar"></i>
+                    <input type="text" class="form-control" formControlName="due_at" ngbDatepicker
+                      #d3="ngbDatepicker" (click)="d3.toggle()" [minDate]="minDate"
+                      [class.error]="submitted && invoiceForm.controls.due_at.invalid"
+                      [placement]="'bottom-left'" readonly />
+                  </div>
+                </div>
+              </div>
+
+              <label class="col-lg-3 col-form-label text-lg-right" translate>nav.CONTACT</label>
+              <div class="col-lg-3">
+                <div class="form-group">
+                  <ng-select [items]="contact$ | async" bindLabel="name" formControlName="contact"
+                    minTermLength="3" [clearable]="true" [typeahead]="contactInput$"
+                    typeToSearchText="Veuillez saisir 3 caractères ou plus"
+                    [class.error]="submitted && invoiceForm.controls.contact.invalid">
+                    <ng-template ng-option-tmp let-item="item">
+                      {{item.name}}
+                      <br/>
+                      <span class="font-size-13 text-muted">
+                        {{item.phone | mask:'000 00 000 00'}} - {{item.id_cin | mask:'000 000 000 000'}}
+                      </span>
+                    </ng-template>
+                  </ng-select>
+                </div>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="table table-bordered">
+                <thead>
+                  <tr class="font-weight-bold bg-light">
+                    <th class="text-center" style="width: 5%;">
+                      <i class="fa fa-navicon"></i>
+                    </th>
+                    <th class="width-5 text-center">N°</th>
+                    <th class="" translate>common.NAME</th>
+                    <th class="width-15 text-center" translate>common.STATUS</th>
+                    <th class="width-15 text-right" translate>common.AMOUNT</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let item of invoiceGroups; let i=index">
+                    <td class="text-center">
+                      <a class="pointer" (click)="dropInvoice(i)">
+                        <i class="fa fa-trash text-danger"></i>
+                      </a>
+                    </td>
+                    <td class="text-center">
+                      <a href [routerLink]="['/income/invoice/detail', item.id]">{{item.id}}</a>
+                    </td>
+                    <td>{{item?.Contact?.name}}</td>
+                    <td class="text-center">
+                      <span class="label text-uppercase label-{{utilityService.statusStyle(item?.status).background}}" translate>
+                        {{'status.' + item.status | translate}}
+                      </span>
+                    </td>
+                    <td class="text-right">{{item.amount | currency:'MGA':''}}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="row mb-4">
+              <div class="offset-8 col-lg-4">
+                <div class="list-group">
+                  <div class="list-group-item">
+                    <div class="width-100">
+                      <b class="width-50 text-right inline-block">Sous-total</b>
+                      <span class="pull-right">{{subtotal | currency:'MGA':'Ar'}}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="border-top pdd-horizon-30 pdd-vertical-15 text-right">
+            <button class="btn btn-info mb-0" appXhrBtnIndicator>
+              <i class="fa fa-save"></i>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #tpl let-r="result" let-t="term">
+  <ngb-highlight [result]="r?.name" [term]="t"></ngb-highlight>
+
+  <span style="color: #6f748a;" [ngClass]="{ 'd-block': r, 'd-none': !r }">
+    {{ r?.Profile?.phone_work | mask:'000 00 000 00'}} - {{ r?.Profile?.Position?.title }}
+  </span>
+
+  <a class="d-block text-white py-2" *ngIf="!r">
+    <i class="fa fa-plus-circle mr-1"></i> Ajouter client
+  </a>
+</ng-template>

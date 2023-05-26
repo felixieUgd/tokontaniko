@@ -1,0 +1,180 @@
+<div class="container-fluid">
+  <div class="row justify-content-center mrg-top-15">
+    <div class="col-lg-12">
+      <div class="card" style="overflow: hidden;">
+        <div class="tab-info">
+          <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item">
+              <a href="#tab-centered-1" class="nav-link active" role="tab" data-toggle="tab" translate>
+                Stockage
+              </a>
+            </li>
+          </ul>
+          <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade in active" id="tab-centered-1">
+              <div class="row">
+                <div class="col-lg">
+                  <div>
+                    <table class="table table-striped no-border m-0">
+                      <tr>
+                        <td colspan="3" class="text-center no-border">
+                        </td>
+                        <td colspan="3" class="no-border">
+                          <button type="button" class="btn btn-info btn-sm pull-right" (click)="sidePanelOpen = true">
+                            Ajouter stockage
+                          </button>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th class="text-center" style="width: 5%;">Statut</th>
+                        <th class="width-10">ID</th>
+                        <th>Nom</th>
+                        <th>Type</th>
+                        <th>Local</th>
+                        <th class="width-10 text-center">Actions</th>
+                      </tr>
+                      <tr>
+                        <td class="text-center" colspan="6" *ngIf="!storages?.length">
+                          Aucun enregistrement
+                        </td>
+                      </tr>
+                      <tr *ngFor="let storage of storages">
+                        <td class="text-center">
+                          <i class="fa"
+                            [ngClass]="{'fa-check-circle text-success': storage.enabled, 'fa-times-circle text-normal': !storage.enabled}"></i>
+                        </td>
+                        <td>{{storage.id}}</td>
+                        <td>{{storage.name}}</td>
+                        <td>
+                          <span *ngIf="storage.type">{{ 'storage.' + storage.type | translate }}</span>
+                        </td>
+                        <td>{{ storage?.Room?.title }}</td>
+                        <td class="text-center">
+                          <button class="btn btn-sm btn-info btn-icon" (click)="edit(storage)">
+                            <i class="fa fa-pencil"></i>
+                          </button>
+                        </td>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Side Panel START -->
+<div class="side-panel" [ngClass]="{'side-panel-open' : sidePanelOpen}">
+  <div class="side-panel-wrapper bg-white">
+    <ul class="nav nav-tabs" role="tablist">
+      <li class="nav-item">
+        <a class="nav-link active" href="#edit" role="tab" data-toggle="tab">
+          <span>Nouveau</span>
+        </a>
+      </li>
+      <li class="panel-close">
+        <button class="side-panel-toggle" (click)="close()">
+          <i class="ti-close"></i>
+        </button>
+      </li>
+    </ul>
+
+    <div class="tab-content overflow-y-auto scrollable">
+      <div id="edit" role="tabpanel" class="tab-pane fade in active">
+        <div class="scrollable p-4">
+          <form role="form" [formGroup]="storageForm" (ngSubmit)="save()" autocomplete="off" novalidate>
+            <div class="row">
+              <div class="col-lg-12">
+                <div class="form-group">
+                  <label for="name">Nom</label>
+                  <input type="text" id="name" class="form-control" placeholder="" formControlName="name"
+                    [class.error]="submitted && storageForm.get('name').status === 'INVALID'">
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-lg-12">
+                <div class="form-group">
+                  <label for="type">Type</label>
+                  <ng-select id="type" [items]="types"
+                    formControlName="type"
+                    [class.error]="submitted && storageForm.get('type').status === 'INVALID'">
+                    <ng-template ng-label-tmp let-item="item">
+                      {{ 'storage.' + item | translate}}
+                    </ng-template>
+                    <ng-template ng-option-tmp let-item="item">
+                      {{ 'storage.' + item | translate}}
+                    </ng-template>
+                  </ng-select>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-lg-6">
+                <div class="form-group">
+                  <label for="facility">Établissement</label>
+                  <ng-select [items]="searchFacility$ | async" [loading]="isFacilityLoading" loadingText="Chargement..."
+                    notFoundText="Aucun enregistrement" bindLabel="name" formControlName="facility" minTermLength="3"
+                    typeToSearchText="{{('common.TYPE_TO_SEARCH' | translate) + '...'}}"
+                    [class.error]="submitted && storageForm.controls.facility.invalid" [typeahead]="facilityInput$" [clearable]="true">
+                    <ng-template ng-option-tmp let-item="item">
+                      {{item?.name}}
+                      <br />
+                      <span style="color: #6f748a;">
+                        {{item?.code}}
+                      </span>
+                    </ng-template>
+                  </ng-select>
+                </div>
+              </div>
+              <div class="col-lg-6">
+                <div class="form-group">
+                  <label for="room">Local</label>
+                  <ng-select [items]="filteredRooms" bindLabel="title" formControlName="room"
+                    [class.error]="submitted && storageForm.controls.room.invalid">
+                    <ng-template ng-label-tmp let-item="item">
+                      {{item.title}} - {{item.RoomType.name}}
+                    </ng-template>
+                    <ng-template ng-option-tmp let-item="item">
+                      {{item.title}} - {{item.RoomType.name}}
+                    </ng-template>
+                  </ng-select>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-lg">
+                <div class="form-group">
+                  <label class="control-label">Activé</label>
+                  <div class="toggle-checkbox toggle-info">
+                    <input type="checkbox" formControlName="enabled" id="toggle-enabled" checked
+                      [class.error]="submitted && storageForm.get('enabled').status==='INVALID'">
+                    <label for="toggle-enabled"></label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row bg-white fixed-bottom">
+              <div class="col-lg-12">
+                <div class="px-4 pdd-vertical-20 border top">
+                  <button type="submit" appXhrBtnIndicator class="btn btn-info btn-block no-mrg-btm">
+                    Enregistrer
+                  </button>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Side Panel END -->

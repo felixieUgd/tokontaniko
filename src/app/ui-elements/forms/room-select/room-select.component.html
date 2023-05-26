@@ -1,0 +1,26 @@
+
+<div class="input-group">
+  <ng-select [ngStyle]="{width: '200px'}" placeholder="Établissement" [items]="searchFacility$ | async"
+    [loading]="isFacilityLoading" loadingText="Chargement..." notFoundText="Aucun enregistrement" bindLabel="name"
+    [(ngModel)]="selectedFacility" (ngModelChange)="facilityChange($event)" minTermLength="3"
+    typeToSearchText="{{('common.TYPE_TO_SEARCH' | translate) + '...'}}" [class.error]="submitted && !selectedFacility"
+    [typeahead]="facilityInput$" [clearable]="true">
+    <ng-template ng-option-tmp let-item="item">
+      {{item?.name}}
+      <br />
+      <span style="color: #6f748a;">
+        {{item?.code}}
+      </span>
+    </ng-template>
+  </ng-select>
+  <ng-select [ngStyle]="{width: '200px'}" placeholder="Local" [(ngModel)]="selectedRoom"
+    (ngModelChange)="roomChange($event)" [items]="filteredRooms" bindLabel="title"
+    [class.error]="submitted && !selectedRoom">
+    <ng-template ng-label-tmp let-item="item">
+      {{item.title}} - {{item.RoomType.name}}
+    </ng-template>
+    <ng-template ng-option-tmp let-item="item">
+      {{item.title}} - {{item.RoomType.name}}
+    </ng-template>
+  </ng-select>
+</div>

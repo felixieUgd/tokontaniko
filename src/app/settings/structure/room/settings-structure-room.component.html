@@ -1,0 +1,198 @@
+<div class="container-fluid">
+  <div class="row justify-content-center mrg-top-15">
+    <div class="col-lg-12">
+      <div class="card" style="overflow: hidden;">
+        <div class="tab-info">
+          <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item">
+              <a href="#tab-centered-1" class="nav-link active" role="tab" data-toggle="tab" translate>
+                Locaux
+              </a>
+            </li>
+          </ul>
+          <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade in active" id="tab-centered-1">
+              <div class="row">
+                <div class="col-lg">
+                  <div stTable #table="stTable">
+                    <table class="table table-striped no-border m-0">
+                      <tr>
+                        <td colspan="2" class="text-center no-border">
+                        </td>
+                        <td colspan="4" class="no-border">
+                          <button type="button" class="btn btn-info btn-sm pull-right" (click)="sidePanelOpen = true">
+                            Ajouter local
+                          </button>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th class="text-center" style="width: 5%;">Statut</th>
+                        <th stSort="id" class="width-10">ID</th>
+                        <th>Nom</th>
+                        <th stSort="type">Type</th>
+                        <th>Établissement</th>
+                        <th class="width-10 text-center">Actions</th>
+                      </tr>
+                      <tr>
+                        <td></td>
+                        <td></td>
+                        <td><input id="search" placeholder="Rechercher Nom ..." type="search"
+                            class="form-control input-sm" stDebounceTime="800" stSearch="title"></td>
+                        <td colspan="3"></td>
+                      </tr>
+                      <tr>
+                        <td class="text-center" colspan="6" *ngIf="table.busy">
+                          <i class="fa fa-spin fa-spinner"></i>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="text-center" colspan="6" *ngIf="table.items.length === 0 && !table.busy">
+                          Aucun enregistrement
+                        </td>
+                      </tr>
+                      <tr *ngFor="let room of table.items" [hidden]="table.busy">
+                        <td class="text-center">
+                          <i class="fa"
+                            [ngClass]="{'fa-check-circle text-success': room.enabled, 'fa-times-circle text-normal': !room.enabled}"></i>
+                        </td>
+                        <td>{{room.id}}</td>
+                        <td>{{room.title}}</td>
+                        <td>
+                          <i class="fa fa-circle" [ngStyle]="{'color': room.RoomType?.color}" *ngIf="room.RoomType"></i>
+                          {{room.RoomType?.name}}
+                        </td>
+                        <td>
+                          {{ room.Facility?.name }}
+                        </td>
+                        <td class="text-center">
+                          <button class="btn btn-sm btn-info btn-icon" (click)="edit(room)">
+                            <i class="fa fa-pencil"></i>
+                          </button>
+                        </td>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              <hr style="margin: 0;" />
+
+              <div class="row padding-10" stPagination #pager="stPagination">
+                <div class="col-md">
+                  <div class="btn btn-link disabled">
+                    {{pager.length > 0 ? pager.lowerBoundIndex + 1 : 0}} - {{(pager.higherBoundIndex || -1) + 1}} sur
+                    {{pager.length || 0}}
+                  </div>
+                </div>
+                <div class="col-md-auto">
+                  <div class="btn-group pagination justify-content-end">
+                    <button type="button" class="btn btn-default" (click)="pager.selectPreviousPage()"
+                      [disabled]="!pager.isPreviousPageEnabled()">
+                      <i class="ti-arrow-left"></i>
+                    </button>
+                    <button type="button" class="btn btn-default" (click)="pager.selectNextPage()"
+                      [disabled]="!pager.isNextPageEnabled()">
+                      <i class="ti-arrow-right"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Side Panel START -->
+<div class="side-panel" [ngClass]="{'side-panel-open' : sidePanelOpen}">
+  <div class="side-panel-wrapper bg-white">
+    <ul class="nav nav-tabs" role="tablist">
+      <li class="nav-item">
+        <a class="nav-link active" href="#edit" role="tab" data-toggle="tab">
+          <span>Nouveau</span>
+        </a>
+      </li>
+      <li class="panel-close">
+        <button class="side-panel-toggle" (click)="close()">
+          <i class="ti-close"></i>
+        </button>
+      </li>
+    </ul>
+
+    <div class="tab-content overflow-y-auto scrollable">
+      <div id="edit" role="tabpanel" class="tab-pane fade in active">
+        <div class="scrollable p-4">
+          <form role="form" [formGroup]="roomForm" (ngSubmit)="save()" autocomplete="off" novalidate>
+            <div class="row">
+              <div class="col-lg-12">
+                <div class="form-group">
+                  <label for="title">Nom</label>
+                  <input type="text" id="title" class="form-control" placeholder="" formControlName="title"
+                    [class.error]="submitted && roomForm.get('title').status === 'INVALID'">
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-lg-12">
+                <div class="form-group">
+                  <label for="room_type">Type</label>
+                  <ng-select id="room_type" [items]="types" bindLabel="name" bindValue="id"
+                    formControlName="room_type_id"
+                    [class.error]="submitted && roomForm.get('room_type_id').status === 'INVALID'">
+                    <ng-template ng-option-tmp let-item="item">
+                      {{item.name}}
+                    </ng-template>
+                  </ng-select>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-lg-12">
+                <div class="form-group">
+                  <label for="facility">Établissement</label>
+                  <ng-select [items]="searchFacility$ | async" [loading]="isFacilityLoading" loadingText="Chargement..."
+                    notFoundText="Aucun enregistrement" bindLabel="name" formControlName="Facility" minTermLength="3"
+                    typeToSearchText="{{('common.TYPE_TO_SEARCH' | translate) + '...'}}"
+                    [class.error]="submitted && roomForm.controls.Facility.invalid" [typeahead]="facilityInput$" [clearable]="true">
+                    <ng-template ng-option-tmp let-item="item">
+                      {{item?.name}}
+                      <br />
+                      <span style="color: #6f748a;">
+                        {{item?.code}}
+                      </span>
+                    </ng-template>
+                  </ng-select>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-lg">
+                <div class="form-group">
+                  <label class="control-label">Activé</label>
+                  <div class="toggle-checkbox toggle-info">
+                    <input type="checkbox" formControlName="enabled" id="toggle-enabled" checked
+                      [class.error]="submitted && roomForm.get('enabled').status==='INVALID'">
+                    <label for="toggle-enabled"></label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row bg-white fixed-bottom">
+              <div class="col-lg-12">
+                <div class="px-4 pdd-vertical-20 border top">
+                  <button type="submit" appXhrBtnIndicator class="btn btn-info btn-block no-mrg-btm">
+                    Enregistrer
+                  </button>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Side Panel END -->

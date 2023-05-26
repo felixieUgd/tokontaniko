@@ -1,0 +1,215 @@
+.label,
+.tag {
+  padding: 4px 10px;
+  border-radius: 50px;
+  font-size: 75%;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.label-lg,
+.tag-lg {
+  font-size: 16px;
+  padding: 6px 12px;
+}
+
+label {
+  &.error {
+    color: $default-danger;
+  }
+
+  &.success {
+    color: $default-success;
+  }
+}
+
+.label-primary {
+  background-color: $inverse-primary;
+  color: $default-primary;
+}
+
+.label-success {
+  background-color: $inverse-success;
+  color: $default-success;
+}
+
+.label-info {
+  background-color: $inverse-info;
+  color: $default-info;
+}
+
+.label-warning {
+  background-color: $inverse-warning;
+  color: $default-warning;
+}
+
+.label-danger {
+  background-color: $inverse-danger;
+  color: $default-danger;
+}
+
+.label-default {
+  background-color: $default-gray;
+  color: $default-text-color;
+}
+
+.label-primary-inverse {
+  background-color: $default-primary;
+  color: $default-white;
+}
+
+.label-success-inverse {
+  background-color: $default-success;
+  color: $default-white;
+}
+
+.label-info-inverse {
+  background-color: $default-info;
+  color: $default-white;
+}
+
+.label-warning-inverse {
+  background-color: $default-warning;
+  color: $default-white;
+}
+
+.label-danger-inverse {
+  background-color: $default-danger;
+  color: $default-white;
+}
+
+.label-default-inverse {
+  background-color: $default-dark;
+  color: $default-white;
+}
+
+.tag {
+  display: inline;
+  font-size: 75%;
+  font-weight: bold;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+}
+
+.tag-primary {
+  background-color: $default-primary;
+  color: $default-white;
+}
+
+.tag-success {
+  background-color: $default-success;
+  color: $default-white;
+}
+
+.tag-info {
+  background-color: $default-info;
+  color: $default-white;
+}
+
+.tag-warning {
+  background-color: $default-warning;
+  color: $default-white;
+}
+
+.tag-danger {
+  background-color: $default-danger;
+  color: $default-white;
+}
+
+// Float label
+.has-float-label {
+  position: relative;
+  margin-bottom: 30px !important;
+
+  input,
+  textarea,
+  select {
+    height: 45px !important;
+    line-height: 1;
+
+    &:focus,
+    &.ng-touched {
+      padding-top: 19px;
+    }
+  }
+
+  textarea {
+    &:focus,
+    &.ng-touched {
+      padding-top: 21px;
+    }
+  }
+
+  label {
+    position: absolute;
+    cursor: text;
+    font-size: 10px;
+    opacity: 1;
+    -webkit-transition: all 0.2s;
+    transition: all 0.2s;
+    top: 7px;
+    left: 12px;
+    z-index: 3;
+    line-height: 1;
+    padding: 0 1px;
+
+    &::after {
+      content: " ";
+      display: block;
+      position: absolute;
+      background: #fff;
+      height: 2px;
+      top: 50%;
+      left: -0.2em;
+      right: -0.2em;
+      z-index: -1;
+    }
+
+    &.timepicker-label {
+      left: 40px;
+    }
+  }
+
+  .form-control {
+    &::-webkit-input-placeholder {
+      opacity: 1;
+      -webkit-transition: all 0.2s;
+      transition: all 0.2s;
+    }
+
+    &:placeholder-shown:not(:focus)::-webkit-input-placeholder {
+      opacity: 0;
+    }
+
+    &:placeholder-shown:not(:focus) + label {
+      // padding-left: 12px;
+      font-size: 100%;
+      opacity: 0.5;
+      top: 15.5px;
+      font-weight: 400;
+    }
+  }
+}
+
+.input-group {
+  .has-float-label {
+    display: table-cell;
+
+    &.form-control {
+      border-radius: 4px;
+    }
+
+    &:not(:last-child) .form-control {
+      border-bottom-right-radius: 0;
+      border-top-right-radius: 0;
+    }
+
+    &:not(:first-child) .form-control {
+      border-bottom-left-radius: 0;
+      border-top-left-radius: 0;
+      margin-left: -1px;
+    }
+  }
+}

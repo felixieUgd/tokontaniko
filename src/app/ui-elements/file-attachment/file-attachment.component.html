@@ -1,0 +1,60 @@
+<div class="form-group mb-3" *ngIf="canUpload">
+  <div class="row no-gutters mb-2">
+    <div class="col pr-2">
+      <input type="text" class="form-control" [readOnly]="isLoading"
+        [name]="'docname-' + route"
+        [id]="'docname-' + route"
+        [class.error]="(submitted && !doc_name) || (submittedForm && (!attachments || !attachments.length))"
+        placeholder="Entrer nom du document..." [(ngModel)]="doc_name">
+    </div>
+    <div class="col-auto">
+      <label [for]="'upload-attachment-' + uniqueId" class="pointer d-inline">
+        <span class="btn btn-primary m-0">
+          <i class="fa" [ngClass]="{'fa-upload': !isLoading, 'fa-spinner fa-spin': isLoading}"></i>
+        </span>
+        <input class="force-hide" type="file" [name]="'upload-attachment-' + uniqueId"
+          [id]="'upload-attachment-' + uniqueId" [uploader]="uploader" (click)="uploadDocument($event)" ng2FileSelect>
+      </label>
+    </div>
+  </div>
+  <span class="text-muted font-size-13">Taille maximale: 5mb</span>
+</div>
+
+<div class="table-responsive">
+  <table class="table table-bordered mb-0">
+    <thead>
+      <tr>
+        <th translate>common.LABEL</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngIf="attachments && attachments.length === 0">
+        <td class="text-center" translate>common.NO_RECORD</td>
+      </tr>
+      <tr *ngIf="!attachments">
+        <td class="vertical-align-middle">
+          <div class="w-100 text-center">
+            <i class="fa fa-spinner fa-spin"></i>
+          </div>
+        </td>
+      </tr>
+      <ng-container *ngIf="attachments">
+        <tr *ngFor="let attachment of attachments">
+            <td class="vertical-align-middle">
+              <span class="btn btn-sm" *ngIf="formatDocName(attachment) as name" [title]="name">{{name | slice:0:28}}<ng-container *ngIf="name.length > 28">...</ng-container></span>
+              <button type="button" *ngIf="canDelete && onDelete && onDelete?.observers?.length > 0" appXhrBtnIndicator
+                class="btn btn-sm btn-danger btn-inverse pull-right"
+                (click)="deleteAttachment(attachment.doc_id)">
+                <i class="fa fa-trash-o"></i></button>
+              <button type="button" class="btn btn-sm btn-primary btn-inverse pull-right" appXhrBtnIndicator *ngIf="isImage(attachment)"
+                (click)="previewDoc(attachment.doc_id)">
+                <i class="ei ei-picture"></i></button>
+              <button type="button" class="btn btn-sm btn-primary btn-inverse pull-right" appXhrBtnIndicator *ngIf="!isImage(attachment)"
+                (click)="download(attachment)">
+                <i class="fa fa-download"></i></button>
+            </td>
+          </tr>
+      </ng-container>
+    </tbody>
+  </table>
+</div>

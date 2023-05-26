@@ -1,0 +1,115 @@
+<div class="card">
+  <div class="card-body">
+    <div class="pdd-horizon-20 pdd-vertical-20">
+      <div class="mrg-btm-30 text-center">
+        <img
+          class="img-responsive inline-block"
+          [style.width]="'50%'"
+          [src]="logoUrl"
+        />
+      </div>
+
+      <form
+        role="form"
+        [formGroup]="loginForm"
+        (ngSubmit)="signIn()"
+        autocomplete="on"
+        novalidate
+      >
+        <div class="input-icon form-group mb-3">
+          <input
+            type="email"
+            name="email"
+            class="form-control"
+            placeholder="Adresse email"
+            formControlName="email"
+            [class.error]="
+              submitted && loginForm.controls.email.invalid
+            "
+          />
+          <i class="ti-email"></i>
+        </div>
+
+        <div class="input-icon form-group mb-3">
+          <input
+            type="password"
+            name="password"
+            class="form-control"
+            placeholder="Mot de passe"
+            formControlName="password"
+            [class.error]="
+              submitted && loginForm.controls.password.invalid
+            "
+          />
+          <i class="ti-lock"></i>
+        </div>
+        <div class="row">
+          <div class="col" [hidden]="api">
+            <div class="form-group mb-3">
+              <div class="input-icon">
+                <input
+                  type="text"
+                  name="api"
+                  class="form-control"
+                  placeholder="Clé"
+                  formControlName="api"
+                  [class.error]="
+                    submitted && loginForm.controls.api.invalid
+                  "
+                />
+                <i class="ti-key"></i>
+              </div>
+            </div>
+          </div>
+
+          <div class="col" [hidden]="api || display_id">
+            <div class="form-group mb-3">
+              <div class="input-icon">
+                <input
+                  type="text"
+                  name="display_id"
+                  class="form-control"
+                  placeholder="Affichage"
+                  formControlName="display_id"
+                />
+                <i class="ti-desktop"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mrg-top-20 text-center">
+          <button
+            appXhrBtnIndicator
+            type="submit"
+            class="btn btn-info width-45 mrg-right-10 mrg-btm-5"
+          >
+            Se connecter
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<div class="text-center">
+  <div class="copyright">
+    <span>
+      © <span (click)="clearAppID()">{{ app_copyright }}</span> Powered by
+      <a
+        href="http://capsule.mg"
+        target="_blank"
+        class="font-weight-bold text-gray"
+      >
+        CAPSULE IO Finance Technology.</a
+      >
+      v{{ app_version }} |
+      <a
+        class="text-gray text-link"
+        href="https://remotedesktop.google.com/support"
+        target="_blank"
+        >Support technique</a
+      >
+    </span>
+    <div class="block text-muted"></div>
+  </div>
+</div>

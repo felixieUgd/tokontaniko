@@ -1,0 +1,73 @@
+<div class="table-responsive" stTable #table="stTable">
+  <table class="table table-striped mb-0 no-border">
+    <thead>
+      <tr class="font-weight-bold">
+        <th class="no-border" stSort="id">N° Fact / Groupe</th>
+        <th class="no-border">Catégorie</th>
+        <!-- <th class="no-border">Items</th> -->
+        <th class="no-border">Montant</th>
+        <th class="no-border text-center width-15">État</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="text-center" colspan="5" *ngIf="table.items?.length === 0">
+          Aucun enregistrement
+        </td>
+      </tr>
+      <tr *ngFor="let invoice of table.items">
+        <td>
+          <a href [routerLink]="['/income/invoice/detail', invoice.id]" *ngIf="invoice.id">
+            {{invoice.id}}
+          </a>
+          <span class="pointer" [routerLink]="['/cashDesk/group/detail', invoice?.invoice_group_id]"
+            *ngIf="invoice?.invoice_group_id">
+             / {{invoice?.invoice_group_id}}
+          </span>
+        </td>
+        <td>{{invoice?.Category.name}}</td>
+        <!-- <td>
+          <ul class="pl-3">
+            <li *ngFor="let item of invoice?.InvoiceItems">
+              <span class="d-block">{{item.name}}</span>
+              <span class="d-block text-muted ml-2" style="font-size: 14px;">{{item.meta?.name}}</span>
+            </li>
+          </ul>
+        </td> -->
+        <td>{{invoice?.amount | currency:'MGA':'Ar'}}</td>
+        <td class="text-center">
+          <span class="label text-uppercase" [ngClass]="{
+                            'label-default': invoice?.status === 'VOIDED',
+                            'label-danger': invoice?.status !== 'VOIDED' && invoice?.status !== 'PAID',
+                            'label-success': invoice?.status === 'PAID'
+                          }" translate>
+            {{'status.' + invoice?.status}}
+          </span>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<hr style="margin: 0;" />
+
+<div class="row padding-10" stPagination #pager="stPagination">
+  <div class="col-md">
+    <div class="btn btn-link disabled">
+      {{pager.length > 0 ? pager.lowerBoundIndex + 1 : 0}} - {{(pager.higherBoundIndex || -1) + 1}} sur
+      {{pager.length || 0}}
+    </div>
+  </div>
+  <div class="col-md-auto">
+    <div class="btn-group pagination justify-content-end">
+      <button type="button" class="btn btn-default" (click)="pager.selectPreviousPage()"
+        [disabled]="!pager.isPreviousPageEnabled()">
+        <i class="ti-arrow-left"></i>
+      </button>
+      <button type="button" class="btn btn-default" (click)="pager.selectNextPage()"
+        [disabled]="!pager.isNextPageEnabled()">
+        <i class="ti-arrow-right"></i>
+      </button>
+    </div>
+  </div>
+</div>

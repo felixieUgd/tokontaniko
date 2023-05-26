@@ -1,0 +1,80 @@
+<div class="table-responsive" #table="stTable" stTable>
+  <table class="table no-border mb-0 table-striped">
+    <thead>
+      <tr>
+        <th stSort="id" class="border-top-0" style="width: 5%;">N°</th>
+        <th stSort="contact_name" class="border-top-0" translate>Contact</th>
+        <th class="border-top-0" translate>common.CATEGORY</th>
+        <th stSort="amount" class="border-top-0" translate>common.AMOUNT</th>
+        <th class="text-center border-top-0" stSort="status" translate>common.STATUS</th>
+        <th class="text-right border-top-0" stSort="created_at" translate>status.CREATED</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let item of data">
+        <td>
+          <a href
+            [routerLink]="['/income/invoice/detail', item.id]">
+            {{item.id}}
+          </a>
+        </td>
+        <td>
+          {{item?.Contact?.name}}
+        </td>
+        <td>
+          {{item?.Category?.name}}
+        </td>
+        <td>
+          {{item?.amount | currency:'MGA':'Ar'}}
+        </td>
+        <td class="text-center">
+          <label class="label label-{{ bgColor(item?.status) }} text-uppercase">
+            {{'status.' + item.status | translate}}
+          </label>
+        </td>
+        <td class="text-right">
+          {{item?.created_at | date:'dd MMM yyyy HH:mm'}}
+        </td>
+      </tr>
+      <tr *ngIf="data?.length === 0">
+        <td colspan="6" class="text-center" translate>common.NO_RECORD</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<hr style="margin: 0;" />
+
+<div class="row padding-10" stPagination #pager="stPagination">
+  <div class="col-lg">
+    <div style="width: 200px;">
+      <div class="d-inline">Afficher</div>
+      <select class="form-control d-inline mx-2 width-35" [(ngModel)]="pager.size"
+        (ngModelChange)="smartTableService.slice(_table, pager)">
+        <option [value]="item" *ngFor="let item of appService.displayedRows">
+          {{item}}</option>
+      </select>
+      <div class="d-inline">lignes</div>
+    </div>
+  </div>
+
+  <div class="col-lg text-center">
+    <div class="btn btn-link disabled">
+      {{pager.length > 0 ? pager.lowerBoundIndex + 1 : 0}} - {{(pager.higherBoundIndex || -1) + 1}} sur
+      {{pager.length || 0}}
+    </div>
+  </div>
+
+  <div class="col-lg">
+    <div class="btn-group pagination pull-right">
+      <button type="button" class="btn btn-default" (click)="pager.selectPreviousPage()"
+        [disabled]="!pager.isPreviousPageEnabled()">
+        <i class="ti-arrow-left"></i>
+      </button>
+      <button type="button" class="btn btn-default" (click)="pager.selectNextPage()"
+        [disabled]="!pager.isNextPageEnabled()">
+        <i class="ti-arrow-right"></i>
+      </button>
+    </div>
+  </div>
+</div>

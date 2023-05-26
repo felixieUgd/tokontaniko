@@ -1,0 +1,46 @@
+<div class="card">
+  <div class="card-heading text-center">
+    <h4 class="card-title font-size-25">Inscription</h4>
+  </div>
+  <div class="card-body">
+    <div class="pdd-horizon-20">
+      <form role="form" [formGroup]="registerForm" (ngSubmit)="signUp()" autocomplete="on" novalidate>
+
+        <div class="form-group">
+          <input class="form-control" placeholder="Adresse email" formControlName="email"
+                 [class.error]="submitted && registerForm.get('email').status === 'INVALID'">
+          <span class="text-danger" *ngIf="submitted && registerForm.get('email').errors?.email" translate>validation.EMAIL</span>
+        </div>
+
+        <div class="form-group">
+          <input type="password" class="form-control" name="password"
+                 placeholder="Mot de passe"
+                 formControlName="password" [class.error]="submitted && registerForm.get('password').status === 'INVALID'">
+
+          <label class="error" *ngIf="submitted && registerForm.get('password').errors?.pattern"
+                 translate>validation.VULNERABLE_PASSWORD</label>
+
+          <div class="mrg-top-15">
+            <span class="font-size-13 font-italic">{{'common.PASSWORD_PATTERN' | translate}}</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <input type="password" class="form-control" name="passwordConfirm"
+                 placeholder="Confirmer mot de passe"
+                 formControlName="passwordConfirm"
+                 [class.error]="submitted && registerForm.get('passwordConfirm').status === 'INVALID'">
+
+          <label class="error d-block" *ngIf="submitted && registerForm.errors?.passwordDoNotMatch"
+                 translate>validation.PASSWORD_DO_NOT_MATCH</label>
+        </div>
+
+        <div class="mrg-top-20 text-center">
+          <button type="submit" class="btn btn-info mrg-right-10">S'inscrire</button>
+          ou
+          <a class="mrg-left-10" [routerLink]="['/authentication/login']">Se conncecter</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

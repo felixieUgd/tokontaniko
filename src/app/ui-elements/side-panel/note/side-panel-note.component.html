@@ -1,0 +1,32 @@
+<div class="side-panel" id="quick-note" [ngClass]="{'side-panel-open' : isOpen}">
+  <div class="side-panel-wrapper bg-white">
+    <ul class="nav nav-tabs" role="tablist">
+      <li class="nav-item active">
+        <a class="nav-link" href="#note" role="tab" data-toggle="tab">
+          NOTE RAPIDE (F8)
+        </a>
+      </li>
+      <li class="panel-close">
+        <button class="side-panel-toggle" (click)="close()">
+          <i class="ti-close"></i>
+        </button>
+      </li>
+    </ul>
+
+    <div class="tab-content">
+      <div class="p-4 h-100">
+        <div class="d-flex flex-column h-100 align-items-start">
+          <div class="mb-2">
+            <div class="input-icon">
+              <i class="ti-time"></i>
+              <input type="text" class="form-control" ngbDatepicker #d1="ngbDatepicker" (click)="d1.toggle()" (dateSelect)="getNoteByDate()" [(ngModel)]="date" [maxDate]="maxDate">
+            </div>
+          </div>
+          <div class="flex-grow-1 w-100">
+            <div [ngxSummernote]="config" [(ngModel)]="note" class="full-note" (ngModelChange)="saveNote()"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

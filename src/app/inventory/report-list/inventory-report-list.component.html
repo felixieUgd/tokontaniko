@@ -1,0 +1,161 @@
+<div stTable #table="stTable">
+  <div class="p-3">
+    <div class="row justify-content-between">
+      <form class="col-lg-auto" [formGroup]="reportForm" (submit)="getVariations()">
+        <div class="input-group">
+          <input type="text" class="form-control bg-white" formControlName="start" ngbDatepicker #d1="ngbDatepicker"
+            (click)="d1.toggle()" [class.error]="submitted && reportForm.controls.start?.invalid" readonly />
+    
+          <div class="input-group-append">
+            <button class="btn btn-info btn-sm m-0" type="submit" appXhrBtnIndicator>
+              <i class="fa fa-search"></i>
+            </button>
+          </div>
+        </div>
+      </form>
+      <div class="col-lg-auto">
+        <button type="button" *ngIf="submitted && !isLoading" class="btn btn-link btn-sm pull-right" (click)="downloadReport(table.items)">
+          Télécharger .xls
+        </button>
+      </div>
+    </div>
+  </div>
+  <div *ngIf="submitted" class="row">
+    <div class="col-lg">
+      <div class="table-overflow">
+        <table class="table table-striped no-border m-0">
+          <tr>
+            <th class="width-10">Document</th>
+            <th>Source</th>
+            <th>Destination</th>
+            <th stSort="name">Nom</th>
+            <th stSort="item_type">Type</th>
+            <th>Unité</th>
+            <th class="text-center width-10">Entrée</th>
+            <th class="text-center width-10">Sortie</th>
+            <th stSort="created_at" class="text-right">Créé</th>
+          </tr>
+          <tr>
+            <td></td>
+            <td>
+              <button class="btn btn-light btn-sm" *ngIf="selectedRoom" (click)="removeRoomFilter()"><i class="fa fa-times"></i> {{
+                selectedRoom?.title }} [{{ selectedRoom?.Facility?.name }}]</button>
+              <button *ngIf="!selectedRoom" class="btn btn-light" (click)="openRoomSelectionModal(modal)"><i class="fa fa-filter"></i>
+                Filtrer</button>
+            </td>
+            <td></td>
+            <td>
+              <input type="search" class="form-control input-sm" stSearch="name" placeholder="Rechercher...">
+            </td>
+            <td>
+              <select stFilter="item_type" id="type" class="form-control input-sm text-center" style="width: 100% !important;">
+                <option [value]="null">Tout</option>
+                <option [value]="item" class="text-uppercase" *ngFor="let item of types">
+                  {{'item_type.' + item | translate}}
+                </option>
+              </select>
+            </td>
+            <td colspan="4"></td>
+          </tr>
+          <ng-container>
+            <ng-container *ngFor="let item of table.items">
+              <tr [hidden]="table.busy">
+                <td>{{'income.' + item.value.type | translate}}<br><a href *ngIf="getDocId(item.value) as id" [routerLink]="[getDocLink(item.value), id]">{{id}}</a></td>
+                <td>
+                  {{ item.value.InventoryStorage?.Room?.title }}
+                </td>
+                <td>
+                  {{ item.value.Request?.Room?.title }}
+                </td>
+                <td>
+                  <a [routerLink]="['/inventory/detail', item.value.item_id]" *ngIf="item.value.type !== 'ROOM'">{{ item.value.name }}</a>
+                  <span *ngIf="item.value.type === 'ROOM'">{{ item.value.name }}</span>
+                </td>
+                <td>
+                  {{ 'item_type.' + item.value.item_type | translate | uppercase }}
+                </td>
+                <td>
+                  {{ item.value.ItemUnit?.name }}
+                </td>
+                <td class="text-center">
+                  <ng-container *ngIf="item.value.type === 'BILL'">
+                    <i class="fa fa-arrow-up text-success"></i>
+                    <span class="ml-1">{{item.value.quantity}}</span>
+                  </ng-container>
+                </td>
+                <td class="text-center">
+                  <ng-container *ngIf="item.value.type !== 'BILL'">
+                    <i class="fa fa-arrow-down text-danger"></i>
+                    <span class="ml-1">{{item.value.quantity}}</span>
+                  </ng-container>
+                </td>
+                <td class="text-right">
+                  {{item.value.created_at | date:'dd MMM yyyy HH:mm'}}
+                </td>
+              </tr>
+            </ng-container>
+          </ng-container>
+          <tr class="text-center" *ngIf="!table.busy && !table.items?.length">
+            <td colspan="8" translate>common.NO_RECORD</td>
+          </tr>
+          <tr class="text-center" *ngIf="table.busy">
+            <td colspan="8">
+              <i class="fa fa-spinner fa-spin"></i>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <hr style="margin: 0;" />
+      
+      <div class="row padding-10" stPagination #pager="stPagination">
+        <div class="col-lg">
+          <div style="width: 200px;">
+            <div class="d-inline">Afficher</div>
+            <select class="form-control d-inline mx-2 width-35" [(ngModel)]="pager.size"
+              (ngModelChange)="smartTableService.slice(_table, pager)">
+              <option [value]="item" *ngFor="let item of appService.displayedRows">
+                {{item}}
+              </option>
+            </select>
+            <div class="d-inline">lignes</div>
+          </div>
+        </div>
+        <div class="col-lg-3 text-center">
+          <div class="btn btn-link mb-0 disabled">
+            {{pager.length > 0 ? pager.lowerBoundIndex + 1 : 0}} - {{(pager.higherBoundIndex || -1) + 1}} sur
+            {{pager.length || 0}}
+          </div>
+        </div>
+        <div class="col-lg">
+          <div class="btn-group pagination justify-content-end">
+            <button type="button" class="btn btn-default mb-0" (click)="pager.selectPreviousPage()"
+              [disabled]="!pager.isPreviousPageEnabled()">
+              <i class="ti-arrow-left"></i>
+            </button>
+            <button type="button" class="btn btn-default mb-0" (click)="pager.selectNextPage()"
+              [disabled]="!pager.isNextPageEnabled()">
+              <i class="ti-arrow-right"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #modal>
+  <div class="modal-header">
+    <h4 class="card-title text-info mb-2">Choisissez un local</h4>
+    <button type="button" class="close" (click)="modalService.dismissAll()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="form-group">
+      <app-room-select [keepSession]="true" (change)="roomTemp = $event"></app-room-select>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-info" (click)="filterByRoom()">Confirmer</button>
+  </div>
+</ng-template>

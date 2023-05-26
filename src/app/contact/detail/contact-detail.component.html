@@ -1,0 +1,1021 @@
+<div class="container-fluid">
+  <div class="row">
+    <!-- PROFILE -->
+    <div class="col-lg-3">
+      <div class="widget-profile-1 card">
+        <div class="profile border bottom py-4">
+          <div class="container">
+            <img
+              class="img-thumbnail pointer"
+              alt="Profile"
+              [docType]="'photo'"
+              [docId]="contact?.photo"
+              (click)="preview(contact?.photo, 'photo')"
+              appImagesrc
+            />
+          </div>
+
+          <div class="display-block mrg-top-20 text-center">
+            <div class="btn-group">
+              <button
+                type="button"
+                class="btn btn-default btn-sm"
+                placement="left"
+                ngbTooltip="Aperçu Qr"
+                data-toggle="modal"
+                data-target="#modal-qr"
+              >
+                <i class="fa fa-qrcode"></i>
+              </button>
+              <button
+                type="button"
+                class="btn btn-default btn-sm"
+                placement="top"
+                ngbTooltip="Imprimer Badge"
+                (click)="printCard()"
+              >
+                <i class="fa fa-id-card-o"></i>
+              </button>
+              <button
+                type="button"
+                class="btn btn-default btn-sm"
+                placement="right"
+                ngbTooltip="Changer photo"
+                (click)="photoInput.click()"
+              >
+                <i class="fa fa-camera"></i>
+              </button>
+            </div>
+
+            <input
+              class="d-none"
+              type="file"
+              name="img-upload"
+              id="img-upload"
+              #photoInput
+              [uploader]="uploader"
+              (click)="uploadPhoto()"
+              ng2FileSelect
+            />
+          </div>
+        </div>
+
+        <div class="row no-gutters">
+          <div class="col p-4 text-center">
+            <div
+              class="mrg-btm-15"
+              *ngIf="
+                contact?.Reward?.code && contact?.Reward?.code !== 'REGULAR'
+              "
+            >
+              <img
+                [src]="
+                  'assets/images/rewards/card_' + contact?.Reward?.code + '.png'
+                "
+                width="130"
+                *ngIf="contact?.Reward?.code !== 'REGULAR'"
+              />
+            </div>
+
+            <p class="mb-0">Points</p>
+            <h1 class="no-mrg-vertical font-size-35">
+              {{ contact?.points_accumulated | currency: "MGA":"" }}
+            </h1>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-body">
+          <span class="inline-block mrg-btm-10 font-size-13 text-semibold">Profile complétion</span>
+          <span class="pull-right pdd-right-10 font-size-13">{{completionRate}}%</span>
+          <div class="progress" [class.progress-danger]="completionRate < 25"
+            [class.progress-warning]="completionRate >= 25 && completionRate < 75"
+            [class.progress-success]="completionRate >= 75">
+            <div class="progress-bar" role="progressbar" [attr.aria-valuenow]="completionRate" aria-valuemin="0"
+              aria-valuemax="100" [style.width]="completionRate+'%'">
+            </div>
+          </div>
+        </div>
+
+        <table class="table table-sm mb-0">
+          <tbody>
+            <tr>
+              <td class="text-center">
+                <i
+                  [attr.class]="
+                    contact?.phone
+                      ? 'fa fa-check text-success'
+                      : 'fa fa-times text-normal'
+                  "
+                >
+                </i>
+              </td>
+              <td>
+                <b
+                  class="text-dark pointer"
+                  placement="top"
+                  [ngbTooltip]="contact?.phone"
+                  translate
+                  >contact.PHONE
+                </b>
+              </td>
+              <td class="text-center">
+                <i
+                  class="fa fa-copy pointer"
+                  (click)="copy(copyPhone)"
+                  [title]="contact?.phone"
+                  *ngIf="contact?.phone"
+                  #copyPhone
+                ></i>
+              </td>
+            </tr>
+            <tr>
+              <td class="text-center">
+                <i
+                  [attr.class]="
+                    contact?.email
+                      ? 'fa fa-check text-success'
+                      : 'fa fa-times text-normal'
+                  "
+                >
+                </i>
+              </td>
+              <td>
+                <b
+                  class="text-dark pointer"
+                  placement="top"
+                  [ngbTooltip]="contact?.email"
+                  translate
+                  >channel.EMAIL
+                </b>
+              </td>
+              <td class="text-center">
+                <i
+                  class="fa fa-copy pointer"
+                  (click)="copy(copyEmail)"
+                  [title]="contact?.email"
+                  *ngIf="contact?.email"
+                  #copyEmail
+                ></i>
+              </td>
+            </tr>
+            <tr>
+              <td class="text-center">
+                <i
+                  [attr.class]="
+                    contact?.id_cin
+                      ? 'fa fa-check text-success'
+                      : 'fa fa-times text-normal'
+                  "
+                >
+                </i>
+              </td>
+              <td>
+                <b
+                  class="text-dark pointer"
+                  placement="top"
+                  [ngbTooltip]="contact?.id_cin"
+                  >CIN
+                </b>
+              </td>
+              <td class="text-center">
+                <i
+                  class="fa fa-copy pointer"
+                  (click)="copy(copyCin)"
+                  [title]="contact?.id_cin"
+                  *ngIf="contact?.id_cin"
+                  #copyCin
+                ></i>
+              </td>
+            </tr>
+            <tr>
+              <td class="text-center">
+                <i
+                  [attr.class]="
+                    contact?.id_passport
+                      ? 'fa fa-check text-success'
+                      : 'fa fa-times text-normal'
+                  "
+                >
+                </i>
+              </td>
+              <td>
+                <b
+                  class="text-dark pointer"
+                  placement="top"
+                  [ngbTooltip]="contact?.phone"
+                  translate
+                  >account.PASSPORT
+                </b>
+              </td>
+              <td class="text-center">
+                <i
+                  class="fa fa-copy pointer"
+                  (click)="copy(copyPassport)"
+                  [title]="contact?.id_passport"
+                  *ngIf="contact?.id_passport"
+                  #copyPassport
+                ></i>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="col-sm-9 ml-auto mr-auto">
+      <div class="card">
+        <div class="tab-info">
+          <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item">
+              <a
+                href="#profile"
+                class="nav-link text-uppercase active"
+                role="tab"
+                data-toggle="tab"
+                translate
+                >common.PROFILE</a
+              >
+            </li>
+            <li class="nav-item">
+              <a
+                href="#invoices"
+                class="nav-link text-uppercase"
+                role="tab"
+                data-toggle="tab"
+              >
+                {{ "common.INVOICES" | translate }}
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="#accounts" class="nav-link text-uppercase" role="tab" data-toggle="tab">COMPTE</a>
+            </li>
+          </ul>
+          <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade in active" id="profile">
+              <form [formGroup]="profileForm" (ngSubmit)="updateProfile()">
+                <div class="padding-30">
+                  <div
+                    id="accordion"
+                    class="accordion panel-group"
+                    role="tablist"
+                    aria-multiselectable="false"
+                  >
+                    <div class="panel panel-default">
+                      <div class="panel-heading" role="tab" id="heading-One">
+                        <h4 class="panel-title">
+                          <a
+                            class="collapsed"
+                            role="button"
+                            data-toggle="collapse"
+                            data-parent="#accordion"
+                            href="#collapse-One"
+                            aria-expanded="true"
+                            aria-controls="collapse-One"
+                          >
+                            <span class="text-dark">Biographie</span>
+                            <i class="icon ti-arrow-circle-down"></i>
+                          </a>
+                        </h4>
+                      </div>
+                      <div
+                        id="collapse-One"
+                        class="collapse panel-collapse show"
+                        aria-labelledby="heading-One"
+                      >
+                        <!-- data-parent="#accordion"> -->
+                        <div class="panel-body">
+                          <div class="row">
+                            <div class="col-lg-6">
+                              <div class="form-group">
+                                <label translate>common.NAME</label>
+                                <input
+                                  type="text"
+                                  class="form-control"
+                                  formControlName="name"
+                                  [class.error]="
+                                    submitted &&
+                                    profileForm.get('name').status === 'INVALID'
+                                  "
+                                />
+                              </div>
+                            </div>
+                            <div class="col-lg-6">
+                              <div class="form-group">
+                                <label>TYPE</label>
+                                <div
+                                  class="btn-group btn-group-toggle width-100"
+                                  formControlName="is_business"
+                                  ngbRadioGroup
+                                >
+                                  <label
+                                    ngbButtonLabel
+                                    class="btn-default"
+                                    style="width: 50% !important"
+                                  >
+                                    <input
+                                      ngbButton
+                                      type="radio"
+                                      [value]="false"
+                                    />
+                                    PARTICULIER
+                                  </label>
+                                  <label
+                                    ngbButtonLabel
+                                    class="btn-default"
+                                    style="width: 50% !important"
+                                  >
+                                    <input
+                                      ngbButton
+                                      type="radio"
+                                      [value]="true"
+                                    />
+                                    PROFESSIONNEL
+                                  </label>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div [hidden]="profileForm.get('is_business').value">
+                            <div class="row">
+                              <div class="col-lg-3">
+                                <div class="form-group">
+                                  <label translate>account.SEX</label>
+                                  <div
+                                    class="btn-group btn-group-toggle width-100"
+                                    formControlName="sex"
+                                    ngbRadioGroup
+                                  >
+                                    <label
+                                      ngbButtonLabel
+                                      class="btn-default"
+                                      style="width: 50% !important"
+                                    >
+                                      <input ngbButton type="radio" value="M" />
+                                      H
+                                    </label>
+                                    <label
+                                      ngbButtonLabel
+                                      class="btn-default"
+                                      style="width: 50% !important"
+                                    >
+                                      <input ngbButton type="radio" value="F" />
+                                      F
+                                    </label>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="col-lg-3">
+                                <div class="form-group">
+                                  <label>Nationalité</label>
+                                  <input
+                                    type="text"
+                                    class="form-control"
+                                    formControlName="bio_nationality"
+                                  />
+                                </div>
+                              </div>
+                              <div class="col-lg-3">
+                                <div class="form-group">
+                                  <label>Date de naissance</label>
+                                  <div class="timepicker-input input-icon">
+                                    <i class="ti-calendar"></i>
+                                    <input
+                                      type="text"
+                                      class="form-control"
+                                      formControlName="bio_dob"
+                                      ngbDatepicker
+                                      #dob="ngbDatepicker"
+                                      (click)="dob.toggle()"
+                                      [readOnly]="true"
+                                      [class.error]="
+                                        submitted &&
+                                        profileForm.get('bio_dob').status ===
+                                          'INVALID'
+                                      "
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="col-lg-3">
+                                <div class="form-group">
+                                  <label>Lieu de naissance</label>
+                                  <input
+                                    type="text"
+                                    class="form-control"
+                                    name="bio_pob"
+                                    formControlName="bio_pob"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+
+                            <div class="row">
+                              <div class="col-lg-3">
+                                <div class="form-group">
+                                  <label>CIN</label>
+                                  <input
+                                    type="text"
+                                    class="form-control"
+                                    name="id_cin"
+                                    formControlName="id_cin"
+                                    mask="000 000 000 000"
+                                  />
+                                </div>
+                              </div>
+                              <div class="col-lg-3" formGroupName="meta">
+                                <div class="form-group">
+                                  <label translate>common.ISSUED_DATE</label>
+                                  <div class="timepicker-input input-icon">
+                                    <i class="ti-calendar"></i>
+                                    <input
+                                      class="form-control"
+                                      formControlName="id_cin_issued_date"
+                                      ngbDatepicker
+                                      #id="ngbDatepicker"
+                                      (click)="id.toggle()"
+                                      [readOnly]="true"
+                                      [class.error]="
+                                        submitted &&
+                                        profileForm.get('id_cin_issued_date')
+                                          ?.status === 'INVALID'
+                                      "
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="col-lg-3">
+                                <div class="form-group">
+                                  <label translate>account.PASSPORT</label>
+                                  <input
+                                    type="text"
+                                    class="form-control"
+                                    name="id_passport"
+                                    formControlName="id_passport"
+                                  />
+                                </div>
+                              </div>
+                              <div class="col-lg-3">
+                                <div class="form-group">
+                                  <label translate>common.OTHER</label>
+                                  <input
+                                    type="text"
+                                    class="form-control"
+                                    name="id_other"
+                                    formControlName="id_other"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div class="row">
+                            <div class="col-lg-3">
+                              <div class="form-group">
+                                <label translate>common.ADDRESS</label>
+                                <input
+                                  type="text"
+                                  class="form-control"
+                                  name="address"
+                                  formControlName="address"
+                                />
+                              </div>
+                            </div>
+                            <div class="col-lg-3">
+                              <div class="form-group">
+                                <label>Parent 1</label>
+                                <app-typeahead-contact
+                                  formControlName="parent_1"
+                                ></app-typeahead-contact>
+                              </div>
+                            </div>
+                            <div class="col-lg-3">
+                              <div class="form-group">
+                                <label>Parent 2</label>
+                                <app-typeahead-contact
+                                  formControlName="parent_2"
+                                ></app-typeahead-contact>
+                              </div>
+                            </div>
+                            <div class="col-lg-3">
+                              <div class="form-group">
+                                <label translate>common.ADDRESS</label>
+                                <input
+                                  class="form-control"
+                                  name="parent_address"
+                                  formControlName="parent_address"
+                                />
+                              </div>
+                            </div>
+                          </div>
+
+                          <div class="row">
+                            <div class="col-lg-3">
+                              <div class="form-group">
+                                <label>Tuteur</label>
+                                <app-typeahead-contact
+                                  formControlName="tutor"
+                                ></app-typeahead-contact>
+                              </div>
+                            </div>
+                            <div class="col-lg-3">
+                              <div class="form-group">
+                                <label translate>common.ADDRESS</label>
+                                <input
+                                  class="form-control"
+                                  name="tutor_address"
+                                  formControlName="tutor_address"
+                                />
+                              </div>
+                            </div>
+                            <div class="col-lg-4">
+                              <div class="form-group">
+                                <label class="control-label">Activé</label>
+                                <div class="toggle-checkbox toggle-info">
+                                  <input
+                                    type="checkbox"
+                                    formControlName="enabled"
+                                    id="toggle-enabled"
+                                    checked
+                                    [class.error]="
+                                      submitted &&
+                                      profileForm.get('enabled').status ===
+                                        'INVALID'
+                                    "
+                                  />
+                                  <label for="toggle-enabled"></label>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div
+                            class="row"
+                            formGroupName="meta"
+                            *ngIf="profileForm.get('is_business').value"
+                          >
+                            <div class="col-lg-4">
+                              <div class="form-group">
+                                <label>NIF</label>
+                                <input
+                                  type="text"
+                                  class="form-control"
+                                  formControlName="nif"
+                                />
+                              </div>
+                            </div>
+                            <div class="col-lg-4">
+                              <div class="form-group">
+                                <label>STAT</label>
+                                <input
+                                  type="text"
+                                  class="form-control"
+                                  formControlName="stat"
+                                />
+                              </div>
+                            </div>
+                            <div class="col-lg-4">
+                              <div class="form-group">
+                                <label>RCS</label>
+                                <input
+                                  type="text"
+                                  class="form-control"
+                                  formControlName="rcs"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="panel panel-default">
+                      <div class="panel-heading" role="tab" id="heading-Two">
+                        <h4 class="panel-title">
+                          <a
+                            href="#collapse-Two"
+                            role="button"
+                            data-toggle="collapse"
+                            aria-expanded="false"
+                            aria-controls="collapse-Two"
+                          >
+                            <span class="text-dark" translate>nav.CONTACT</span>
+                            <i class="icon ti-arrow-circle-down"></i>
+                          </a>
+                        </h4>
+                      </div>
+                      <div
+                        id="collapse-Two"
+                        class="collapse panel-collapse show"
+                        aria-labelledby="heading-Two"
+                      >
+                        <!-- data-parent="#accordion"> -->
+                        <div class="panel-body">
+                          <div class="row">
+                            <div class="col-lg-4">
+                              <div class="form-group">
+                                <label>Adresse électronique</label>
+                                <input
+                                  type="email"
+                                  class="form-control"
+                                  formControlName="email"
+                                  [email]="true"
+                                  [class.error]="
+                                    submitted &&
+                                    profileForm.get('email').status ===
+                                      'INVALID'
+                                  "
+                                />
+                              </div>
+                            </div>
+                            <div class="col-lg-4">
+                              <div class="form-group">
+                                <label>N° Tel.</label>
+                                <app-input-phone
+                                  formControlName="phone"
+                                  [submitted]="submitted"
+                                ></app-input-phone>
+                                <!-- <div class="input-group">
+                                  <div class="input-group-append">
+                                    <button type="button" class="btn btn-success" (click)="sendVerificationCode()">
+                                      <i class="ei ei-smartphone-msg"></i>
+                                    </button>
+                                  </div>
+                                </div> -->
+                              </div>
+                            </div>
+                            <div class="col-lg-4">
+                              <div
+                                class="form-group"
+                                [hidden]="contact?.verified"
+                              >
+                                <label>Vérification</label>
+                                <div class="input-group">
+                                  <input
+                                    type="text"
+                                    class="form-control"
+                                    placeholder="Entrer code ..."
+                                    formControlName="verification_code"
+                                  />
+                                  <div class="input-group-append">
+                                    <button
+                                      type="button"
+                                      class="btn btn-info"
+                                      (click)="checkVerificationCode()"
+                                    >
+                                      <i class="ei ei-checked"></i>
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div class="form-group" *ngIf="contact?.verified">
+                                <label class="d-block"
+                                  >Dernière vérification</label
+                                >
+                                <div class="input-icon form-group">
+                                  <i
+                                    class="fa fa-check-circle text-success"
+                                  ></i>
+                                  <input
+                                    type="text"
+                                    class="form-control bg-transparent"
+                                    readonly
+                                    value="{{
+                                      contact?.verification_expiration
+                                        | date: 'dd MMM yyyy HH:mm'
+                                    }}"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div
+                            class="font-weight-bold text-info text-uppercase mt-2 mb-3"
+                            translate
+                          >
+                            common.EMERGENCY_CONTACT
+                          </div>
+
+                          <div formGroupName="meta">
+                            <div class="row">
+                              <div class="col-sm-4">
+                                <div class="form-group">
+                                  <label>Nom</label>
+                                  <input
+                                    class="form-control"
+                                    name="emergency_name"
+                                    formControlName="name"
+                                  />
+                                </div>
+                              </div>
+                              <div class="col-sm-4">
+                                <div class="form-group">
+                                  <label>N° Tel.</label>
+                                  <input
+                                    class="form-control"
+                                    name="emergency_phone"
+                                    mask="000 00 000 00"
+                                    formControlName="phone"
+                                  />
+                                </div>
+                              </div>
+                              <div class="col-sm-4">
+                                <div class="form-group">
+                                  <label>Adresse</label>
+                                  <input
+                                    class="form-control"
+                                    name="emergency_address"
+                                    formControlName="address"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="panel panel-default">
+                      <div class="panel-heading" role="tab" id="heading-Three">
+                        <h4 class="panel-title">
+                          <a
+                            href="#collapse-Three"
+                            role="button"
+                            data-toggle="collapse"
+                            aria-expanded="false"
+                            aria-controls="collapse-Three"
+                          >
+                            <span class="text-dark" translate
+                              >common.ATTACHMENTS</span
+                            >
+                            <i class="icon ti-arrow-circle-down"></i>
+                          </a>
+                        </h4>
+                      </div>
+                      <div
+                        id="collapse-Three"
+                        class="collapse panel-collapse show"
+                        aria-labelledby="heading-Three"
+                      >
+                        <!-- data-parent="#accordion"> -->
+                        <div class="panel-body">
+                          <div class="row">
+                            <div class="col-lg-5">
+                              <app-file-attachment
+                                [attachments]="contact?.attachments"
+                                [route]="'contacts'"
+                                [id]="contact?.id"
+                                (onSuccess)="resetAll()"
+                                (onDelete)="deleteAttachment($event)"
+                              >
+                              </app-file-attachment>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="panel panel-default mb-0">
+                      <div class="panel-heading" role="tab" id="heading-Four">
+                        <h4 class="panel-title">
+                          <a
+                            href="#collapse-Four"
+                            role="button"
+                            data-toggle="collapse"
+                            aria-expanded="false"
+                            aria-controls="collapse-Four"
+                          >
+                            <span class="text-dark" translate
+                              >common.OTHER</span
+                            >
+                            <i class="icon ti-arrow-circle-down"></i>
+                          </a>
+                        </h4>
+                      </div>
+                      <div
+                        id="collapse-Four"
+                        class="collapse panel-collapse show"
+                        aria-labelledby="heading-Four"
+                      >
+                        <!-- data-parent="#accordion"> -->
+                        <div class="panel-body">
+                          <div class="row" *ngIf="activeMenu?.men?.root">
+                            <div class="col-lg">
+                              <div class="form-group">
+                                <label translate>men.GRADE</label>
+                                <input
+                                  class="form-control"
+                                  name="school_grade"
+                                  formControlName="school_grade"
+                                />
+                              </div>
+                            </div>
+                            <div class="col-lg">
+                              <div class="form-group">
+                                <label>{{ "men.SERIAL" | translate }} N°</label>
+                                <input
+                                  class="form-control"
+                                  name="school_serial"
+                                  formControlName="school_serial"
+                                />
+                              </div>
+                            </div>
+                            <div class="col-lg">
+                              <div class="form-group">
+                                <label
+                                  >{{
+                                    "common.INSURANCE" | translate
+                                  }}
+                                  N°</label
+                                >
+                                <input
+                                  type="number"
+                                  class="form-control"
+                                  name="school_insurance"
+                                  formControlName="school_insurance"
+                                />
+                              </div>
+                            </div>
+                          </div>
+
+                          <div class="row">
+                            <div class="col-lg">
+                              <div class="form-group">
+                                <label translate>common.NOTE</label>
+                                <textarea
+                                  class="form-control"
+                                  name="note"
+                                  formControlName="note"
+                                >
+                                </textarea>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div class="row">
+                            <div class="col-lg-4">
+                              <div class="form-group">
+                                <label translate>income.TAXES</label>
+                                <ng-select [items]="taxes" bindLabel="name" formControlName="tax"
+                                  [clearable]="false" [multiple]="true">
+                                </ng-select>
+                              </div>
+                            </div>
+                            <div class="col-lg-4">
+                              <div class="form-group">
+                                <label class="d-block">&nbsp;</label>
+                                <button type="button" class="btn" (click)="setTax()" [disabled]="!profileForm.controls.tax.value" translate>button.VALIDATE</button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="pdd-horizon-30 pdd-btm-30">
+                  <div class="row">
+                    <div class="col text-right">
+                      <button type="submit" class="btn btn-info m-0" appXhrBtnIndicator>
+                        <i class="fa fa-save"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+            <div
+              class="tab-pane fade"
+              id="invoices"
+              role="tabpanel"
+              aria-labelledby="profile-tab"
+            >
+              <app-contact-invoice></app-contact-invoice>
+            </div>
+            <div role="tabpanel" class="tab-pane fade in" id="accounts">
+              <table class="table table-striped mb-0">
+                <thead>
+                  <tr>
+                    <td colspan="5" class="text-right border-top-0">
+                      <button class="btn btn-sm btn-info" (click)="openAccountSidePanel()">Ajouter</button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th class="text-center" style="width: 5%;">Statut</th>
+                    <th>ID</th>
+                    <th>Numéro</th>
+                    <th class="text-right">Carte solde</th>
+                    <th class="text-center width-5">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let account of contact?.Accounts">
+                    <td class="text-center">
+                      <i class="fa"
+                        [ngClass]="{'fa-check-circle text-success': account.enabled, 'fa-times-circle text-normal': !account.enabled}"></i>
+                    </td>
+                    <td>{{ account.id }}</td>
+                    <td>{{ account.number }}</td>
+                    <td class="text-right">{{ account.card_balance | currency:'MGA':'' }}</td>
+                    <td class="text-center"><button class="btn btn-info btn-sm" (click)="editAccount(account.id)"><i class="fa fa-pencil"></i></button></td>
+                  </tr>
+                  <tr *ngIf="!contact?.Accounts?.length">
+                    <td colspan="5" class="text-center text-muted">Aucun enregistrement</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Side Panel START -->
+<div class="side-panel" [ngClass]="{'side-panel-open' : sidePanelOpen}">
+  <div class="side-panel-wrapper bg-white">
+    <ul class="nav nav-tabs" role="tablist">
+      <li class="nav-item active">
+        <a class="nav-link" href="#chat" role="tab" data-toggle="tab">
+          <span>{{selectedAccount ? 'Modifier' : 'Nouveau'}} compte</span>
+        </a>
+      </li>
+      <li class="panel-close">
+        <button class="side-panel-toggle" (click)="closeAccountSidepanel()">
+          <i class="ti-close"></i>
+        </button>
+      </li>
+    </ul>
+
+    <div class="tab-content ps" perfectScrollbar>
+      <div class="p-4">
+        <form role="form" [formGroup]="accountForm" (ngSubmit)="saveAccount()" novalidate>
+          <div class="row">
+            <div class="col-lg">
+              <div class="form-group">
+                <label for="name">Nom</label>
+                <input type="text" class="form-control" formControlName="name"
+                  [class.error]="submitted_account && accountForm.get('name').status === 'INVALID'">
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-lg-6">
+              <div class="form-group">
+                <label for="number">Numéro</label>
+                <input type="text" id="number" class="form-control" formControlName="number"
+                  [class.error]="submitted_account && accountForm.get('number').status === 'INVALID'">
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-lg-6">
+              <div class="form-group">
+                <label>Activé</label>
+                <div class="toggle-checkbox toggle-info">
+                  <input type="checkbox" formControlName="enabled" id="toggle-enabled" checked>
+                  <label for="toggle-enabled"></label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row bg-white fixed-bottom">
+            <div class="col-lg-12">
+              <div class="px-4 pdd-vertical-20 border top">
+                <button type="submit" class="btn btn-info btn-block no-mrg-btm" appXhrBtnIndicator>
+                  Enregistrer
+                </button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Side Panel END -->
+
+<div class="modal fade" id="modal-qr">
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content">
+      <div class="modal-body">
+        <div class="row justify-content-center" *ngIf="contact?.code">
+          <div class="col-auto text-center py-5">
+            <qrcode
+              [qrdata]="contact?.code.toString()"
+              [size]="200"
+              [level]="'L'"
+            ></qrcode>
+
+            <div class="mt-3 text-semibold text-black">{{ contact?.code }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

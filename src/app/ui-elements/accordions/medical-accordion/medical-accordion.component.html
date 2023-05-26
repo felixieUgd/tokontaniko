@@ -1,0 +1,23 @@
+<p class="text-center" *ngIf="!requests">
+  <i class="fa fa-spin fa-spinner"></i>
+</p>
+<p class="text-muted text-center" *ngIf="requests && !requests.length">Aucun dossier trouvé</p>
+<div *ngIf="requests" class="accordion" id="accordionMedical">
+  <div class="card p-2" *ngFor="let request of requests">
+    <div class="row align-items-center justify-content-between mb-2">
+      <div class="col-auto">{{ request.RequestType?.name }}</div>
+    </div>
+    <ul class="list-unstyled mb-3">
+      <li class="text-muted font-size-13"><i class="fa fa-fw fa-map-marker"></i> {{ request.Facility?.name || '-' }}
+      </li>
+      <li class="text-muted font-size-13"><i class="fa fa-fw fa-user-md"></i> {{ request.Staffs? request.Staffs[0].name: '-'
+        }}</li>
+    </ul>
+    <div class="row align-items-center timeline-actions">
+      <div class="col-auto">
+        <button class="btn btn-outline-info btn-xs mr-0" appXhrBtnIndicator
+          (click)="openDetailModal(request.id)">Ouvrir</button>
+      </div>
+    </div>
+  </div>
+</div>

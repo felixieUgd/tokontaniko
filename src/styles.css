@@ -1,0 +1,276 @@
+/* You can add global styles to this file, and also import other style files */
+.img-thumbnail{
+    object-fit: cover;
+}
+
+.table-top td {
+    vertical-align: top !important;
+}
+
+ngb-modal-backdrop {
+    opacity: .9 !important;
+}
+
+.btn-back {
+    padding: 2px 2px 0 2px !important;
+}
+
+.table-item .ng-select .ng-select-container {
+    border: 0;
+}
+
+.nav-info.nav-pills > li > a.active.nav-link {
+    color: #ffffff;
+    background-color: #329aee;
+    border-color: #329aee;
+}
+
+.joyride-step__container {
+    max-width: 28vw !important;
+    min-width: 350px !important;
+    box-shadow: 0px 0px 30px 1px rgba(0, 0, 0, 0.5) !important;
+}
+
+.joyride-step__title {
+    color: #329aee !important;
+}
+
+.joyride-step__body {
+    padding-bottom: 20px !important;
+    font-size: 15px !important;
+}
+
+.joyride-step__holder {
+    font-family: Roboto, -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif !important;
+}
+
+.fixed-card {
+    max-width: 28vw;
+    min-width: 350px;
+    position: fixed;
+    right: 30px;
+    bottom: 70px;
+    z-index: 1025;
+}
+
+.fixed-card .card {
+    box-shadow: 0 0 5px 5px rgb(0, 0, 0, 3%);
+}
+
+.clear-button {
+    cursor: pointer;
+    color: #c1c2c5;
+    font-size: 13px;
+    transition: color .5s;
+}
+
+.clear-button:hover {
+    color: #a7a8aa;
+}
+
+@media (min-width: 992px) {
+    .sticky-lg-top {
+        position: -webkit-sticky;
+        position: sticky;
+        top: 80px;
+        z-index: 5;
+    }
+}
+
+ul.timeline {
+    list-style-type: none;
+    position: relative;
+    padding: 0;
+}
+
+ul.timeline>li:not(:last-child)::after {
+    content: ' ';
+    background: #d4d9df;
+    display: inline-block;
+    position: absolute;
+    top: -1px;
+    left: 8px;
+    width: 3px;
+    height: calc(100% + 25px);
+    z-index: 400;
+}
+
+ul.timeline>li.done:not(:last-child)::after {
+    background: #329aee;
+}
+
+ul.timeline>li {
+    position: relative;
+    padding-bottom: 20px;
+    padding-left: 30px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+ul.timeline>li>a {
+    white-space: nowrap;
+    color: #c3c8ce !important;
+    cursor: default;
+}
+
+ul.timeline>li::before {
+    content: ' ';
+    background: rgb(247, 247, 247);
+    display: inline-block;
+    position: absolute;
+    border-radius: 50%;
+    border: 3px solid #d4d9df;
+    left: 0;
+    width: 20px;
+    height: 20px;
+    z-index: 450;
+}
+
+ul.timeline>li.root::before {
+    border-radius: 0;
+}
+
+ul.timeline>li.root a {
+    cursor: auto !important;
+}
+
+ul.timeline>li.done::before,
+ul.timeline>li.active::before {
+    border-color: #329aee;
+}
+
+ul.timeline>li.done>a,
+ul.timeline>li.active>a {
+    cursor: pointer;
+    color: #329aee !important;
+}
+
+ul.timeline>li.active::before {
+    background: #6ab6f3;
+}
+
+ul.timeline>li.active>a {
+    font-weight: 700;
+}
+
+.accordion .card {
+    margin-bottom: 0;
+}
+
+.accordion .card:last-of-type {
+    border-bottom: 1px solid #d4deee;
+}
+
+.accordion .card .card-header .btn.btn-link {
+    border: 0;
+    background-color: transparent;
+    color: #70758b;
+    padding: 0;
+    height: auto;
+    font-size: 14px;
+}
+
+.accordion .card .card-header .btn.btn-link:hover, .accordion .card .card-header .btn.btn-link:focus {
+    text-decoration: none;
+}
+
+.accordion .card .card-header .btn:not(.collapsed) .rotate-icon {
+    transform: rotate(180deg);
+}
+
+.top-identity .top-value, .top-identity .top-label {
+    white-space: nowrap;
+}
+
+.top-identity .top-value-container {
+    overflow: hidden;
+}
+
+.label-holder {
+    margin-bottom: 0.5rem;
+}
+
+.label-holder:last-child {
+    margin-bottom: 0;
+}
+
+.label-holder label {
+    margin-bottom: 0;
+}
+
+@media (min-width: 768px) {
+    .full-modal .modal-dialog {
+        width: 90%;
+        max-width: 1200px;
+    }
+}
+
+.table.bill-items td {
+  padding: 0 !important;
+}
+
+.table.bill-items td > input {
+  border: none !important;
+}
+
+.bill-group .list-group-item {
+  border: 1px solid #e6ecf5;
+  padding: 0.65rem 0.75rem;
+}
+
+.table.bill-items .form-group {
+  margin-bottom: 10px;
+}
+
+.table.bill-items input:read-only {
+  background-color: transparent !important;
+}
+
+ngb-datepicker {
+  overflow: visible;
+  z-index: 9999;
+}
+
+.table.bill-items .ng-select.no-border .ng-select-container {
+  border: 0px !important;
+  min-height: 42px !important;
+  box-shadow: none !important;
+}
+
+.table.bill-items .ng-select.no-border
+  .ng-select-container
+  .ng-value-container
+  .ng-placeholder {
+  padding-left: 5px !important;
+  padding-top: 3px !important;
+}
+
+ng-select.disabled .ng-arrow-wrapper .ng-arrow {
+  display: none;
+}
+
+ng-select.disabled ng-dropdown-panel {
+  display: none;
+}
+
+.swal2-popup .swal2-title {
+    font-size: 1.5em!important;
+}
+
+.swal2-popup .swal2-content {
+    font-size: 1em!important;
+}
+
+.swal2-popup .swal2-styled {
+    padding: 0.525rem 1.25rem!important;
+}
+
+.table-item .item-actions {
+    padding: 0.25rem!important;
+    width: 1%;
+    white-space: nowrap;
+}
+
+.ng-select.pointer .ng-select-container {
+    cursor: pointer!important;
+}

@@ -1,0 +1,90 @@
+<div class="container-fluid">
+  <div class="pdd-horizon-30">
+    <div class="row">
+      <div class="col-lg">
+        <div class="card">
+          <div class="table-responsive" stTable #table="stTable">
+            <table class="table table-striped no-border m-0">
+              <tr>
+                <td colspan="3" class="border-top-0">
+                  <input type="search" class="form-control input-sm" placeholder="Rechercher Nom, Email ..." stSearch="name,email">
+                </td>
+                <td colspan="4" class="border-top-0 text-right">
+                  <a href [routerLink]="['/settings/user/add']" class="btn btn-info btn-sm m-0">
+                    Ajouter utilisateur</a>
+                </td>
+              </tr>
+              <tr>
+                <th class="text-center" style="width: 5%;">Statut</th>
+                <th stSort="id" stSortCycle="true">ID</th>
+                <th stSort="name" stSortCycle="true">Nom</th>
+                <th stSort="email" stSortCycle="true">email</th>
+                <th>Position</th>
+                <th class="text-center" stSort="last_logged_in_at">Dernière connexion</th>
+                <th class="width-10 text-center">Action</th>
+              </tr>
+              <tr>
+                <td class="text-center" colspan="7" *ngIf="!table.busy && table.items?.length === 0">
+                  Aucun utilisateur
+                </td>
+              </tr>
+              <tr *ngFor="let item of table.items">
+                <td class="text-center">
+                  <i class="fa"
+                    [ngClass]="{'fa-check-circle text-success': item.enabled, 'fa-times-circle text-normal': !item.enabled}"></i>
+                </td>
+                <td>{{item.id}}</td>
+                <td>{{item.name}}</td>
+                <td>{{item.email}}</td>
+                <td>{{item.Profile?.Position?.title}}</td>
+                <td class="text-center">
+                  {{item.last_logged_in_at | date:'dd MMM yyyy HH:mm'}}
+                </td>
+                <td class="text-center">
+                  <a href="" [routerLink]="['/settings/user/edit/', item.id]" class="btn btn-info btn-sm mr-0">
+                    <i class="fa fa-pencil"></i></a>
+                </td>
+              </tr>
+            </table>
+          </div>
+
+          <hr style="margin: 0;" />
+
+          <div class="row padding-10" stPagination #pager="stPagination">
+            <div class="col-lg">
+              <div style="width: 200px;">
+                <div class="d-inline">Afficher</div>
+                <select class="form-control d-inline mx-2 width-35" [(ngModel)]="pager.size"
+                  (ngModelChange)="smartTableService.slice(_table, pager)">
+                  <option [value]="item" *ngFor="let item of appService.displayedRows">
+                    {{item}}</option>
+                </select>
+                <div class="d-inline">lignes</div>
+              </div>
+            </div>
+
+            <div class="col-lg text-center">
+              <div class="btn btn-link disabled">
+                {{pager.length > 0 ? pager.lowerBoundIndex + 1 : 0}} - {{(pager.higherBoundIndex || -1) + 1}} sur
+                {{pager.length || 0}}
+              </div>
+            </div>
+
+            <div class="col-lg">
+              <div class="btn-group pagination pull-right">
+                <button type="button" class="btn btn-default" (click)="pager.selectPreviousPage()"
+                  [disabled]="!pager.isPreviousPageEnabled()">
+                  <i class="ti-arrow-left"></i>
+                </button>
+                <button type="button" class="btn btn-default" (click)="pager.selectNextPage()"
+                  [disabled]="!pager.isNextPageEnabled()">
+                  <i class="ti-arrow-right"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

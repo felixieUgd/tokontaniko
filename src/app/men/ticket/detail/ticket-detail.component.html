@@ -1,0 +1,352 @@
+<div class="container-fluid">
+  <div class="pdd-horizon-30">
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="card">
+          <div class="tab-info">
+              <ul class="nav nav-tabs" role="tablist">
+                <li class="nav-item">
+                  <a href="#details" class="nav-link text-uppercase active" role="tab" data-toggle="tab">
+                    {{'common.DETAIL' | translate}}
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a href="#tab-invoice" class="nav-link text-uppercase" role="tab" data-toggle="tab">
+                    {{'common.INVOICE' | translate}} / COTISATION
+                    <span class="label label-primary">{{ticket?.Invoices?.length || 0}}</span>
+                  </a>
+                </li>
+                <!-- <li class="nav-item">
+                  <a href="#tab-bill" class="nav-link text-uppercase" role="tab" data-toggle="tab">
+                    {{'common.INVOICE' | translate}} / DÉPENSES
+                    <span class="label label-primary">{{ticket?.Bills?.length || 0}}</span>
+                  </a>
+                </li> -->
+                <li class="nav-item">
+                  <a href="#history" class="nav-link text-uppercase" role="tab" data-toggle="tab">
+                    {{'common.HISTORY' | translate}}
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a href="#attachment" class="nav-link text-uppercase" role="tab" data-toggle="tab">
+                    {{'common.FILE' | translate}}
+                  </a>
+                </li>
+                <li class="col text-right">
+                  <a class="nav-link">
+                    <label class="label label-lg mb-0 text-uppercase label-{{utilityService.statusStyle(ticket?.status).background}}-inverse">
+                      {{'status.'+ticket?.status | translate}}
+                    </label>
+                  </a>
+                </li>
+              </ul>
+              <div class="tab-content">
+                <div role="tabpanel" class="tab-pane fade in active" id="details">
+                  <form role="form" [formGroup]="form" autocomplete="off" novalidate (submit)="updateRequest()">
+                    <div class="padding-30">
+                      <div class="row justify-content-center">
+                        <div class="col-lg-10">
+                          <div class="form-group row">
+                            <label class="col-lg-2 col-form-label">{{'men.TICKET' | translate}} N°</label>
+                            <div class="col-lg-4">
+                              <input class="form-control-plaintext text-underline"
+                                [value]="ticket?.id" readonly>
+                            </div>
+                            <label class="col-lg-2 col-form-label"translate>men.FACILITY</label>
+                            <div class="col-lg-4">
+                              <a href [routerLink]="['/men/detail', ticket?.facility_id]" *ngIf="ticket?.facility_id"
+                                class="text-info lh-3">
+                                <b>{{ticket?.Facility?.name}}</b>
+                              </a>
+                            </div>
+                          </div>
+
+                          <div class="form-group row">
+                            <label class="col-lg-2 col-form-label">Code établissement</label>
+                            <div class="col-lg-4">
+                              <input class="form-control-plaintext" [value]="ticket?.Facility?.code" readonly>
+                            </div>
+                            <label class="col-lg-2 col-form-label">Tel établissement</label>
+                            <div class="col-lg-4">
+                              <input class="form-control-plaintext" [value]="ticket?.Contacts[0]?.phone" readonly>
+                            </div>
+                          </div>
+
+                          <div class="form-group row">
+                            <label class="col-lg-2 col-form-label" translate>common.DATE</label>
+                            <div class="col-lg-4">
+                              <div class="timepicker-input input-icon">
+                                <i class="ti-time"></i>
+                                <input type="text" id="requested_at" class="form-control" #d4="ngbDatepicker"
+                                      (click)="d4.toggle()" formControlName="requested_at" ngbDatepicker [readOnly]="true">
+                              </div>
+                            </div>
+
+                            <label class="col-lg-2 col-form-label">Type</label>
+                            <div class="col-lg-4">
+                              <div class="d-block lh-3">
+                                {{ticket?.RequestType?.name}}
+                              </div>
+                            </div>
+                          </div>
+
+                          <div class="form-group row">
+                            <label class="col-lg-2 col-form-label" translate>common.CATEGORY</label>
+                            <div class="col-lg-4">
+                              <ng-select [items]="categories | async" bindLabel="name" bindValue="id" formControlName="category_id"
+                                [ngClass]="{'error': submitted && form.get('category_id').status === 'INVALID'}">
+                              </ng-select>
+                            </div>
+                          </div>
+
+                          <div class="form-group row">
+                            <label class="col-lg-2 col-form-label" translate>nav.CONTACT</label>
+                            <div class="col-lg">
+                              <ng-select [items]="contact$ | async" bindLabel="name"
+                                formControlName="contact"  minTermLength="3"
+                                typeToSearchText="{{('nav.SEARCH' | translate) + '...'}}"
+                                [class.error]="submitted && form.controls.contact.invalid"
+                                [typeahead]="contactInput$" [clearable]="false" [multiple]="true"
+                                #contactSelect
+                                (add)="onAddContact($event)"
+                                (remove)="onRemoveContact($event)"
+                              >
+                                <ng-template ng-multi-label-tmp let-items="items" let-index="index">
+                                  <div class="ng-value" *ngFor="let item of items">
+                                    <span class="ng-value-icon left" aria-hidden="true" (click)="contactSelect.unselect(item)">×</span>
+                                    <span class="ng-value-label" [ngbTooltip]="item?.phone" placement="bottom" container="body">
+                                      {{item?.name}}
+                                    </span>
+                                  </div>
+                                </ng-template>
+                                <ng-template ng-option-tmp let-item="item">
+                                  {{item?.name}}
+                                  <ng-container *ngIf="item?.id">
+                                    <br />
+                                    <span style="color: #6f748a;">
+                                      {{item?.phone}} -
+                                      {{item?.id_cin}} -
+                                      {{item?.id_passport}}
+                                    </span>
+                                  </ng-container>
+                                </ng-template>
+                              </ng-select>
+                            </div>
+                          </div>
+
+                          <div class="form-group row">
+                            <label class="col-lg-2 col-form-label" translate>common.ASSIGNED_TO</label>
+                            <div class="col-lg">
+                              <ng-select [items]="staff$ | async" bindLabel="name"
+                                formControlName="staff"  minTermLength="3"
+                                typeToSearchText="{{('nav.SEARCH' | translate) + '...'}}"
+                                [class.error]="submitted && form.controls.staff.invalid"
+                                [typeahead]="staffInput$" [clearable]="false" [multiple]="true"
+                                (add)="onAddStaff($event)"
+                                (remove)="onRemoveStaff($event)"
+                              >
+                                <ng-template ng-option-tmp let-item="item">
+                                  {{item?.name}}
+                                  <br/>
+                                  <span style="color: #6f748a;">
+                                    {{item?.email}}
+                                  </span>
+                                </ng-template>
+                              </ng-select>
+                            </div>
+                          </div>
+
+                          <div class="form-group row">
+                            <label class="col-lg-2 col-form-label" translate>common.TITLE</label>
+                            <div class="col-lg-10">
+                              <input type="text" class="form-control" formControlName="title"
+                                    [class.error]="submitted && form.get('title').status === 'INVALID'">
+                            </div>
+                          </div>
+
+                          <div class="form-group row">
+                            <label class="col-lg-2 col-form-label" translate>common.DESCRIPTION</label>
+                            <div class="col-lg-10">
+                              <textarea id="description" class="form-control" formControlName="description"
+                                        [class.error]="submitted && form.get('description').status === 'INVALID'"></textarea>
+                            </div>
+                          </div>
+
+                          <div class="form-group row">
+                            <label class="col-lg-2 col-form-label" translate>common.SUMMARY</label>
+                            <div class="col-lg-10">
+                              <textarea id="comment" class="form-control" formControlName="comments"
+                                        [class.error]="submitted && form.get('comments').status === 'INVALID'"></textarea>
+                            </div>
+                          </div>
+
+                          <div class="form-group row">
+                            <label class="col-lg-2 col-form-label">Etat intermédiaire</label>
+                            <div class="col-lg-4">
+                              <ng-select [items]="requestStatuses" bindLabel="name" formControlName="extended_status"
+                                (change)="onSelectStatus($event)" [clearable]="true"
+                                [ngClass]="{'error': submitted && form.controls.category.invalid}">
+                                <ng-template ng-label-tmp let-item="item">
+                                  <b class="text-info">{{item.name | translate}}</b>
+                                </ng-template>
+                                <ng-template ng-option-tmp let-item="item">
+                                  {{item.name | translate}}
+                                </ng-template>
+                              </ng-select>
+                            </div>
+
+                            <label class="col-lg-2 col-form-label">Effectif</label>
+                            <div class="col-lg-4">
+                              <input type="number" class="form-control" formControlName="student_count">
+                            </div>
+                          </div>
+                          <div class="form-group row">
+                            <label class="col-lg-2 col-form-label">Créé par</label>
+                            <div class="col-lg-4">
+                              <div class="d-block lh-3">
+                                {{ticket?.User?.name || '-'}}
+                              </div>
+                            </div>
+                            <label class="col-lg-2 col-form-label">Créé le</label>
+                            <div class="col-lg-4">
+                              <div class="d-block lh-3">
+                                {{ticket?.created_at | date: 'dd MMM yyyy'}}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="border top pdd-horizon-30 pdd-vertical-15">
+                      <button type="button" class="btn btn-dark" (click)="print()"><i class="fa fa-print"></i></button>
+                      <div class="dropdown inline-block">
+                        <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                          <span class="mrg-right-10" translate>button.OTHER_ACTIONS</span>
+                          <i class="ti-angle-down font-size-9"></i>
+                        </button>
+                        <ul class="dropdown-menu">
+                          <li>
+                            <a (click)="addInvoice()">Insérer facture</a>
+                          </li>
+                          <li class="divider"></li>
+                          <li>
+                            <a (click)="updateStatus('COMPLETED')" translate>button.MARK_COMPLETED</a>
+                          </li>
+                          <li>
+                            <a (click)="updateStatus('ON_HOLD')" translate>button.MARK_ON_HOLD</a>
+                          </li>
+                          <li>
+                            <a (click)="updateStatus('IN_PROGRESS')" translate>button.MARK_IN_PROGRESS</a>
+                          </li>
+                          <!-- <li class="divider"></li>
+                          <li>
+                            <a (click)="sendSMS()" translate>button.SEND_SMS</a>
+                          </li> -->
+                        </ul>
+                      </div>
+
+                      <button class="btn btn-info pull-right" appXhrBtnIndicator><i class="fa fa-save"></i></button>
+                    </div>
+                  </form>
+                </div>
+
+                <div role="tabpanel" class="tab-pane fade" id="history">
+                  <app-list-history
+                    [dataTable]="ticket?.RequestHistories"
+                    [dataType]="'MAINTENANCE'"
+                    [dataId]="ticket?.id"
+                    (onSubmit)="resetForm()"
+                  ></app-list-history>
+                </div>
+
+                <div role="tabpanel" class="tab-pane fade" id="tab-invoice">
+                  <div class="table-responsive">
+                    <table class="table no-border mb-0">
+                      <thead>
+                        <tr>
+                          <th class="no-border">N°</th>
+                          <!-- <th class="no-border" translate>common.CATEGORY</th> -->
+                          <th class="no-border" translate>nav.CONTACT</th>
+                          <th class="no-border" translate>common.DESCRIPTION</th>
+                          <th class="no-border text-right" translate>common.AMOUNT</th>
+                          <th class="no-border text-center">Effectif total</th>
+                          <th class="no-border text-right">Montant total prévue</th>
+                          <th class="no-border text-center">Année</th>
+                          <th class="no-border text-center" translate>common.STATUS</th>
+                          <th class="no-border text-right" translate>status.CREATED</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr *ngFor="let item of ticket?.Invoices">
+                          <td>
+                            <a href *ngIf="ticket.facility_id" [routerLink]="['/men/invoice/detail', item.id]"
+                              [queryParams]="{facility: ticket.facility_id}">
+                              {{item.id}}
+                            </a>
+                          </td>
+                          <!-- <td>{{item.Category.name}}</td> -->
+                          <td>{{item.Contact?.name}}</td>
+                          <td>
+                            <ul class="list-unstyled">
+                              <li *ngFor="let elem of item.InvoiceItems">{{elem.name}} ({{elem.quantity}})</li>
+                            </ul>
+                          </td>
+                          <td class="text-right">
+                            {{item.amount | currency:'MGA':'Ar'}}
+                          </td>
+                          <td class="text-center">{{ ticket?.meta?.student_count }}</td>
+                          <td class="text-right">
+                            <ng-container *ngIf="ticket?.meta?.student_count as count">
+                              <ng-container *ngIf="insuranceItem">{{count * insuranceItem.sale_price | currency:'MGA':'Ar'}}</ng-container>
+                            </ng-container>
+                          </td>
+                          <td class="text-center">
+                            {{item.meta?.school_year}}
+                          </td>
+                          <td class="text-center">
+                            <label class="label label-{{utilityService.statusStyle(item.status).background}} text-uppercase">
+                              {{'status.' + item.status | translate}}
+                            </label>
+                          </td>
+                          <td class="text-right">
+                            {{item.created_at | date:'dd MMM yyyy HH:mm'}}
+                          </td>
+                        </tr>
+                        <tr *ngIf="!ticket?.Invoices?.length">
+                          <td colspan="9" class="text-center">Aucun enregistrement</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <div role="tabpanel" class="tab-pane fade" id="attachment">
+                  <div class="padding-30">
+                    <div class="row">
+                      <div class="col-lg-5">
+                        <app-file-attachment
+                          [id]="id"
+                          [suffixName]="(ticket?.Facility?.code || ticket?.Facility?.id || 0) + '_' + ticket?.request_type_id"
+                          [route]="'requests'"
+                          [attachments]="ticket?.attachments"
+                          (onSuccess)="resetForm()"
+                          (onDelete)="deleteAttachment($event)"
+                        ></app-file-attachment>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #tpl let-r="result" let-t="term">
+  <ngb-highlight [result]="r.name + (r.type === 'GOODS' ? ' [' + r.quantity + ']' : '')" [term]="t">
+  </ngb-highlight>
+</ng-template>
+

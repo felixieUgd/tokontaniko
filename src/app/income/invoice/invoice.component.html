@@ -1,0 +1,284 @@
+<div class="container-fluid">
+  <div class="row mrg-btm-15 border-radius-4 border-white border-danger">
+    <div class="col-lg-4 text-center">
+      <form [formGroup]="dateForm" (submit)="getSummary()">
+        <div class="input-group">
+          <input type="text" class="form-control input-sm bg-white" formControlName="start" ngbDatepicker
+            #d1="ngbDatepicker" (click)="d1.toggle()"
+            [class.error]="dateFormSubmitted && dateForm.get('start').status === 'INVALID'" readonly />
+          <input type="text" class="form-control input-sm bg-white" formControlName="end" ngbDatepicker
+            #d2="ngbDatepicker" (click)="d2.toggle()"
+            [class.error]="dateFormSubmitted && dateForm.get('end').status === 'INVALID'" readonly />
+          <div class="input-group-append">
+            <button class="btn btn-info btn-sm m-0" type="submit">
+              <i class="fa fa-search"></i>
+            </button>
+            <button class="btn btn-dark btn-sm" type="button" (click)="resetForm()">
+              <i class="fa fa-refresh"></i>
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="row justify-content-center mrg-top-20">
+    <div class="col-lg-12">
+      <div class="card" style="overflow: hidden;">
+        <div class="tab-info">
+          <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item">
+              <a href="#tab-open" class="nav-link active" role="tab" data-toggle="tab">
+                FACTURES
+                <span class="label label-primary">{{pager.length || 0}}</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="#tab-paid" class="nav-link" role="tab" data-toggle="tab">
+                FACTURES PAYÉES
+                <span class="label label-primary">{{paidInvoices.length || 0}}</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="#tab-drafts" class="nav-link" role="tab" data-toggle="tab">
+                BROUILLON
+                <span class="label label-primary">{{drafts.length || 0}}</span>
+              </a>
+            </li>
+          </ul>
+          <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade in active" id="tab-open">
+              <div class="row card-group">
+                <div class="col-md-12">
+                  <div class="table-responsive" #table="stTable" stTable>
+                    <table class="m-0 table no-border table-striped">
+                      <tr>
+                        <td class="text-center no-border" colspan="2">
+                          <div class="form-group m-0 row">
+                            <input id="search" placeholder="Rechercher ..." type="search" class="form-control input-sm"
+                              stDebounceTime="800" stSearch="contact_name">
+                          </div>
+                        </td>
+                        <td colspan="6" class="no-border">
+                          <button class="btn btn-sm btn-info mr-0 pull-right" routerLink="/income/invoice/add">Créer
+                            facture
+                          </button>
+                          <button type="button" class="btn btn-link btn-sm pull-right"
+                            (click)="exportToExcel(table.items, 'invoices')">
+                            Télécharger
+                          </button>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th stSort="id">N°</th>
+                        <th stSort="contact_name" class="width-25" translate>nav.CONTACT</th>
+                        <th translate>common.CATEGORY</th>
+                        <th stSort="amount" class="text-right" translate>common.TOTAL</th>
+                        <th stSort="balance" class="text-right" translate>status.UNPAID</th>
+                        <th stSort="invoiced_at" class="text-right" translate>income.INVOICED_AT</th>
+                        <th stSort="created_at" class="text-right" translate>status.CREATED</th>
+                      </tr>
+                      <tr>
+                        <td class="text-center" colspan="8" *ngIf="table.busy">
+                          <i class="fa fa-spin fa-spinner"></i>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="text-center" colspan="8" *ngIf="table.items.length === 0 && !table.busy">
+                          {{'common.NO_RECORD' | translate}}
+                        </td>
+                      </tr>
+                      <tr [hidden]="table.busy" *ngFor="let invoice of table.items">
+                        <td>
+                          <a href [routerLink]="['/income/invoice/detail', invoice.id]" *ngIf="invoice.id">{{invoice.id}}</a>
+                        </td>
+                        <td>
+                          <a href class="text-normal" [routerLink]="['/contact/detail', invoice.contact_id]"  *ngIf="invoice.contact_id">
+                            {{invoice.contact_name || invoice?.Contact.name}}
+                          </a>
+                        </td>
+                        <td>
+                          {{invoice.Category?.name}}
+                          <span class="d-block text-opacity-6 text-uppercase font-size-13">
+                            {{'status.' + invoice.status | translate}}
+                          </span>
+                        </td>
+                        <td class="text-right">
+                          {{invoice.amount | currency:'MGA':''}}
+                        </td>
+                        <td class="text-right">
+                          {{invoice.balance | currency:'MGA':''}}
+                        </td>
+                        <td class="text-right">
+                          {{invoice.invoiced_at | date:'mediumDate'}}
+                        </td>
+                        <td class="text-right">
+                          {{invoice.created_at | date:'dd MMM yyyy'}}
+                          <span class="d-block text-opacity-6 font-size-13">
+                            {{invoice.created_at | date:'HH:mm'}}
+                          </span>
+                        </td>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              <hr style="margin: 0;" />
+
+              <div class="row padding-10" stPagination #pager="stPagination">
+                <div class="col-lg">
+                  <div style="width: 200px;">
+                    <div class="d-inline">Afficher</div>
+                    <select class="form-control d-inline mx-2 width-35" [(ngModel)]="pager.size"
+                      (ngModelChange)="smartTableService.slice(_table, pager)">
+                      <option [value]="item" *ngFor="let item of appService.displayedRows">
+                        {{item}}</option>
+                    </select>
+                    <div class="d-inline">lignes</div>
+                  </div>
+                </div>
+
+                <div class="col-lg text-center">
+                  <div class="btn btn-link disabled">
+                    {{pager.length > 0 ? pager.lowerBoundIndex + 1 : 0}} - {{(pager.higherBoundIndex || -1) + 1}} sur
+                    {{pager.length || 0}}
+                  </div>
+                </div>
+
+                <div class="col-lg">
+                  <div class="btn-group pagination pull-right">
+                    <button type="button" class="btn btn-default" (click)="pager.selectPreviousPage()"
+                      [disabled]="!pager.isPreviousPageEnabled()">
+                      <i class="ti-arrow-left"></i>
+                    </button>
+                    <button type="button" class="btn btn-default" (click)="pager.selectNextPage()"
+                      [disabled]="!pager.isNextPageEnabled()">
+                      <i class="ti-arrow-right"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div role="tabpanel" class="tab-pane fade" id="tab-paid">
+              <div class="table-responsive">
+                <table class="m-0 table no-border table-striped">
+                  <tr>
+                    <td colspan="8" class="no-border">
+                      <button type="button" class="btn btn-link btn-sm pull-right"
+                        (click)="exportToExcel(paidInvoices, 'paidInvoices')" translate>button.DOWNLOAD</button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>N°</th>
+                    <th class="width-25" translate>nav.CONTACT</th>
+                    <th translate>common.CATEGORY</th>
+                    <th class="text-right" translate>common.TOTAL</th>
+                    <th class="text-right" translate>status.UNPAID</th>
+                    <th class="text-right" translate>income.INVOICED_AT</th>
+                    <th class="text-right" translate>status.CREATED</th>
+                  </tr>
+                  <tr>
+                    <td class="text-center" colspan="8" *ngIf="paidInvoices.length === 0">
+                      Aucun enregistrement
+                    </td>
+                  </tr>
+                  <tr *ngFor="let invoice of paidInvoices">
+                    <td>
+                      <a href [routerLink]="['/income/invoice/detail', invoice.id]">{{invoice.id}}</a>
+                    </td>
+                    <td>
+                      <a href class="text-normal" [routerLink]="['/contact/detail', invoice.contact_id]">
+                        {{invoice.contact_name || invoice?.Contact.name}}
+                      </a>
+                    </td>
+                    <td>
+                      {{invoice.Category?.name}}
+                      <span class="d-block text-opacity-6 text-uppercase font-size-13">
+                        {{'status.' + invoice.status | translate}}
+                      </span>
+                    </td>
+                    <td class="text-right">
+                      {{invoice.amount | currency:'MGA':''}}
+                    </td>
+                    <td class="text-right">
+                      {{invoice.balance | currency:'MGA':''}}
+                    </td>
+                    <td class="text-right">
+                      {{invoice.invoiced_at | date:'mediumDate'}}
+                    </td>
+                    <td class="text-right">
+                      {{invoice.created_at | date:'dd MMM yyyy'}}
+                      <span class="d-block text-opacity-6 font-size-13">
+                        {{invoice.created_at | date:'HH:mm'}}
+                      </span>
+                    </td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+
+            <div role="tabpanel" class="tab-pane fade" id="tab-drafts">
+              <div class="table-responsive">
+                <table class="m-0 table no-border table-striped">
+                  <tr>
+                    <td colspan="8" class="no-border">
+                      <button type="button" class="btn btn-link btn-sm pull-right"
+                        (click)="exportToExcel(drafts, 'drafts')" translate>button.DOWNLOAD</button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>N°</th>
+                    <th class="width-25" translate>nav.CONTACT</th>
+                    <th translate>common.CATEGORY</th>
+                    <th class="text-right" translate>common.TOTAL</th>
+                    <th class="text-right" translate>status.UNPAID</th>
+                    <th class="text-right" translate>income.INVOICED_AT</th>
+                    <th class="text-right" translate>status.CREATED</th>
+                  </tr>
+                  <tr>
+                    <td class="text-center" colspan="8" *ngIf="drafts.length === 0">
+                      Aucun enregistrement
+                    </td>
+                  </tr>
+                  <tr *ngFor="let invoice of drafts">
+                    <td>
+                      <a href [routerLink]="['/income/invoice/detail', invoice.id]">{{invoice.id}}</a>
+                    </td>
+                    <td>
+                      <a href class="text-normal" [routerLink]="['/contact/detail', invoice.contact_id]">
+                        {{invoice.contact_name || invoice?.Contact.name}}
+                      </a>
+                    </td>
+                    <td>
+                      {{invoice.Category?.name}}
+                      <span class="d-block text-opacity-6 text-uppercase font-size-13">
+                        {{'status.' + invoice.status | translate}}
+                      </span>
+                    </td>
+                    <td class="text-right">
+                      {{invoice.amount | currency:'MGA':''}}
+                    </td>
+                    <td class="text-right">
+                      {{invoice.balance | currency:'MGA':''}}
+                    </td>
+                    <td class="text-right">
+                      {{invoice.invoiced_at | date:'mediumDate'}}
+                    </td>
+                    <td class="text-right">
+                      {{invoice.created_at | date:'dd MMM yyyy'}}
+                      <span class="d-block text-opacity-6 font-size-13">
+                        {{invoice.created_at | date:'HH:mm'}}
+                      </span>
+                    </td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

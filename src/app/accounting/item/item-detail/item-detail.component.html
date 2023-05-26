@@ -1,0 +1,277 @@
+<div class="container-fluid">
+  <div class="row justify-content-center">
+    <div class="col-lg-12">
+      <div class="card">
+        <div class="tab-info">
+          <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item">
+              <a href="#tab-detail" class="nav-link active" role="tab" data-toggle="tab">
+                DETAILS
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="#tab-history" class="nav-link" role="tab" data-toggle="tab">
+                HISTORIQUE
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="#attachment" class="nav-link text-uppercase" role="tab" data-toggle="tab">
+                {{'common.FILE' | translate}}
+              </a>
+            </li>
+            <li class="col text-right">
+              <a class="nav-link">
+                <label class="label label-lg label-default-inverse mb-0 text-uppercase">
+                  {{'nav.ITEM' | translate}} - {{Item?.sku}}
+                </label>
+              </a>
+            </li>
+          </ul>
+          <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade in active" id="tab-detail">
+              <div class="padding-30">
+                <form class="form-horizontal h-100" [formGroup]="form" (ngSubmit)="save()" autocomplete="off" novalidate>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label for="name" class="control-label">Nom</label>
+                        <input type="text" class="form-control" formControlName="name" placeholder=""
+                          [class.error]="submitted && form.controls.name.invalid">
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label for="ref" class="control-label">Référence</label>
+                        <input type="text" id="ref" class="form-control" formControlName="sku" placeholder=""
+                          [class.error]="submitted && form.controls.sku.invalid">
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-12">
+                      <div class="form-group">
+                        <label for="description" class="control-label">Description</label>
+                        <textarea id="description" name="description" class="form-control" rows="2" placeholder=""
+                          formControlName="description"
+                          [class.error]="submitted && form.controls.description.invalid">
+                            </textarea>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-3 col-12">
+                      <div class="form-group">
+                        <label for="purchase_price" class="control-label">Prix d'achat</label>
+                        <input type="text" id="purchase_price" class="form-control" formControlName="purchase_price"
+                          placeholder="" [class.error]="submitted && form.controls.purchase_price.invalid">
+                      </div>
+                    </div>
+                    <div class="col-md-3 col-12">
+                      <div class="form-group">
+                        <label for="sale_price" class="control-label">Prix de vente</label>
+                        <input type="text" id="sale_price" class="form-control" formControlName="sale_price" placeholder=""
+                          [class.error]="submitted && form.controls.sale_price.invalid">
+                      </div>
+                    </div>
+                    <div class="col-md-3 col-12">
+                      <div class="form-group">
+                        <label for="quantity" class="control-label">Quantité</label>
+                        <input type="number" id="quantity" class="form-control bg-transparent" formControlName="quantity"
+                          [class.error]="submitted && form.controls.quantity.invalid" readonly>
+                      </div>
+                    </div>
+                    <div class="col-md-3 col-12">
+                      <div class="form-group">
+                        <label for="initial_quantity" class="control-label">Qté. initiale</label>
+                        <input type="number" id="initial_quantity" class="form-control bg-transparent"
+                          formControlName="initial_quantity" readonly>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md">
+                      <div class="form-group">
+                        <label for="category" class="control-label">Catégorie</label>
+                        <ng-select [items]="categories" bindLabel="name" formControlName="category"
+                          [ngClass]="{'error': submitted && form.controls.category.invalid}"
+                          [clearable]="false">
+                          <ng-template ng-option-tmp let-item="item">
+                            {{item.name}}
+                          </ng-template>
+                        </ng-select>
+                      </div>
+                    </div>
+                    <div class="col-md">
+                      <div class="form-group">
+                        <label class="control-label">Taxes</label>
+                        <ng-select placeholder="Ajouter taxe" formControlName="Taxes" [items]="taxes | async"
+                          bindLabel="name" [hideSelected]="true" [searchable]="true" [multiple]="true" [clearable]="false">
+                        </ng-select>
+                      </div>
+                    </div>
+                    <div class="col-md">
+                      <div class="form-group">
+                        <label class="control-label">Type</label>
+                        <ng-select [items]="types" formControlName="type"
+                          [ngClass]="{'error': submitted && form.controls.type.invalid}"
+                          [clearable]="false">
+                          <ng-template ng-label-tmp let-item="item">
+                            <span class="text-uppercase">{{'item_type.' + item | translate}}</span>
+                          </ng-template>
+                          <ng-template ng-option-tmp let-item="item">
+                            <span class="text-uppercase">{{'item_type.' + item | translate}}</span>
+                          </ng-template>
+                        </ng-select>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col col-md-6">
+                      <div class="form-group">
+                        <label class="control-label">Activé</label>
+                        <div class="toggle-checkbox toggle-info">
+                          <input type="checkbox" formControlName="enabled" id="toggle-enabled" checked
+                            [class.error]="submitted && form.controls.enabled.invalid">
+                          <label for="toggle-enabled"></label>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="border top pdd-vertical-15 text-right">
+                    <button type="submit" class="btn btn-info mr-0">
+                      <i class="fa fa-save"></i>
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+
+            <div role="tabpanel" class="tab-pane fade" id="tab-history">
+              <div class="padding-30">
+                <div class="row mrg-btm-20">
+                  <div class="col-sm-auto">
+                    <div class="input-group">
+                      <input type="text" class="form-control input-sm" ngbDatepicker #d1="ngbDatepicker" (click)="d1.toggle()"
+                        [(ngModel)]="startDate">
+                      <div class="input-group-append">
+                        <button class="btn btn-info btn-sm m-0" type="button" (click)="onDateSelect()">
+                          <i class="fa fa-search"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col text-right">
+                    <div class="btn-group btn-group-toggle mr-2" ngbRadioGroup name="radioBasic"
+                      [(ngModel)]="isChart">
+                      <label ngbButtonLabel class="btn-default btn-sm">
+                        <input ngbButton type="radio" [value]="false"> <i class="fa fa-list"></i>
+                      </label>
+                      <label ngbButtonLabel class="btn-default btn-sm">
+                        <input ngbButton type="radio" [value]="true"> <i class="fa fa-area-chart"></i>
+                      </label>
+                    </div>
+
+                    <button type="button" class="btn btn-dark btn-sm mr-0"
+                      (click)="exportHistoryToExcel(Item?.variations)">
+                      <i class="fa fa-download"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- LIST -->
+                <div class="list-group" [hidden]="isChart">
+                  <div class="list-group-item font-weight-bold text-dark">
+                    <div class="width-40 inline-block">Date</div>
+                    <div class="width-15 inline-block">Fact n°</div>
+                    <div class="width-15 inline-block text-right">Entrée</div>
+                    <div class="width-15 inline-block text-right">Sortie</div>
+                    <div class="width-15 inline-block text-right">Reste</div>
+                  </div>
+                  <div class="list-group-item">
+                    <div class="width-80 inline-block"></div>
+                    <div class="width-20 inline-block">
+                      <input type="number" class="form-control input-sm text-right bg-transparent" name="initial_quantity"
+                        readonly [value]="Item?.initial_quantity">
+                    </div>
+                  </div>
+                  <div class="list-group-item bold" *ngFor="let history of Item?.variations">
+                    <div class="width-40 inline-block">
+                      {{history.created_at | date:'short'}}
+                    </div>
+                    <div class="width-15 inline-block">
+                      <a href *ngIf="history.invoice_id" [routerLink]="['/income/invoice/detail', history.invoice_id]">
+                        {{history.invoice_id}}
+                      </a>
+                      <a href *ngIf="history.bill_id" [routerLink]="['/expense/bill/detail', history.bill_id]">
+                        {{history.bill_id}}
+                      </a>
+                      <a href *ngIf="history.request_id" [routerLink]="['/maintenance/detail', history.request_id]">
+                        {{history.request_id}}
+                      </a>
+                    </div>
+                    <div class="width-15 inline-block text-right">
+                      <span *ngIf="history.bill_id"
+                        [ngClass]="{'text-bold text-danger': history.status_code === 'REMOVE' || history.status_code === 'REMOVED', 'text-bold text-success': history?.bill_id && history.status_code === 'ADD'}">
+                        {{history.quantity}}
+                      </span>
+                    </div>
+                    <div class="width-15 inline-block text-right">
+                      <span *ngIf="history.invoice_id || history.request_id"
+                        [ngClass]="{'text-bold text-danger': history.status_code === 'REMOVE' || history.status_code === 'REMOVED'}">
+                        {{history.quantity}}
+                      </span>
+                    </div>
+                    <div class="width-15 inline-block text-right">
+                      {{history?.on_hand}}
+                    </div>
+                  </div>
+                  <div class="list-group-item bold">
+                    <div class="width-55 inline-block text-bold">TOTAL</div>
+                    <div class="width-15 inline-block text-bold text-right">{{totalBill}}</div>
+                    <div class="width-15 inline-block text-bold text-right">{{totalInvoice}}</div>
+                    <div class="width-15 inline-block"></div>
+                  </div>
+                </div>
+
+                <!-- CHART -->
+                <div class="row" *ngIf="isChart">
+                  <canvas baseChart style="width:100%;height:55vh;"
+                  [datasets]="lineChartData"
+                  [labels]="lineChartLabels"
+                  [options]="lineChartOptions"
+                  [legend]="true"
+                  [chartType]="'line'"></canvas>
+                </div>
+              </div>
+            </div>
+
+            <div role="tabpanel" class="tab-pane fade" id="attachment">
+              <div class="padding-30">
+                <div class="row">
+                  <div class="col-lg-4">
+                    <app-file-attachment
+                      [type]="'photo'"
+                      [route]="'items'"
+                      [id]="Item?.id"
+                      [attachments]="Item?.attachments"
+                      (onDelete)="deleteAttachment($event)"
+                      (onSuccess)="reset()"
+                    >
+                    </app-file-attachment>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

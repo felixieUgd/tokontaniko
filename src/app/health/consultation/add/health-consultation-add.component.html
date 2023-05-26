@@ -1,0 +1,424 @@
+<div class="container-fluid">
+  <div>
+    <div class="row justify-content-center align-items-start">
+      <div class="col-md-2 d-none d-md-block pt-2 timeline-holder sticky-lg-top">
+        <div class="text-center" *ngIf="!healthDiagnosticCodes">
+          <i class="fa fa-spinner fa-spin"></i>
+        </div>
+        <ul class="timeline" *ngIf="healthDiagnosticCodes">
+          <li class="done root">
+            <a class="text-uppercase font-weight-bold" container="body" [ngbTooltip]="'nav.CONSULTATION' | translate" translate>nav.CONSULTATION</a>
+          </li>
+          <li [class.done]="step > 0"
+              [class.active]="step === 0"
+          >
+            <a (click)="setStepFromTimeline(0)" translate>common.IDENTITY</a>
+          </li>
+          <li *ngFor="let code of healthDiagnosticCodes; let index = index;" [class.done]="step > index + 1"
+            [class.active]="step === index + 1">
+            <a (click)="setStepFromTimeline(index + 1)" container="body" [ngbTooltip]="code.title">{{ code.title }}</a>
+          </li>
+          <li [class.done]="step > healthDiagnosticCodes.length + 1"
+            [class.active]="step === healthDiagnosticCodes.length + 1">
+            <a (click)="setStepFromTimeline(healthDiagnosticCodes.length + 1)" translate>health.CONCLUSION</a>
+          </li>
+          <li [class.done]="step > healthDiagnosticCodes.length + 2" [class.active]="step === healthDiagnosticCodes.length + 2">
+            <a (click)="setStepFromTimeline(healthDiagnosticCodes.length + 2)" translate>health.RESULTS</a>
+          </li>
+        </ul>
+      </div>
+      <div class="col-md-10">
+        <div class="text-center" *ngIf="!healthDiagnosticCodes">
+          <i class="fa fa-spinner fa-spin"></i>
+        </div>
+        <ng-container *ngIf="healthDiagnosticCodes">
+          <div class="mb-3 card top-identity" *ngIf="step > 0 && step < healthDiagnosticCodes.length + 2">
+            <div class="card-block">
+              <div class="row">
+                <div class="col-6">
+                  <div class="d-flex">
+                    <div class="mr-2">
+                      <div class="mb-1 top-label">
+                        <span translate>common.FULL_NAME</span>:
+                      </div>
+                      <div class="mb-1 top-label">
+                        <span translate>account.BIRTH_DATE</span>:
+                      </div>
+                      <div class="top-label">
+                        <span translate>account.SEX</span>:
+                      </div>
+                    </div>
+                    <div class="font-weight-bold top-value-container">
+                      <div class="mb-1 top-value">
+                        <span>{{ identityForm.get('name').value || '-' }}</span>
+                      </div>
+                      <div class="mb-1 top-value">
+                        <span>{{ identityForm.get('bio_dob').value | date:'dd MMM yyyy' }}</span>
+                      </div>
+                      <div class="top-value">
+                        <span>{{ identityForm.get('sex').value || '-' }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="d-flex">
+                    <div class="mr-2">
+                      <div class="mb-1 top-label"><span translate>men.ESTABLISHMENT</span>:</div>
+                      <div class="mb-1 top-label"><span translate>men.SERIAL</span> N°:</div>
+                      <div class="top-label"><span translate>men.STUDENT_GRADE</span>:</div>
+                    </div>
+                    <div class="font-weight-bold top-value-container">
+                      <div class="mb-1 top-value">
+                        <span>{{ identityForm.get('Facility').value?.name || '-' }}</span>
+                      </div>
+                      <div class="mb-1 top-value">
+                        <span>{{ identityForm.get('school_serial').value || '-' }}</span>
+                      </div>
+                      <div class="top-value">
+                        <span>{{ identityForm.get('school_grade').value || '-' }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card" *ngIf="step === 0">
+            <div class="card-header">
+              <h3 class="mb-0" translate>common.IDENTITY</h3>
+            </div>
+            <form [class.submitted]="submitted" novalidate [formGroup]="identityForm" (submit)="checkIdentity()">
+              <div class="card-body">
+                <div class="row">
+                  <div class="form-group col-12 col-sm-6 col-md-3">
+                    <label translate>common.FULL_NAME</label>
+                    <input type="search" class="form-control" placeholder="Rechercher élève..." formControlName="name"
+                      (selectItem)="onSelectContact($event)" [ngbTypeahead]="searchContact" [placement]="'bottom-left'"
+                      [resultTemplate]="tpl" [editable]="false"
+                      [ngClass]="{'error':submitted && identityForm.get('id').errors?.required}">
+                  </div>
+                  <div class="form-group col-12 col-sm-6 col-md-3">
+                    <label translate>common.GENDER</label>
+                    <div class="btn-group btn-group-toggle width-100" formControlName="sex" ngbRadioGroup>
+                      <label ngbButtonLabel class="btn-default" style="width: 50% !important;">
+                        <input ngbButton type="radio" value="M"> M
+                      </label>
+                      <label ngbButtonLabel class="btn-default" style="width: 50% !important;">
+                        <input ngbButton type="radio" value="F"> F
+                      </label>
+                    </div>
+                  </div>
+                  <div class="form-group col-12 col-sm-6 col-md-3">
+                    <label translate>account.BIRTH_DATE</label>
+                    <div class="timepicker-input input-icon">
+                      <i class="ti-calendar"></i>
+                      <input type="text" class="form-control" [minDate]="minDate" [maxDate]="maxDate" ngbDatepicker
+                        formControlName="bio_dob" #bio_dob="ngbDatepicker" (click)="bio_dob.toggle()" [readOnly]="true">
+                    </div>
+                  </div>
+                  <div class="form-group col-12 col-sm-6 col-md-3">
+                    <label translate>common.AGE</label>
+                    <input type="string" class="form-control" formControlName="age" readonly>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="form-group col-12 col-sm-6 col-md-3">
+                    <label translate>men.ESTABLISHMENT</label>
+                    <input class="form-control" formControlName="Facility" placeholder="Commencer à écrire..." minlength="4"
+                      [ngClass]="{'font-weight-bold text-info':identityForm.get('Facility').value}" [inputFormatter]="formatter"
+                      [ngbTypeahead]="searchFacility" [placement]="'bottom-left'" [resultTemplate]="facilityTemplate"
+                      [editable]="false" (selectItem)="onSelectFacility($event)" />
+                  </div>
+                  <div class="form-group col-12 col-sm-6 col-md-3">
+                    <label translate>men.STUDENT_GRADE</label>
+                    <ng-select [items]="menService.grades" [clearable]="false" bindValue="label" bindLabel="label" formControlName="school_grade">
+                    </ng-select>
+                  </div>
+                  <div class="form-group col-12 col-sm-6 col-md-3">
+                    <label translate>common.ADDRESS</label>
+                    <input class="form-control" formControlName="address">
+                  </div>
+                  <div class="form-group col-12 col-sm-6 col-md-3">
+                    <label><span translate>men.SERIAL</span> N°</label>
+                    <input class="form-control" formControlName="school_serial">
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="form-group col-12 col-sm-6 col-md-3">
+                    <label translate>common.FATHER</label>
+                    <app-typeahead-contact formControlName="parent_1"></app-typeahead-contact>
+                  </div>
+                  <div class="form-group col-12 col-sm-6 col-md-3">
+                    <label translate>common.MOTHER</label>
+                    <app-typeahead-contact formControlName="parent_2"></app-typeahead-contact>
+                  </div>
+                  <div class="form-group col-12 col-sm-6 col-md-3">
+                    <label translate>men.TUTOR</label>
+                    <app-typeahead-contact formControlName="tutor"></app-typeahead-contact>
+                  </div>
+                  <div class="form-group col-12 col-sm-6 col-md-3">
+                    <label translate>common.CODE</label>
+                    <input class="form-control" formControlName="code" readonly>
+                  </div>
+                </div>
+              </div>
+              <div class="card-footer">
+                <button class="btn btn-info" type="submit" appXhrBtnIndicator translate>button.NEXT</button>
+              </div>
+            </form>
+          </div>
+
+          <health-recursive-view (onStepChange)="setStep($event)" [isLast]="false" [step]="step" [treeNodes]="healthDiagnosticCodes">
+          </health-recursive-view>
+
+          <div class="card" *ngIf="step === healthDiagnosticCodes.length + 1">
+            <div class="card-header d-flex align-items-center">
+              <button class="btn btn-link btn-sm btn-back" (click)="setStep(step - 1)"><i class="fa fa-chevron-left"></i></button>
+              <h3 class="mb-0" translate>health.CONCLUSION</h3>
+            </div>
+            <form novalidate [formGroup]="prescriptionForm" (submit)="checkProduct()">
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-lg-12">
+                    <div class="form-group mb-3">
+                      <h5 class="font-weight-bold text-uppercase text-info mb-3">Stockage</h5>
+                      <app-room-select (change)="setItemsByRoom($event)" [keepSession]="true"></app-room-select>
+                    </div>
+                    <div class="form-group mb-3">
+                      <h5 class="font-weight-bold text-uppercase text-info mb-3" translate>health.TREATMENT</h5>
+                      <div class="table-overflow" formArrayName="RequestItems">
+                        <table class="table table-bordered table-item">
+                          <thead>
+                            <tr class="font-weight-bold bg-light">
+                              <th class="text-center width-5">
+                                <i class="fa fa-navicon"></i>
+                              </th>
+                              <th translate>health.PRESCRIPTION</th>
+                              <th class="width-15" translate>common.UNIT</th>
+                              <th class="width-10" translate>income.QUANTITY</th>
+                              <th translate>health.POSOLOGY</th>
+                              <th class="width-15" translate>health.ROUTE</th>
+                              <th class="width-15" translate>health.DURATION</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr *ngFor="let item of RequestItems.controls; let i = index;" [formGroupName]="i">
+                              <td class="text-center">
+                                <button type="button" class="btn btn-link m-0" (click)="removeProduct(i)">
+                                  <i class="fa fa-trash text-danger"></i>
+                                </button>
+                              </td>
+                              <td>
+                                <div class="input-group">
+                                  <ng-select class="flex-grow-1 no-border" [ngStyle]="{'max-width': '280px'}" placeholder="Choisissez l'article..." [clearable]="false" appendTo="body"
+                                    [items]="items" formControlName="item" bindLabel="name" (change)="onSelectItem($event, item)"
+                                    [class.error]="submittedPrescription && (!item.controls.item_id.valid)">
+                                    <ng-template ng-option-tmp let-item="item">
+                                      <ng-container *ngIf="item">
+                                        {{ item?.name }}
+                                        <span style="color: #ff6879!important" class="font-weight-bold d-block font-size-13" *ngIf="!item.available?.quantity"><i
+                                            class="fa fa-exclamation-triangle"></i>&nbsp;&nbsp;Stock épuisé</span>
+                                        <span class="d-block font-size-13 text-muted" *ngIf="item.available?.quantity">
+                                          {{ item.available.quantity }} {{ item.available.ItemUnit?.name || 'UNITE' }}(S)
+                                        </span>
+                                      </ng-container>
+                                    </ng-template>
+                                  </ng-select>
+                                </div>
+                              </td>
+                              <td>
+                                <ng-select [class.disabled]="!item.controls.state?.value" class="no-border" placeholder="Choisir..."
+                                  formControlName="unit" [ngClass]="{'error': submittedPrescription && item.controls.unit.invalid}"
+                                  [searchable]="item.controls.state?.value"
+                                  [items]="item.controls.units?.value || (item.controls.state?.value? []: inventoryUnits)" (change)="onSelectUnit($event, item)" bindLabel="name"
+                                  [hideSelected]="true" [clearable]="false">
+                                </ng-select>
+                              </td>
+                              <td>
+                                <input type="number" formControlName="quantity" class="form-control text-center" [min]="1"
+                                  [class.error]="submittedPrescription && !item.controls.quantity.valid">
+                              </td>
+                              <td>
+                                <input type="text" formControlName="dosage" class="form-control"
+                                  [class.error]="submittedPrescription && !item.controls.dosage.valid">
+                              </td>
+                              <td>
+                                <ng-select [items]="modes" [clearable]="false" class="border-0" formControlName="administration_mode"
+                                  [class.error]="submittedPrescription && !item.controls.administration_mode.valid">
+                                </ng-select>
+                              </td>
+                              <td>
+                                <div class="input-group">
+                                  <input type="text" formControlName="duration" class="form-control border-0"
+                                    [class.error]="submittedPrescription && !item.controls.duration.valid">
+                                  <div class="input-group-prepend">
+                                    <span class="input-group-text font-size-14" [ngStyle]="{borderTop: '0', borderBottom: '0'}">jour(s)</span>
+                                  </div>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <div class="row">
+                        <div class="col-lg-4">
+                          <button type="button" class="btn btn-link" (click)="addProduct()">
+                            Ajouter
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    <h5 class="font-weight-bold text-uppercase text-info mb-3" translate>health.NOTE</h5>
+                    <div class="form-group">
+                      <label translate>health.MEDICAL_CONCLUSION</label>
+                      <input type="text" class="form-control" formControlName="comments">
+                    </div>
+                    <div class="form-group">
+                      <label translate>health.MEDICAL_GUIDANCE</label>
+                      <textarea class="form-control medium-height" formControlName="medical_guidance"></textarea>
+                    </div>
+                    <div class="form-group">
+                      <label translate>health.PEDAGOGICAL_GUIDANCE</label>
+                      <textarea class="form-control medium-height" formControlName="pedagogical_guidance"></textarea>
+                    </div>
+                    <div class="form-group">
+                      <label translate>health.OBSERVATION_REFERENCE</label>
+                      <textarea class="form-control medium-height" formControlName="observation"></textarea>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="card-footer overflow-hidden">
+                <button class="btn btn-info" type="submit" appXhrBtnIndicator translate>button.VIEW_RESULTS</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="card" *ngIf="step === healthDiagnosticCodes.length + 2">
+            <div class="card-header d-flex align-items-center">
+              <button class="btn btn-link btn-sm btn-back" (click)="setStep(step - 1)"><i class="fa fa-chevron-left"></i></button>
+              <h3 class="mb-0" translate>health.RESULTS</h3>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-lg-6">
+                  <div class="mb-3">
+                    <h5 class="font-weight-bold text-uppercase text-info mb-3" translate>common.IDENTITY</h5>
+                    <div class="identity">
+                      <div class="label-holder">
+                        <label><span translate>common.FULL_NAME</span>:</label>
+                        <span>{{ identityForm.get('name').value || '-' }}</span>
+                      </div>
+                      <div class="label-holder">
+                        <label><span translate>account.SEX</span>:</label>
+                        <span>{{ identityForm.get('sex').value || '-' }}</span>
+                      </div>
+                      <div class="label-holder">
+                        <label><span translate>account.BIRTH_DATE</span>:</label>
+                        <span>{{ identityForm.get('bio_dob').value | date:'dd MMM yyyy' }}</span>
+                      </div>
+                      <div class="label-holder">
+                        <label><span translate>men.ESTABLISHMENT</span>:</label>
+                        <span>{{ identityForm.get('Facility').value?.name || '-' }}</span>
+                      </div>
+                      <div class="label-holder">
+                        <label><span translate>men.STUDENT_GRADE</span>:</label>
+                        <span>{{ identityForm.get('school_grade').value || '-' }}</span>
+                      </div>
+                      <div class="label-holder">
+                        <label><span translate>men.SERIAL</span> N°:</label>
+                        <span>{{ identityForm.get('school_serial').value || '-' }}</span>
+                      </div>
+                      <div class="label-holder">
+                        <label><span translate>common.CODE</span>:</label>
+                        <span>{{ identityForm.get('code').value || '-' }}</span>
+                      </div>
+                      <div class="label-holder">
+                        <label><span translate>common.FATHER</span>:</label>
+                        <span>{{ identityForm.get('parent_1').value?.name || '-' }}</span>
+                      </div>
+                      <div class="label-holder">
+                        <label><span translate>common.MOTHER</span>:</label>
+                        <span>{{ identityForm.get('parent_2').value?.name || '-' }}</span>
+                      </div>
+                      <div class="label-holder">
+                        <label><span translate>men.TUTOR</span>:</label>
+                        <span>{{ identityForm.get('tutor').value?.name || '-' }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="mb-3">
+                    <h5 class="font-weight-bold text-uppercase text-info mb-3" translate>men.SETTINGS</h5>
+                    <health-tree-view [treeNodes]="healthDiagnosticCodes" [trueOnly]="true" [displayOnly]="true"></health-tree-view>
+                  </div>
+                  <div [formGroup]="prescriptionForm">
+                    <h5 class="font-weight-bold text-uppercase text-info mb-3" translate>health.PRESCRIPTION</h5>
+                    <div formArrayName="RequestItems">
+                      <p *ngFor="let item of RequestItems.controls; let i = index;" [formGroupName]="i">
+                        <span *ngIf="item.controls.quantity?.value as quantity">
+                          <b> {{ i + 1 }}. {{ item.controls.name?.value }}</b> / {{ quantity }} {{item.controls.unit?.value?.name}}(S) :
+                          {{ item.controls.dosage?.value }}, {{ 'health.ROUTE' | translate }} {{ item.controls.administration_mode?.value || '' }}, {{
+                          item.controls.duration?.value + 'j' }}
+                        </span>
+                      </p>
+                      <p class="text-muted" *ngIf="!RequestItems?.length" translate>health.NO_PRESCRIPTION</p>
+                    </div>
+                    <div *ngIf="prescriptionForm.get('comments').value as comments">
+                      <hr>
+                      {{ comments }}
+                    </div>
+                    <div *ngIf="prescriptionForm.get('medical_guidance').value as medical_guidance">
+                      <hr>
+                      {{ medical_guidance }}
+                    </div>
+                    <div *ngIf="prescriptionForm.get('pedagogical_guidance').value as pedagogical_guidance">
+                      <hr>
+                      {{ pedagogical_guidance }}
+                    </div>
+                    <div *ngIf="prescriptionForm.get('observation').value as observation">
+                      <hr>
+                      {{ observation }}
+                    </div>
+                  </div>
+                </div>
+                <div class="col-lg-6">
+                  <h5 class="font-weight-bold text-uppercase text-info mb-3" translate>health.ARCHIVED_DOCUMENTS</h5>
+                  <app-medical-accordion [requests]="previousRequests"></app-medical-accordion>
+                </div>
+              </div>
+            </div>
+            <div class="card-footer">
+              <button class="btn btn-info" (click)="saveAll()" appXhrBtnIndicator translate>button.SAVE</button>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+</div>
+<ng-template #tpl let-r="result" let-t="term">
+  <ng-container *ngIf="r?.id">
+    <ngb-highlight [result]="r.name" [term]="t"></ngb-highlight>
+
+    <span style="color: #6f748a;" class="d-block">
+      {{r.meta?.school_serial}}
+    </span>
+  </ng-container>
+
+  <a class="d-block text-white py-2" *ngIf="!r?.id">
+    <i class="fa fa-plus-circle mr-1"></i> {{ 'men.ADD_STUDENT' | translate }}
+  </a>
+</ng-template>
+
+<ng-template #facilityTemplate let-r="result" let-t="term">
+  <ngb-highlight [result]="r?.name" [term]="t"></ngb-highlight>
+
+  <span style="color: #6f748a;" [ngClass]="{ 'd-block': r, 'd-none': !r }">
+    {{ r?.code }}
+  </span>
+
+  <span class="d-block text-muted py-2" *ngIf="!r">
+    {{ 'common.NO_RECORD' | translate }}
+  </span>
+</ng-template>

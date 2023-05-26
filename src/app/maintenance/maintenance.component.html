@@ -1,0 +1,333 @@
+<div class="container-fluid">
+  <div class="row mrg-btm-15 border-radius-4 border-white border-danger">
+    <div class="col-lg-4 text-center">
+      <form [formGroup]="dateForm" (submit)="filterResult()">
+        <div class="input-group">
+          <input type="text" class="form-control bg-white" placeholder="Date début"
+                 formControlName="start" #d1="ngbDatepicker" (click)="d1.toggle()" ngbDatepicker
+                 [class.error]="submitted && dateForm.controls.start.invalid" readonly/>
+
+          <input type="text" class="form-control bg-white border-right-0" placeholder="Date fin"
+                 formControlName="end" #d2="ngbDatepicker" (click)="d2.toggle()" ngbDatepicker
+                 [class.error]="submitted && dateForm.controls.end.invalid" readonly/>
+
+          <div class="input-group-append">
+            <button class="btn btn-info m-0" type="submit">
+              <i class="fa fa-search"></i>
+            </button>
+            <button class="btn btn-dark m-0" type="button" (click)="resetForm()">
+              <i class="fa fa-refresh"></i>
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="col-lg text-right">
+      <button type="button" class="btn btn-link"
+        (click)="exportExcelV2(table.items, 'requete')">
+        <i class="fa fa-download mr-1"></i>
+        {{'button.DOWNLOAD' | translate}} .xls
+      </button>
+      <button class="btn btn-info" [routerLink]="['/maintenance/add']">
+        <i class="fa fa-plus"></i>
+        {{'button.ADD' | translate}}
+      </button>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg">
+      <div class="padding-20 bg-primary-inverse border-radius-4 text-center"
+        (click)="filterBy('status')">
+        <div class="" [hidden]="loading">
+          <h1 class="font-size-31 mrg-btm-5 lh-1 text-primary">
+            {{requestSummary?.total}}</h1>
+          <span class="text-primary">Total requêtes</span>
+        </div>
+
+        <i class="fa fa-spin fa-spinner text-primary" *ngIf="loading"></i>
+      </div>
+    </div>
+
+    <div class="col-lg">
+      <div class="padding-20 bg-primary-inverse border-radius-4 text-center"
+        (click)="filterBy('status', 'IN_PROGRESS')">
+        <div class="" [hidden]="loading">
+          <h1 class="font-size-31 mrg-btm-5 lh-1 text-primary">
+            {{requestSummary?.in_progress}}</h1>
+          <span class="text-primary" translate>status.IN_PROGRESS</span>
+        </div>
+
+        <i class="fa fa-spin fa-spinner text-primary" *ngIf="loading"></i>
+      </div>
+    </div>
+
+    <div class="col-lg">
+      <div class="padding-20 bg-primary-inverse border-radius-4 text-center"
+        (click)="filterBy('status', 'ON_HOLD')">
+        <div class="" [hidden]="loading">
+          <h1 class="font-size-31 mrg-btm-5 lh-1 text-primary">
+            {{requestSummary?.on_hold}}
+          </h1>
+          <span class="text-primary" translate>status.ON_HOLD</span>
+        </div>
+
+        <i class="fa fa-spin fa-spinner text-primary" *ngIf="loading"></i>
+      </div>
+    </div>
+
+    <div class="col-lg">
+      <div class="padding-20 bg-primary-inverse border-radius-4 text-center"
+        (click)="filterBy('status', 'APPROVED')">
+        <div class="" [hidden]="loading">
+          <h1 class="font-size-31 mrg-btm-5 lh-1 text-primary">
+            {{requestSummary?.approved}}
+          </h1>
+          <span class="text-primary" translate>status.APPROVED</span>
+        </div>
+
+        <i class="fa fa-spin fa-spinner text-primary" *ngIf="loading"></i>
+      </div>
+    </div>
+
+    <div class="col-lg">
+      <div class="padding-20 bg-primary-inverse border-radius-4 text-center"
+        (click)="filterBy('status', 'COMPLETED')">
+        <div class="" [hidden]="loading">
+          <h1 class="font-size-31 mrg-btm-5 lh-1 text-primary">
+            {{requestSummary?.completed}}
+          </h1>
+          <span class="text-primary" translate>status.COMPLETED</span>
+        </div>
+
+        <i class="fa fa-spin fa-spinner text-primary" *ngIf="loading"></i>
+      </div>
+    </div>
+  </div>
+
+  <div class="row justify-content-center mrg-top-20">
+    <div class="col-lg-12">
+      <div class="card">
+        <div class="tab-info">
+          <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item">
+              <a href="#tab-request" class="nav-link active" role="tab" data-toggle="tab">
+                REQUÊTES
+                <span class="label label-primary">{{pager.length || 0}}</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="#tab-drafts" class="nav-link" role="tab" data-toggle="tab">
+                BROUILLON
+                <span class="label label-primary">{{drafts.length || 0}}</span>
+              </a>
+            </li>
+          </ul>
+          <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade in active" id="tab-request">
+              <div class="row card-group">
+                <div class="col-lg-12" stTable #table="stTable">
+                  <div class="table-responsive">
+                    <table class="m-0 table no-border table-striped">
+                      <thead>
+                        <tr>
+                          <th class="border-top-0 width-5 text-center" stSort="id">N°</th>
+                          <th class="border-top-0 width-15" stSort="requested_at" translate>common.DATE</th>
+                          <th class="border-top-0" translate>common.FACILITY</th>
+                          <th class="border-top-0 width-20" translate>common.TITLE</th>
+                          <th class="border-top-0" translate>common.CATEGORY</th>
+                          <th class="border-top-0 width-15" translate>common.ASSIGNED_TO</th>
+                          <th class="border-top-0 width-15 text-right" stSort="created_at" translate>common.PROGRESS</th>
+                        </tr>
+                        <tr>
+                          <td>
+                            <!-- <input type="number" class="form-control text-center" stDebounceTime="800"> -->
+                          </td>
+                          <td></td>
+                          <td>
+                            <ng-select [items]="rooms | async" minTermLength="3" bindLabel="title" bindValue="id" [placeholder]="('placeholder.SELECT' | translate) + '...'"
+                              [(ngModel)]="selectedLocalId" (change)="filterBy('room_id', $event?.id)">
+                            </ng-select>
+                          </td>
+                          <td>
+                            <input type="search" class="form-control" stDebounceTime="800" stSearch="title" [placeholder]="'placeholder.SEARCH' | translate">
+                          </td>
+                          <td>
+                            <ng-select bindLabel="name" bindValue="id" [items]="categories | async" minTermLength="3" [placeholder]="('placeholder.SELECT' | translate) + '...'"
+                              [(ngModel)]="selectedCategoryId" (change)="filterBy('category_id', $event?.id)">
+                            </ng-select>
+                          </td>
+                          <td>
+                            <ng-select [items]="staff$ | async" bindLabel="name" minTermLength="3" [placeholder]="'placeholder.SEARCH' | translate"
+                              [(ngModel)]="selectedStaff" [typeahead]="staffInput$" [clearable]="true" (change)="onSelectStaff($event)">
+                              <ng-template ng-option-tmp let-item="item">
+                                {{item.name}}
+                                <br/>
+                                <span style="color: #6f748a;">{{item.email}}</span>
+                              </ng-template>
+                            </ng-select>
+                          </td>
+                          <td>
+                            <ng-select
+                              *ngIf="requestStatuses"
+                              [placeholder]="('request.EXTENDED_STATUS' | translate) + '...'"
+                              bindLabel="name"
+                              bindValue="id"
+                              [(ngModel)]="selectedStatusId"
+                              [items]="requestStatuses | async"
+                              (change)="filterBy('request_status_id', $event?.id)"
+                            >
+                            </ng-select>
+                          </td>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr *ngFor="let request of table.items" [hidden]="table.busy">
+                          <td class="text-center">
+                            <a href [routerLink]="['/maintenance/detail/', request.id]">
+                              {{request.id}}
+                            </a>
+                          </td>
+                          <td>
+                            {{request.requested_at | date:'dd MMM yyyy'}}
+                          </td>
+                          <td>
+                            <ng-container *ngIf="request.Room as Room">
+                              <span *ngIf="activeMenu?.men?.root">{{Room?.title}}</span>
+                              <a *ngIf="!activeMenu?.men?.root" href>
+                                {{Room?.title}}
+                              </a>
+                            </ng-container>
+                          </td>
+                          <td>{{request.title}}</td>
+                          <td>{{request?.Category?.name}}</td>
+                          <td [ngClass]="{'font-weight-bold text-success': isMine(request)}">
+                            <ul class="list-unstyled">
+                              <li class="pointer" *ngFor="let item of request.Staffs" [title]="item.name">
+                                {{item.name | slice:0:13}}.
+                              </li>
+                            </ul>
+                          </td>
+                          <td>
+                            <span class="pull-right font-size-13 font-weight-bold">
+                              {{'status.' + request.status | translate}}
+                            </span>
+                            <div class="progress width-100 progress-{{utilityService.statusStyle(request.status).background}}"
+                                style="height: 10px;">
+                              <div class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100"
+                                  [attr.aria-valuenow]="utilityService.statusStyle(request.status).valuenow"
+                                  [style.width]="utilityService.statusStyle(request.status).width">
+                              </div>
+                            </div>
+                            <span class="font-size-13" [innerHTML]="maintenanceService.getLatestHistory(request.RequestHistories)"></span>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class="text-center" colspan="7" *ngIf="table.busy">
+                            <i class="fa fa-spin fa-spinner"></i>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class="text-center" colspan="7" *ngIf="!table.busy && table.items.length === 0" translate>common.NO_RECORD</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              <hr style="margin: 0;"/>
+
+              <div class="row padding-10" stPagination #pager="stPagination">
+                <div class="col-lg">
+                  <div style="width: 200px;">
+                    <div class="d-inline">Afficher</div>
+                    <select class="form-control d-inline mx-2 width-35" [(ngModel)]="pager.size"
+                            (ngModelChange)="smartTableService.slice(_table, pager)">
+                      <option [value]="item" *ngFor="let item of appService.displayedRows">
+                        {{item}}
+                      </option>
+                    </select>
+                    <div class="d-inline">lignes</div>
+                  </div>
+                </div>
+                <div class="col-lg-3 text-center">
+                  <div class="btn btn-link mb-0 disabled">
+                    {{pager.length > 0 ? pager.lowerBoundIndex + 1 : 0}} - {{(pager.higherBoundIndex || -1) + 1}} sur
+                    {{pager.length || 0}}
+                  </div>
+                </div>
+                <div class="col-lg">
+                  <div class="btn-group pagination justify-content-end">
+                    <button type="button" class="btn btn-default mb-0" (click)="pager.selectPreviousPage()"
+                            [disabled]="!pager.isPreviousPageEnabled()">
+                      <i class="ti-arrow-left"></i>
+                    </button>
+                    <button type="button" class="btn btn-default mb-0" (click)="pager.selectNextPage()"
+                            [disabled]="!pager.isNextPageEnabled()">
+                      <i class="ti-arrow-right"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div role="tabpanel" class="tab-pane fade" id="tab-drafts">
+              <table class="m-0 table no-border table-striped">
+                <thead>
+                <tr>
+                  <th class="no-border">N°</th>
+                  <th class="no-border width-15">Crée</th>
+                  <th class="no-border" translate>common.FACILITY</th>
+                  <th class="no-border">Titre</th>
+                  <th class="no-border width-20">Assigné à</th>
+                  <th class="no-border width-15 text-right">Progression</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let request of drafts">
+                  <td>
+                    <a href [routerLink]="['/maintenance/detail/', request.id]">
+                      {{request.id}}
+                    </a>
+                  </td>
+                  <td>
+                    {{request.created_at | date:'dd MMM yyyy HH:mm'}}
+                  </td>
+                  <td>
+                    {{request.Room?.title}}
+                  </td>
+                  <td>
+                    {{request.title}}
+                    <span class="text-muted font-size-13 d-block">{{request.Category?.name}}</span>
+                  </td>
+                  <td [ngClass]="{'font-weight-bold text-success': isMine(request)}">
+                    {{request?.Staff?.name || request.staff_name}}
+                  </td>
+                  <td class="text-right">
+                      <span class="pull-right font-size-13">
+                        {{'status.' + request.status | translate}}
+                      </span>
+                    <div class="progress width-100 progress-{{utilityService.statusStyle(request.status).background}}"
+                         style="height: 10px;">
+                      <div class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100"
+                           [attr.aria-valuenow]="utilityService.statusStyle(request.status).valuenow"
+                           [style.width]="utilityService.statusStyle(request.status).width">
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="text-center" colspan="6" *ngIf="drafts.length === 0">
+                    Aucune requête
+                  </td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

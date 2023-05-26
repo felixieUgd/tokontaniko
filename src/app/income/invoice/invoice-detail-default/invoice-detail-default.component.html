@@ -1,0 +1,320 @@
+<div class="container-fluid">
+  <div class="pdd-horizon-30">
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="card">
+          <div class="tab-info">
+            <ul class="nav nav-tabs" role="tablist">
+              <li class="nav-item">
+                <a href="#tab-invoice" class="nav-link active" role="tab" data-toggle="tab">FACTURE</a>
+              </li>
+              <li class="nav-item">
+                <a href="#tab-payment" class="nav-link" role="tab" data-toggle="tab">PAIEMENTS</a>
+              </li>
+              <li class="nav-item">
+                <a href="#tab-history" class="nav-link" role="tab" data-toggle="tab">HISTORIQUE</a>
+              </li>
+              <li class="col text-right">
+                <a class="nav-link">
+                  <label class="label label-lg mb-0 text-uppercase label-{{utilityService.statusStyle(invoice?.status).background}}-inverse">
+                    {{'status.' + invoice?.status | translate}}</label>
+                </a>
+              </li>
+            </ul>
+
+            <div class="tab-content">
+              <div role="tabpanel" class="tab-pane fade in active" id="tab-invoice">
+                <form role="form" [formGroup]="invoiceForm" autocomplete="off" novalidate>
+                  <div class="padding-30 card-item">
+                    <div class="row">
+                      <label class="col-lg-2 col-form-label text-lg-right">Client</label>
+
+                      <div class="col-lg-3">
+                        <div class="form-group">
+                          <app-typeahead-contact *ngIf="invoiceForm" formControlName="contact" [submitted]="submitted">
+                          </app-typeahead-contact>
+                        </div>
+                      </div>
+
+                      <label class="offset-lg-1 col-lg-3 col-form-label text-lg-right">ID / N° Requête</label>
+
+                      <label class="col-lg-3 col-form-label">
+                        {{invoice?.id}} / {{invoice?.request_id}}
+                      </label>
+                    </div>
+
+                    <div class="row">
+                      <label class="col col-form-label text-lg-right">Tél.</label>
+
+                      <label class="col-lg-3 col-form-label text-dark">
+                        {{invoice?.Contact?.phone | mask:'000 00 000 00'}}</label>
+
+                      <label class="offset-lg-1 col-lg-3 col-form-label text-lg-right">Groupe</label>
+
+                      <label class="col-lg-3 col-form-label">
+                        <a href class="text-dark" *ngIf="invoice && invoice.invoice_group_id"
+                          [routerLink]="['/cashDesk/group/detail/', invoice?.invoice_group_id]">
+                          {{invoice?.InvoiceGroup?.contact_name}} / {{invoice?.invoice_group_id}}
+                        </a>
+                      </label>
+                    </div>
+
+                    <div class="row">
+                      <label class="col col-form-label text-lg-right">Email</label>
+
+                      <label class="col-lg-3 col-form-label text-dark">
+                        {{invoice?.Contact?.email}}</label>
+
+                      <label class="offset-lg-1 col-lg-3 col-form-label text-lg-right">Facturé le</label>
+
+                      <div class="col-lg-3">
+                        <input type="text" class="form-control" formControlName="invoiced_at" ngbDatepicker
+                          #dtInvoicedAt="ngbDatepicker" (click)="dtInvoicedAt.toggle()"
+                          [class.error]="submitted && invoiceForm.get('invoiced_at').status === 'INVALID'">
+                      </div>
+                    </div>
+
+                    <div class="row">
+                      <label class="col col-form-label text-lg-right">Catégorie</label>
+
+                      <div class="col-lg-3">
+                        <div class="form-group">
+                          <ng-select [items]="categories | async" bindLabel="name" bindValue="id" formControlName="category_id"
+                            [ngClass]="{'error': submitted && invoiceForm.get('category_id').status === 'INVALID'}">
+                          </ng-select>
+                        </div>
+                      </div>
+
+                      <label class="offset-lg-1 col-lg-3 col-form-label text-lg-right">Date d'échéance / voyage</label>
+
+                      <div class="col-lg-3">
+                        <div class="form-group">
+                          <input class="form-control" formControlName="due_at" ngbDatepicker
+                            #dtDueAt="ngbDatepicker" (click)="dtDueAt.toggle()"
+                            [class.error]="submitted && invoiceForm.get('due_at').status === 'INVALID'">
+                        </div>
+                      </div>
+                    </div>
+
+                    <hr />
+
+                    <div class="row">
+                      <div class="col-lg-12">
+                        <div formArrayName="InvoiceItems">
+                          <div class="form-group m-0">
+                            <div class="">
+                              <label>Produits/services</label>
+                            </div>
+
+                            <div class="table-overflow">
+                              <table class="table table-bordered table-item">
+                                <thead>
+                                  <tr class="font-weight-bold bg-light">
+                                    <th class="text-center" style="width: 10%;">
+                                      <i class="fa fa-navicon"></i>
+                                    </th>
+                                    <th class="">Nom</th>
+                                    <th class="width-10 text-center">Quantité</th>
+                                    <th class="width-15 text-right">Prix unitaire</th>
+                                    <th class="width-20">Taxes</th>
+                                    <th class="width-15 text-right">Total</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  <tr *ngFor="let item of InvoiceItems.controls; let i=index" [formGroupName]="i">
+                                    <td class="text-center">
+                                      <button type="button" class="btn btn-link m-0" (click)="removeItem(i)">
+                                        <i class="fa fa-trash text-danger"></i>
+                                      </button>
+
+                                      <input type="hidden" name="item_id" formControlName="item_id">
+                                      <input type="hidden" name="sku" formControlName="sku">
+                                    </td>
+                                    <td>
+                                      <div class="input-group">
+                                        <input type="text" formControlName="name" class="form-control no-border"
+                                          placeholder="Rechercher..." (selectItem)="onSelectItem($event, item)"
+                                          [ngbTypeahead]="searchItem" [resultTemplate]="tplItem" [readOnly]="isNew(item)" [editable]="false"
+                                          [class.error]="submitted && !item.controls.name.valid">
+
+                                        <div class="input-group-append">
+                                          <button type="button" class="btn bg-transparent" data-toggle="collapse"
+                                            [attr.data-target]="'#collapse-' + i">
+                                            <i class="fa fa-pencil text-dark"></i>
+                                          </button>
+                                        </div>
+                                      </div>
+
+                                      <div class="collapse font-size-13 px-2 pt-0 pb-1" id="collapse-{{i}}"
+                                        [class.show]="item.controls.description?.value">
+                                        {{ item.controls.description?.value || 'Aucune description' }}
+                                      </div>
+                                    </td>
+                                    <td>
+                                      <input type="number" formControlName="quantity" class="form-control text-center"
+                                        [min]="1" [readOnly]="isNew(item)"
+                                        [class.error]="submitted && !item.controls.quantity.valid">
+                                    </td>
+                                    <td>
+                                      <input type="text" formControlName="price" class="form-control text-right"
+                                        mask="separator" [readOnly]="isNew(item)"
+                                        [class.error]="submitted && !item.controls.price.valid">
+                                    </td>
+                                    <td>
+                                      <ng-select class="no-border disabled" placeholder="Aucune" formControlName="Taxes"
+                                        [items]="taxes" bindLabel="name" [hideSelected]="true" [searchable]="false"
+                                        [multiple]="true" [clearable]="false">
+                                      </ng-select>
+                                    </td>
+                                    <td class="text-dark">
+                                      <input type="text" class="form-control text-right" readonly
+                                        [value]="getItemTotal(item) | currency:'MGA':''">
+                                    </td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="row mb-2">
+                      <div class="col-lg-4">
+                        <button type="button"appXhrBtnIndicator class="btn btn-link" (click)="addItem()" [disabled]="invoice?.status === 'VOIDED'">
+                          Ajouter
+                        </button>
+                      </div>
+                    </div>
+
+                    <div class="row">
+                      <div class="col-lg-8">
+                        <div class="form-group">
+                          <label>Notes</label>
+                          <textarea [ngStyle]="{height: '170px'}" class="form-control" formControlName="notes"></textarea>
+                        </div>
+                      </div>
+                      <div class="col-lg-4">
+                        <div class="list-group">
+                          <div class="list-group-item">
+                            <b class="width-50 inline-block text-right mrg-right-15">Sous-total</b>
+                            <span class="pull-right">{{Total.payment_due | currency:'MGA':''}}</span>
+                          </div>
+                          <div class="list-group-item">
+                            <b class="width-50 inline-block text-right mrg-right-15">Taxes</b>
+                            <span class="pull-right">{{Total.tax | currency:'MGA':''}}</span>
+                          </div>
+                          <div class="list-group-item">
+                            <b class="width-50 inline-block text-right mrg-right-15">Remise</b>
+                            <span class="pull-right">{{Total.discount | currency:'MGA':''}}</span>
+                          </div>
+                          <div class="list-group-item">
+                            <b class="width-50 inline-block text-right mrg-right-15">Payé</b>
+                            <span class="pull-right">{{Total.payment | currency:'MGA':''}}</span>
+                          </div>
+                          <div class="list-group-item">
+                            <b class="width-50 inline-block text-right mrg-right-15">Reste à payer</b>
+                            <span class="pull-right font-weight-bold">{{Total.balance | currency:'MGA':'Ar '}}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="border top"></div>
+
+                  <div class="row pdd-vertical-15 pdd-horizon-30">
+                    <div class="col">
+                      <button type="button" class="btn btn-dark mb-0" (click)="print('A4')"
+                        [disabled]="invoice?.status === 'VOIDED'">
+                        <i class="fa fa-print"></i></button>
+                      <div class="dropdown inline-block">
+                        <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                          <span class="mrg-right-10">Autres actions</span>
+                          <i class="ti-angle-down font-size-9"></i>
+                        </button>
+                        <ul class="dropdown-menu">
+                          <li>
+                            <a (click)="openSidePanelPayment()">Ajouter paiement</a>
+                          </li>
+                          <!-- <li>
+                            <a data-toggle="modal" data-target="#modal-confirm" translate>
+                              button.PAY
+                            </a>
+                          </li> -->
+                          <li>
+                            <a (click)="print('A4V2')">A4 Version 2</a>
+                          </li>
+                          <li>
+                            <a (click)="print('RECEIPT')">Ticket caisse</a>
+                          </li>
+                          <!-- <li>
+                            <a class="text-normal pointer" (click)="updateStatus('SENT')">Envoyer</a>
+                          </li> -->
+                          <!-- <li>
+                            <a class="text-normal pointer" (click)="sendEmail()">Envoyer</a>
+                          </li> -->
+                          <li class="divider"></li>
+                          <li>
+                            <a (click)="openConfirm()" translate>button.CANCEL</a>
+                          </li>
+                        </ul>
+                      </div>
+
+                      <button type="submit" class="btn btn-info mrg-right-10 m-0 pull-right" (click)="save()"
+                        [disabled]="invoice?.status === 'VOIDED'" appXhrBtnIndicator>
+                        <i class="fa fa-save"></i>
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+
+              <div role="tabpanel" class="tab-pane fade" id="tab-payment">
+                <app-list-payment [facture]="invoice" [dataTable]="invoice?.Revenues"></app-list-payment>
+              </div>
+
+              <div role="tabpanel" class="tab-pane fade" id="tab-history">
+                <app-list-history
+                  [dataTable]="invoice?.InvoiceHistories"
+                  [dataType]="'INVOICE'"
+                  [dataId]="invoice?.id"
+                  (onSubmit)="resetForm()">
+                </app-list-history>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Confirm -->
+<div class="modal fade" id="modal-confirm">
+  <div class="modal-dialog modal-sm full-height pt-0" role="document">
+    <div class="row align-items-center full-height">
+      <div class="modal-content">
+        <div class="modal-body text-center">
+          <h4 class="mb-0 py-4">Procéder au paiement ?</h4>
+        </div>
+
+        <div>
+          <button data-dismiss="modal" class="btn btn-default bg-light w-50 no-mrg no-border">
+            <span class="text-uppercase" translate>button.CANCEL</span>
+          </button>
+          <button data-dismiss="modal" class="btn btn-info w-50 no-mrg no-border"
+            (click)="updateStatus('APPROVED')">
+            <span class="text-uppercase" translate>button.YES</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Templates -->
+<ng-template #tplItem let-r="result" let-t="term">
+  <ngb-highlight [result]="r.name + ' - ' + r.sku.toUpperCase()" [term]="t"></ngb-highlight>
+</ng-template>
+

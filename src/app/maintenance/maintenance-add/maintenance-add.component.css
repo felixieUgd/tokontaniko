@@ -1,0 +1,17 @@
+.table td {
+  padding: 0 !important;
+  vertical-align: top;
+}
+
+.table td > input {
+  border: none !important;
+}
+
+.list-group-item {
+  border: 1px solid #e6ecf5;
+  padding: 0.65rem 0.75rem;
+}
+
+.form-group {
+  margin-bottom: 10px;
+}

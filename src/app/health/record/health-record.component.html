@@ -1,0 +1,166 @@
+<div class="container-fluid">
+  <div class="pdd-horizon-30">
+    <div class="row">
+      <div class="col-lg-12">
+        <app-search-geography-facility (search)="generate($event)"></app-search-geography-facility>
+        <div id="result">
+          <div class="text-center text-muted" *ngIf="!records && submitted">
+            <i class="fa fa-spinner fa-spin"></i>
+          </div>
+          <div *ngIf="records && submitted" class="card">
+            <div class="tab-info">
+              <ul class="nav nav-tabs" role="tablist">
+                <li class="nav-item">
+                  <a href="#tab-record" class="nav-link active" role="tab" data-toggle="tab">
+                    ENREGISTREMENTS
+                    <span class="label label-primary">{{pager?.length || 0}}</span>
+                  </a>
+                </li>
+              </ul>
+              <div class="tab-content">
+                <div role="tabpanel" class="tab-pane fade in active" id="tab-record">
+                  <div class="d-flex justify-content-end align-items-center p-2">
+                    <div>
+                      <button class="btn btn-sm btn-link" appXhrBtnIndicator (click)="exportExcel()">Télecharger .xls</button>
+                    </div>
+                  </div>
+                  <div class="table-responsive position-relative" [perfectScrollbar]="customConfig">
+                    <table id="recordTable" class="table">
+                      <thead class="fixed-head">
+                        <tr>
+                          <td class="p-0">
+                            <table class="table identity-table">
+                              <tr class="text-center">
+                                <td><span class="table-label">Matricule N°</span></td>
+                                <td><span class="table-label">Date</span></td>
+                                <td class="large-col text-left px-2"><span class="table-label">Nom et prénoms</span></td>
+                                <td class="text-left px-2"><span class="table-label">École</span></td>
+                                <td class="small-col"><span class="table-label">Classe</span></td>
+                                <td class="small-col"><span class="table-label">Age</span></td>
+                                <td class="small-col"><span class="table-label">Genre</span></td>
+                              </tr>
+                            </table>
+                          </td>
+                          <td class="p-0">
+                            <ng-container [ngTemplateOutlet]="codeHeader"
+                              [ngTemplateOutletContext]="{ node: this.diagnosticCodesTree }">
+                            </ng-container>
+                          </td>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td class="p-0">
+                            <table class="table identity-table">
+                              <tr (click)="print(record)" *ngFor="let record of records" class="text-center">
+                                <td><span class="table-label">{{ record?.Identity?.meta?.school_serial || '-' }}</span></td>
+                                <td><span class="table-label">{{ record?.date? (record.date | date:'dd MMM yyyy HH:mm'): '-' }}</span></td>
+                                <td class="large-col text-left" [ngbTooltip]="record?.Identity?.name" [placement]="'bottom'"
+                                  container="body"><span class="table-label">{{ record?.Identity?.name || '-' }}</span></td>
+                                <td class="text-left" [ngbTooltip]="record?.Identity?.Facility?.name + ' [' + record?.Identity?.Facility?.code + ']'" [placement]="'bottom'"
+                                  container="body">
+                                  <span class="table-label">{{ record?.Identity?.Facility?.name || '-' }}</span>
+                                </td>
+                                <td class="small-col" [ngbTooltip]="record?.Identity?.meta?.school_grade" [placement]="'bottom'"
+                                  container="body"><span class="table-label">{{ record?.Identity?.meta?.school_grade || '-'
+                                    }}</span>
+                                </td>
+                                <td class="small-col"><span class="table-label">{{ record?.Identity?.age || '-' }}</span></td>
+                                <td class="small-col"><span class="table-label">{{ record?.Identity?.sex }}</span></td>
+                              </tr>
+                            </table>
+                          </td>
+                          <td class="p-0">
+                            <table class="table code-table">
+                              <tr (click)="print(record)" *ngFor="let record of records" class="d-flex h-100">
+                                <td class="p-2" [ngbTooltip]="code?.choices?.length? choiceTip: undefined" container="body"
+                                  [placement]="'bottom'" [class.bg-danger]="code.hasError" *ngFor="let code of record?.Codes"
+                                  [ngStyle]="code.preferredWidth">
+                                  <div class="d-flex flex-column h-100 justify-content-center code-container">
+                                    <div class="table-label text-center">
+                                      <ng-template #choiceTip>
+                                        <ul class="list-unstyled">
+                                          <li class="text-white px-4 py-2" [ngStyle]="{'white-space': 'nowrap'}" *ngFor="let choice of code.choices">
+                                            {{ choice.title }} <i class="fa"
+                                              [ngClass]="choice.HealthDiagnosticTracker.value === 'true'? 'fa-check text-success': 'fa-times text-danger'"></i>
+                                          </li>
+                                        </ul>
+                                      </ng-template>
+                                      <span>{{ code.value || '-' }}</span>
+                                    </div>
+                                  </div>
+                                </td>
+                              </tr>
+                            </table>
+                          </td>
+                        </tr>
+                      </tbody>
+                      <tfoot *ngIf="records && !records.length">
+                        <tr class="text-center">
+                          <td>Aucun enregistrement</td>
+                          <td>Aucun enregistrement</td>
+                        </tr>
+                      </tfoot>
+                    </table>
+                  </div>
+                  <hr style="margin: 0;" />
+                  
+                  <div class="row padding-10">
+                    <div class="col-lg">
+                      <div style="width: 200px;">
+                        <div class="d-inline">Afficher</div>
+                        <select class="form-control d-inline mx-2 width-35" [(ngModel)]="pager.size" (ngModelChange)="filterTable()">
+                          <option [value]="item" *ngFor="let item of appService.displayedRows">
+                            {{item}}
+                          </option>
+                        </select>
+                        <div class="d-inline">lignes</div>
+                      </div>
+                    </div>
+                    <div class="col-lg-3 text-center">
+                      <div class="btn btn-link mb-0 disabled">
+                        {{ pager.lowerBoundIndex + 1 }} - {{ pager.upperBoundIndex }} sur
+                        {{pager.length || 0}}
+                      </div>
+                    </div>
+                    <div class="col-lg">
+                      <div class="btn-group pagination justify-content-end">
+                        <button type="button" class="btn btn-default mb-0" (click)="previousPage()" [disabled]="!isPreviousAvailable()"
+                          >
+                          <i class="ti-arrow-left"></i>
+                        </button>
+                        <button type="button" class="btn btn-default mb-0" (click)="nextPage()" [disabled]="!isNextAvailable()">
+                          <i class="ti-arrow-right"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #codeHeader let-node="node" let-level="level">
+  <table class="table code-table" [ngClass]="'level-' + (level || 0 )">
+    <tr [ngClass]="{'d-flex h-100': !node.parent_id}">
+      <td
+        *ngFor="let code of node" [ngStyle]="code.preferredWidth"
+        [class.leaf]="!code.Child?.length || (code?.field_type === 'radio' || code?.field_type === 'checkbox')"
+      >
+        <div class="d-flex flex-column h-100 justify-content-center code-container">
+          <div class="table-label" [ngbTooltip]="code.title" container="body" [placement]="'bottom'" [ngClass]="{'pt-2 pb-3': hasChildren(code)}">
+            <span>{{ code.title }}</span>
+          </div>
+          <ng-container *ngIf="hasChildren(code)" [ngTemplateOutlet]="codeHeader"
+            [ngTemplateOutletContext]="{ node: code.Child, level: (level || 0) + 1 }">
+          </ng-container>
+        </div>
+      </td>
+    </tr>
+  </table>
+</ng-template>

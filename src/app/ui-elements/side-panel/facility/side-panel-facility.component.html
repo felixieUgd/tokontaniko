@@ -1,0 +1,80 @@
+<div class="side-panel" [ngClass]="{ 'side-panel-open': isOpen }">
+  <div class="side-panel-wrapper bg-white">
+    <ul class="nav nav-tabs" role="tablist">
+      <li class="nav-item active">
+        <a class="nav-link" href="#chat" role="tab" data-toggle="tab">
+          <span>{{'common.EDIT' | translate}} {{'men.FACILITY' | translate}}</span>
+        </a>
+      </li>
+      <li class="panel-close">
+        <button
+          class="side-panel-toggle"
+          (click)="close()"
+        >
+          <i class="ti-close"></i>
+        </button>
+      </li>
+    </ul>
+
+    <div class="tab-content ps" perfectScrollbar>
+      <form class="p-4" role="form" autocomplete="off" novalidate
+        [formGroup]="form"
+        (submit)="update()"
+      >
+        <div class="form-group">
+          <input class="form-control-plaintext font-weight-bold text-dark" [value]="facility?.name">
+        </div>
+
+        <div class="form-group">
+          <label class="" translate>common.ADDRESS</label>
+          <input class="form-control" formControlName="address">
+        </div>
+
+        <div class="font-weight-bold text-info text-uppercase mb-3">
+          RESPONSABLE
+        </div>
+
+        <div class="form-group row">
+          <div class="col-md-6">
+            <label class="" translate>nav.CONTACT</label>
+            <app-typeahead-contact
+              formControlName="contact"
+            ></app-typeahead-contact>
+          </div>
+          <div class="col-md-6">
+            <label class="" translate>contact.PHONE_ABR</label>
+            <input class="form-control-plaintext font-weight-bold text-dark bg-transparent"
+              [value]="form.controls.contact?.value?.phone || ''" readonly>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col">
+            <div class="form-group">
+              <label for="" translate>men.IM</label>
+              <input class="form-control" formControlName="contact_serial">
+            </div>
+          </div>
+          <div class="col">
+            <div class="form-group">
+              <label class="" translate>men.GRADE</label>
+              <input class="form-control" formControlName="contact_grade">
+            </div>
+          </div>
+        </div>
+
+        <div class="row bg-white fixed-bottom">
+          <div class="col-md">
+            <div class="px-4 pdd-vertical-20 border top">
+              <button type="submit" class="btn btn-info btn-block no-mrg-btm" translate>
+                button.SAVE
+              </button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+

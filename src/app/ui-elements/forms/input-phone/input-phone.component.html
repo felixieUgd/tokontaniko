@@ -1,0 +1,15 @@
+<div class="form-group input-group" [formGroup]="form">
+  <div class="input-group-prepend width-25">
+    <ng-select class="width-100" [items]="countries" bindLabel="name" [class.error]="submitted && form.controls.country.errors"
+      [clearable]="false" formControlName="country" (change)="onSelectCountry($event)">
+      <ng-template ng-label-tmp let-item="item">
+        <img src="https://flagcdn.com/16x12/{{item.code}}.png" width="16" height="12">
+      </ng-template>
+      <ng-template ng-option-tmp let-item="item">
+        <img src="https://flagcdn.com/16x12/{{item.code}}.png" width="16" height="12">
+      </ng-template>
+    </ng-select>
+  </div>
+  <input class="form-control" formControlName="number"
+    [class.error]="submitted && form.controls.number.errors">
+</div>

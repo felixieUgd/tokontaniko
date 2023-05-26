@@ -1,0 +1,49 @@
+.form-check-input {
+    margin-top: -0.2rem;
+    margin-left: -2.5rem;
+    width: 30px;
+    height: 30px;
+}
+
+.form-check {
+    margin-top: 0.2rem;
+    padding-left: 2.5rem;
+    margin-bottom: 1.25rem;
+}
+
+.help-icon {
+    cursor: help;
+}
+
+hr:last-of-type {
+    display: none;
+}
+
+health-recursive-view>.row:last-child>.col {
+    margin-bottom: 0!important;
+}
+
+.error>[ngbButtonLabel]{
+    color: rgb(230, 29, 73);
+}
+
+.btn-default.active {
+    color: #34495e;
+    background-color: #ffffff;
+    border-color: #c2d0e6;
+}
+
+.btn-default.radio-active {
+    color: #ffffff!important;
+    background-color: #0f9aee!important;
+    border-color: #0f9aee!important;
+}
+
+.diagnostic-code .rounded-seat{
+    opacity: 0;
+}
+
+.diagnostic-code:hover .rounded-seat {
+    opacity: 1;
+    background-color: #1883d8!important;
+}

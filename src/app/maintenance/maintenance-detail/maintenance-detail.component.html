@@ -1,0 +1,455 @@
+<div [class.container-fluid]="!isModal">
+  <div [class.pdd-horizon-30]="!isModal">
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="card mb-0">
+          <div class="tab-info" id="request-tabs">
+              <ul class="nav nav-tabs" role="tablist">
+                <li class="nav-item">
+                  <a href="#details" class="nav-link active" role="tab" data-toggle="tab">DETAILS</a>
+                </li>
+                <li *ngIf="!activeMenu?.men?.root || activeMenu?.settings?.role" class="nav-item">
+                  <a href="#items" class="nav-link" id="nav-items-tab" role="tab" data-toggle="tab">PRODUITS</a>
+                </li>
+                <li class="nav-item">
+                  <a href="#history" class="nav-link" role="tab" data-toggle="tab">HISTORIQUE</a>
+                </li>
+                <li class="nav-item">
+                  <a href="#attachment" class="nav-link text-uppercase" role="tab" data-toggle="tab">
+                    {{'common.FILE' | translate}}
+                  </a>
+                </li>
+                <li *ngIf="!activeMenu?.men?.root" class="nav-item">
+                  <a href="#invoices" class="nav-link" role="tab" data-toggle="tab">REVENUS</a>
+                </li>
+                <li *ngIf="!activeMenu?.men?.root" class="nav-item">
+                  <a href="#bills" class="nav-link" role="tab" data-toggle="tab">DÉPENSES</a>
+                </li>
+                <li class="col text-right">
+                  <a class="nav-link">
+                    <label class="label label-lg mb-0 text-uppercase label-{{bgColor(request?.status)}}-inverse">
+                      {{'status.'+request?.status | translate}}
+                    </label>
+                  </a>
+                </li>
+                <button *ngIf="isModal" class="close pr-3" (click)="dismissAll()">&times;</button>
+              </ul>
+              <div class="tab-content">
+                <div role="tabpanel" class="tab-pane fade in active" id="details">
+                  <form role="form" [formGroup]="requestForm" (ngSubmit)="updateRequest()" novalidate>
+                    <div class="padding-30 ps" [style.height]="isModal ? '70vh' : 'inherit'" perfectScrollbar>
+                      <div class="form-group row">
+                        <label class="col-lg-2 col-form-label text-lg-right">Local</label>
+                        <div class="col-lg-3">
+                          <ng-select [items]="facilities" formControlName="facility"
+                            (change)="updateFacility($event)">
+                            <ng-template ng-label-tmp let-item="item">
+                              {{item.id}} - {{item.title}}
+                            </ng-template>
+                            <ng-template ng-option-tmp let-item="item">
+                              {{item.id}} - {{item.title}}
+                            </ng-template>
+                          </ng-select>
+                        </div>
+
+                        <label class="col-lg-3 col-form-label text-lg-right">
+                          Requête / Res° n°
+                        </label>
+                        <label class="col-lg-3 col-form-label text-dark">
+                          {{request?.id}}
+                        </label>
+                      </div>
+
+                      <div class="form-group row">
+                        <label class="col-lg-2 col-form-label text-lg-right">Contact</label>
+                        <div class="col-lg-3">
+                          <ng-select [items]="contact$ | async" bindLabel="name"
+                            formControlName="contact"  minTermLength="3"
+                            typeToSearchText="{{('nav.SEARCH' | translate) + '...'}}"
+                            [class.error]="submitted && requestForm.controls.contact.invalid"
+                            [typeahead]="contactInput$" [clearable]="true" [multiple]="true"
+                            (add)="onAddContact($event)"
+                            (remove)="onRemoveContact($event)"
+                          >
+                            <ng-template ng-option-tmp let-item="item">
+                              {{item?.name}}
+                              <ng-container *ngIf="item?.id">
+                                <br />
+                                <span style="color: #6f748a;">
+                                  {{item?.phone}} -
+                                  {{item?.id_cin}} -
+                                  {{item?.id_passport}}
+                                </span>
+                              </ng-container>
+                            </ng-template>
+                          </ng-select>
+                        </div>
+
+                        <label class="col-lg-3 col-form-label text-lg-right" translate>common.CALENDAR</label>
+                        <div class="col-lg">
+                          <div class="toggle-checkbox toggle-info">
+                            <input type="checkbox" formControlName="is_event" id="is_event" checked>
+                            <label for="is_event" class="mb-0 mt-1"></label>
+                          </div>
+                        </div>
+                        <label class="col-lg-auto col-form-label text-lg-right" translate>common.ALL_DAY</label>
+                        <div class="col-lg">
+                          <div class="toggle-checkbox toggle-info">
+                            <input type="checkbox" formControlName="is_event_all_day" id="toggle_is_event" checked>
+                            <label for="toggle_is_event" class="mb-0 mt-1"></label>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="form-group row">
+                        <label class="col-lg-2 col-form-label text-lg-right">Type</label>
+                        <div class="col-lg-3">
+                          <div class="btn-group btn-group-toggle width-100" ngbRadioGroup name="radioBasic"
+                              formControlName="type">
+                            <label ngbButtonLabel class="btn-default" style="width: 50% !important;">
+                              <input ngbButton type="radio" value="REQUEST"> REQUÊTE
+                            </label>
+                            <label ngbButtonLabel class="btn-default" style="width: 50% !important;">
+                              <input ngbButton type="radio" value="MAINTENANCE"> MAINT.
+                            </label>
+                          </div>
+                        </div>
+
+                        <label class="col-lg-3 col-form-label text-lg-right" translate>common.START</label>
+                        <div class="col-lg-auto">
+                          <input class="form-control" #dtStart="ngbDatepicker"
+                            (click)="dtStart.toggle()" formControlName="event_start" ngbDatepicker
+                            [readOnly]="true" [placement]="'bottom-right'"
+                            [required]="requestForm.controls.is_event.value"
+                            [class.error]="submitted && requestForm.controls.event_start.invalid">
+                        </div>
+
+                        <div class="col-lg pl-lg-0">
+                          <input class="form-control text-center" formControlName="event_start_time"
+                            placeholder="HH:mm" mask="00:00" [dropSpecialCharacters]="false"
+                            [required]="requestForm.controls.is_event.value && !requestForm.controls.is_event_all_day.value"
+                            [class.error]="submitted && requestForm.controls.event_start_time.invalid">
+                        </div>
+                      </div>
+
+                      <div class="form-group row">
+                        <label class="col-lg-2 col-form-label text-lg-right">XType</label>
+                        <div class="col-lg-3">
+                          <ng-select [items]="types | async" bindLabel="name" bindValue="id" (change)="onSelectType($event?.id)" formControlName="request_type_id"></ng-select>
+                        </div>
+
+                        <label class="col-lg-3 col-form-label text-lg-right" translate>common.END</label>
+                        <div class="col-lg-auto">
+                          <input class="form-control" #dtEnd="ngbDatepicker"
+                            (click)="dtEnd.toggle()" formControlName="event_end" ngbDatepicker
+                            [readOnly]="true" [placement]="'bottom-right'"
+                            [required]="requestForm.controls.is_event.value"
+                            [class.error]="submitted && requestForm.controls.event_end.invalid">
+                        </div>
+                        <div class="col-lg pl-lg-0">
+                          <input class="form-control text-center" formControlName="event_end_time"
+                            placeholder="HH:mm" mask="00:00" [dropSpecialCharacters]="false"
+                            [required]="requestForm.controls.is_event.value && !requestForm.controls.is_event_all_day.value"
+                            [class.error]="submitted && requestForm.controls.event_end_time.invalid">
+                        </div>
+                      </div>
+
+                      <div class="form-group row">
+                        <label class="col-lg-2 col-form-label text-lg-right">Catégorie</label>
+                        <div class="col-lg-3">
+                          <ng-select [items]="categories$ | async" bindLabel="name" bindValue="id" formControlName="category_id"
+                            [ngClass]="{'error': submitted && requestForm.get('category_id').status === 'INVALID'}">
+                          </ng-select>
+                        </div>
+                      </div>
+
+                      <div class="border-top my-5"></div>
+
+                      <div class="row">
+                        <div class="col-lg-6 pl-0">
+                          <div class="form-group row">
+                            <label class="col-lg-3 col-form-label text-lg-right">Titre</label>
+                            <div class="col-lg-8">
+                              <input type="text" class="form-control" formControlName="title"
+                                    [class.error]="submitted && requestForm.get('title').status === 'INVALID'">
+                            </div>
+                          </div>
+
+                          <div class="form-group row">
+                            <label class="col-lg-3 col-form-label text-lg-right">Description</label>
+                            <div class="col-lg-8">
+                              <textarea class="form-control" formControlName="description"
+                                style="min-height: 170px;"
+                                [class.error]="submitted && requestForm.get('description').status === 'INVALID'"></textarea>
+                            </div>
+                          </div>
+
+                          <div class="form-group row">
+                            <label class="col-lg-3 col-form-label text-lg-right">Assigné à</label>
+                            <div class="col-lg-8">
+                              <ng-select [items]="staff$ | async" bindLabel="name"
+                                formControlName="staff"  minTermLength="3"
+                                typeToSearchText="{{('nav.SEARCH' | translate) + '...'}}"
+                                [class.error]="submitted && requestForm.controls.staff.invalid"
+                                [typeahead]="staffInput$" [clearable]="true" [multiple]="true"
+                                (add)="onAddStaff($event)"
+                                (remove)="onRemoveStaff($event)"
+                              >
+                                <ng-template ng-option-tmp let-item="item">
+                                  {{item?.name}}
+                                  <br/>
+                                  <span style="color: #6f748a;">
+                                    {{item?.email}}
+                                  </span>
+                                </ng-template>
+                              </ng-select>
+                            </div>
+                          </div>
+
+                          <div class="form-group row">
+                            <label class="col-lg-3 col-form-label text-lg-right">Etat intermédiaire</label>
+                            <div class="col-lg-8">
+                              <ng-select [items]="requestStatuses" bindLabel="name" formControlName="extended_status"
+                                (change)="onSelectStatus($event?.id)"
+                                [ngClass]="{'error': submitted && requestForm.controls.extended_status.invalid}">
+                                <ng-template ng-label-tmp let-item="item">
+                                  <b class="text-info">{{item.name | translate}}</b>
+                                </ng-template>
+                                <ng-template ng-option-tmp let-item="item">
+                                  {{item.name | translate}}
+                                </ng-template>
+                              </ng-select>
+                            </div>
+                          </div>
+
+                          <div class="form-group row">
+                            <label class="col-lg-3 col-form-label text-lg-right">Créé par</label>
+                            <label class="col-lg-8 col-form-label text-dark">
+                              {{request?.User?.name}}
+                            </label>
+                          </div>
+
+                          <div class="form-group row">
+                            <label class="col-lg-3 col-form-label text-lg-right">Créé le</label>
+                            <label class="col-lg-8 col-form-label text-dark">
+                              {{request?.created_at | date:'dd MMM yyyy HH:mm'}}
+                            </label>
+                          </div>
+                        </div>
+                        <div class="col-lg-6">
+                          <div class="form-group">
+                            <label>Intervention et rapport</label>
+                            <div formControlName="comments" [ngxSummernote]="config"></div>
+                            <!-- <textarea class="form-control" formControlName="comments" style="min-height: 260px !important;"
+                              [class.error]="submitted && requestForm.get('comments').status === 'INVALID'"></textarea> -->
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="border top pdd-horizon-30 pdd-vertical-15">
+                      <button type="button" class="btn btn-dark" (click)="print()"><i class="fa fa-print"></i></button>
+                      <div class="dropdown inline-block">
+                        <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                          <span class="mrg-right-10">Autres actions</span>
+                          <i class="ti-angle-down font-size-9"></i>
+                        </button>
+                        <ul class="dropdown-menu">
+                          <li *ngFor="let item of maintenanceService.statuses">
+                            <a (click)="updateStatus(item)" translate>{{'status.' + item | translate}}</a>
+                          </li>
+                          <li class="divider"></li>
+                          <li>
+                            <a (click)="duplicate()">Dupliquer</a>
+                          </li>
+                          <li>
+                            <a (click)="sendSMS()">Envoyer SMS</a>
+                          </li>
+                        </ul>
+                      </div>
+                      <button class="btn btn-info pull-right" appXhrBtnIndicator><i class="fa fa-save"></i></button>
+                    </div>
+                  </form>
+                </div>
+
+                <div role="tabpanel" class="tab-pane fade" id="items">
+                  <form role="form" [formGroup]="itemForm">
+                    <div class="padding-30">
+                      <div class="row">
+                        <div class="col-lg-12">
+                          <div formArrayName="RequestItems">
+                            <table class="table table-bordered table-item">
+                              <thead>
+                              <tr class="font-weight-bold bg-light">
+                                <th class="text-center" style="width: 5%;">
+                                  <i class="fa fa-navicon"></i>
+                                </th>
+                                <th>Nom</th>
+                                <th class="width-20">Unité</th>
+                                <th class="width-10">Quantité</th>
+                                <th class="width-15 text-right">Prix unitaire</th>
+                                <th class="width-15 text-right">Total</th>
+                              </tr>
+                              </thead>
+                              <tbody>
+                              <tr *ngFor="let item of RequestItems.controls; let i = index;" [formGroupName]="i">
+                                <td class="text-center">
+                                  <button type="button" class="btn btn-link m-0" (click)="removeItem(i, item.controls.id.value)">
+                                    <i class="fa fa-trash text-danger"></i>
+                                  </button>
+
+                                  <input type="hidden" name="item_id" formControlName="item_id">
+                                  <input type="hidden" name="sku" formControlName="sku">
+                                </td>
+                                <td class="relative">
+                                  <ng-select class="flex-grow-1 no-border disabled" placeholder="Choisissez l'article..." [clearable]="false"
+                                    [hideSelected]="true" [searchable]="false" [items]="items" formControlName="item" bindLabel="name">
+                                  </ng-select>
+
+                                  <button type="button" class="btn btn-link m-0" data-toggle="collapse" [attr.data-target]="'#collapse-' + i"
+                                    style="position: absolute; top: 0; right: 0;">
+                                    <i class="fa fa-pencil text-dark"></i>
+                                  </button>
+
+                                  <div class="collapse" id="collapse-{{i}}" [class.show]="item.controls.description?.value">
+                                    <textarea readonly class="form-control no-border" formControlName="description"
+                                      placeholder="Entrer description"></textarea>
+                                  </div>
+                                </td>
+                                <td>
+                                  <ng-select class="no-border disabled" placeholder="Unité" formControlName="unit_id" [searchable]="false"
+                                    [items]="units" bindLabel="name" bindValue="id" [hideSelected]="true" [clearable]="false">
+                                  </ng-select>
+                                </td>
+                                <td>
+                                  <input type="number" formControlName="quantity" class="form-control text-center"
+                                         [min]="1" [readOnly]="isNew(item)"
+                                         [class.error]="submitted_item && !item.controls.quantity.valid">
+                                </td>
+                                <td>
+                                  <input type="text" formControlName="price" class="form-control text-right"
+                                         mask="separator" [readOnly]="isNew(item)"
+                                         [class.error]="submitted_item && !item.controls.price.valid" readonly>
+                                </td>
+                                <td class="text-dark">
+                                  <input type="text" class="form-control text-right" readonly
+                                         [value]="getTotalPerItem(item) | currency:'MGA':''">
+                                </td>
+                              </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="row">
+                        <div class="col-lg-4">
+                          <button type="button" class="btn btn-link" (click)="openAppendModal()" id="tab-items-add-btn">
+                            Ajouter
+                          </button>
+                        </div>
+                      </div>
+
+                      <div class="row">
+                        <div class="offset-8 col-lg-4">
+                          <div class="list-group">
+                            <div class="list-group-item">
+                              <b class="width-50 inline-block text-right mrg-right-15">Sous-total</b>
+                              <span class="pull-right">{{getPaymentDue() | currency:'MGA':''}}</span>
+                            </div>
+                            <div class="list-group-item">
+                              <b class="width-50 inline-block text-right mrg-right-15">Total</b>
+                              <span
+                                class="pull-right font-weight-bold">{{getPaymentDue() | currency:'MGA':'Ar '}}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="border top"></div>
+
+                    <div class="row pdd-vertical-15 pdd-horizon-30">
+                      <div class="col">
+                        <button type="button" class="btn btn-info pull-right" (click)="saveItems()">
+                          <i class="fa fa-save"></i></button>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+
+                <div role="tabpanel" class="tab-pane fade" id="bills">
+                  <app-paginate-bill [data]="request?.Bills"></app-paginate-bill>
+                </div>
+
+                <div role="tabpanel" class="tab-pane fade" id="invoices">
+                  <app-paginate-invoice [data]="request?.Invoices"></app-paginate-invoice>
+                </div>
+
+                <div role="tabpanel" class="tab-pane fade" id="history">
+                  <app-list-history
+                    [dataId]="request?.id"
+                    [dataTable]="request?.RequestHistories"
+                    [dataType]="'MAINTENANCE'"
+                    (onSubmit)="resetForm()"
+                  >
+                  </app-list-history>
+                </div>
+
+                <div role="tabpanel" class="tab-pane fade" id="attachment">
+                  <div class="padding-30">
+                    <div class="row">
+                      <div class="col-lg-4">
+                        <app-file-attachment
+                          *ngIf="request"
+                          [route]="'requests'"
+                          [id]="id"
+                          [attachments]="request.attachments"
+                          (onSuccess)="attachmentUploaded($event)"
+                          (onDelete)="deleteAttachment($event)">
+                        </app-file-attachment>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #tpl let-r="result" let-t="term">
+  <ngb-highlight [result]="r.name + (r.type === 'GOODS' ? ' [' + r.quantity + ']' : '')" [term]="t">
+  </ngb-highlight>
+</ng-template>
+
+<ng-template #tplContact let-r="result" let-t="term">
+  <ngb-highlight [result]="r?.name" [term]="t"></ngb-highlight>
+
+  <span style="color: #6f748a;" [ngClass]="{'d-block' : r, 'd-none': !r}">
+    {{r?.phone}} -
+    {{r?.id_cin}} -
+    {{r?.id_passport}}
+  </span>
+
+  <a class="d-block text-white py-2" *ngIf="!r">
+    <i class="fa fa-plus-circle mr-1"></i> Ajouter client
+  </a>
+</ng-template>
+
+<ng-template #tplUser let-r="result" let-t="term">
+  <div class="row align-items-center" *ngIf="r">
+    <div class="col">
+      <ngb-highlight [result]="r?.name" [term]="t"></ngb-highlight>
+      <span style="color: #6f748a;" [ngClass]="{'d-block' : r, 'd-none': !r}">
+        {{r?.email}}
+      </span>
+    </div>
+  </div>
+
+  <a class="d-block text-white py-2" [routerLink]="['/settings/user/add']" *ngIf="!r">
+    <i class="fa fa-plus-circle mr-1"></i> Ajouter utilisateur
+  </a>
+</ng-template>

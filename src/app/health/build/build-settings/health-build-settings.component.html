@@ -1,0 +1,149 @@
+
+<div class="row">
+    <div class="col-lg-8 order-2">
+        <div class="text-info text-uppercase font-weight-bold mb-3" translate>health.DIAGNOSTIC_CODES</div>
+        <div *ngIf="healthDiagnosticCodes">
+            <health-tree-view [treeNodes]="healthDiagnosticCodes" (openEditMode)="edit($event)"
+                (openAddChild)="setParent($event)"></health-tree-view>
+        </div>
+        <div *ngIf="!healthDiagnosticCodes" class="text-center py-3">
+            <i class="fa fa-spin fa-spinner"></i>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="text-info text-uppercase font-weight-bold mb-3">
+            {{ isEditMode? 'Modifier cet élément': 'Ajouter un élément' }}
+        </div>
+        <form (ngSubmit)="saveDiagnosticCode()" [formGroup]="diagnosticCodeForm">
+            <div class="form-group">
+                <label translate>common.PARENT_CATEGORY</label>
+                <ng-select formControlName="parent_id" bindValue="id" [items]="flatDiagnosticCodes"
+                    [class.error]="submitted && diagnosticCodeForm.get('parent_id').status === 'INVALID'"
+                    placeholder="Aucun parent">
+                    <ng-template ng-label-tmp let-item="item">
+                        {{ formatDiagnosticCodeLabel(item) }}
+                    </ng-template>
+                    <ng-template ng-option-tmp let-item="item">
+                        {{ formatDiagnosticCodeLabel(item) }}
+                    </ng-template>
+                </ng-select>
+            </div>
+            <div class="form-group">
+                <label translate>common.TITLE</label>
+                <input type="text" formControlName="title"
+                    [class.error]="submitted && diagnosticCodeForm.get('title').status === 'INVALID'"
+                    class="form-control">
+            </div>
+            <div class="form-group">
+                <label translate>common.CODE</label>
+                <input type="text" formControlName="code"
+                    [class.error]="submitted && diagnosticCodeForm.get('code').status === 'INVALID'"
+                    class="form-control">
+            </div>
+            <div class="form-group">
+                <label translate>common.DESCRIPTION</label>
+                <textarea formControlName="description"
+                    [class.error]="submitted && diagnosticCodeForm.get('description').status === 'INVALID'"
+                    class="form-control"></textarea>
+            </div>
+            <ng-container *ngIf="diagnosticCodeForm.get('parent_id').value">
+                <div class="form-group">
+                    <label translate>common.TYPE</label>
+                    <ng-select [clearable]="false" formControlName="field_type"
+                        [class.error]="submitted && diagnosticCodeForm.get('field_type').status === 'INVALID'">
+                        <ng-option value="category" translate>health.CATEGORY</ng-option>
+                        <ng-option value="plain" translate>health.PLAIN_VALUE</ng-option>
+                        <ng-option value="boolean" translate>health.YES_OR_NO</ng-option>
+                        <ng-option value="radio" translate>health.RADIO</ng-option>
+                        <ng-option value="checkbox" translate>health.CHECKBOX</ng-option>
+                    </ng-select>
+                </div>
+                <div class="form-group" *ngIf="type && type.value !== 'category'">
+                    <label translate>common.REQUIRED</label>
+                    <div class="toggle-checkbox toggle-info">
+                        <input type="checkbox" formControlName="is_required" [id]="'toggle-' + requestTypeId">
+                        <label [for]="'toggle-' + requestTypeId"></label>
+                    </div>
+                </div>
+            </ng-container>
+
+            <!-- RESPONSE start -->
+            <div *ngIf="type && (isQuestion(type.value))" class="mb-3">
+                <label class="font-weight-bold">{{ 'health.CHOICES' | translate }}
+                    <button class="btn btn-info btn-inverse rounded-seat ml-1 mb-0" type="button"
+                        (click)="addChild()">
+                        <i class="fa fa-plus"></i>
+                    </button>
+                </label>
+                <ng-container formArrayName="Child">
+                    <div class="row" *ngFor="let item of Child?.controls; let i=index">
+                        <div class="col" [formGroupName]="i">
+                            <div class="form-group mb-3">
+                                <div class="input-group">
+                                    <input class="form-control bg-white"
+                                        [class.error]="submitted && item.status === 'INVALID'"
+                                        formControlName="title"
+                                        [readOnly]="(isEditMode?(!item.controls.isNew): false)" required>
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn btn-outline-danger"
+                                            (click)="removeChildAt(i)"
+                                            *ngIf="isEditMode?(item.controls.isNew): true">
+                                            <i class="fa fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </ng-container>
+            </div>
+            <!-- RESPONSE end -->
+
+            <!-- VALUE TYPE start -->
+            <div *ngIf="type?.value === 'plain'" class="form-group">
+                <label translate>common.VALUE</label>
+                <ng-select [clearable]="false" formControlName="value_type"
+                    [class.error]="submitted && diagnosticCodeForm.get('value_type').status === 'INVALID'">
+                    <ng-option value="number" translate>common.NUMBER</ng-option>
+                    <ng-option value="string" translate>common.TEXT</ng-option>
+                </ng-select>
+            </div>
+            <!-- VALUE TYPE end -->
+
+            <!-- PLAIN NUMBER start -->
+            <div
+                *ngIf="type?.value === 'plain' && diagnosticCodeForm.get('value_type')?.value === 'number'">
+                <div class="form-group row">
+                    <div class="col">
+                        <label translate>common.MIN</label>
+                        <input type="number" formControlName="value_min"
+                            [class.error]="submitted && diagnosticCodeForm.get('value_min').status === 'INVALID'"
+                            class="form-control">
+                    </div>
+                    <div class="col">
+                        <label translate>common.MAX</label>
+                        <input type="number" formControlName="value_max"
+                            [class.error]="submitted && diagnosticCodeForm.get('value_max').status === 'INVALID'"
+                            class="form-control">
+                    </div>
+                    <!-- <div class="col">
+            <label>Unité</label>
+            <input type="text" formControlName="unit" [class.error]="submitted && diagnosticCodeForm.get('unit').status === 'INVALID'"
+                class="form-control">
+            </div> -->
+                </div>
+            </div>
+            <!-- PLAIN NUMBER end -->
+
+            <div>
+                <button type="submit" class="btn btn-info pull-right mb-0 mr-0" appXhrBtnIndicator>
+                    <i class="fa fa-save"></i>
+                </button>
+                <button type="button" (click)="reset()" class="btn btn-dark pull-right mb-0 mr-2"
+                    appXhrBtnIndicator>
+                    <i class="fa fa-refresh"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,27 @@
+.list-group-item {
+  border: 1px solid #e6ecf5;
+  padding: 0.65rem 0.75rem;
+}
+
+.form-group {
+  margin-bottom: 10px;
+}
+
+input:read-only {
+  background-color: transparent !important;
+}
+
+.ng-select.no-border ::ng-deep .ng-select-container {
+  border: 0px !important;
+  min-height: 42px !important;
+  box-shadow: none !important;
+}
+
+.ng-select.no-border
+  ::ng-deep
+  .ng-select-container
+  .ng-value-container
+  .ng-placeholder {
+  padding-left: 5px !important;
+  padding-top: 3px !important;
+}

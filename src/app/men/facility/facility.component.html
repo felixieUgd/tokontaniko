@@ -1,0 +1,171 @@
+<div class="container-fluid">
+  <div class="row justify-content-center mrg-top-10">
+    <div class="col-lg-12">
+      <div class="card">
+        <div class="tab-info">
+          <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item d-flex align-items-center justify-content-between flex-grow-1">
+              <a href="#tab-request" class="nav-link text-uppercase active" role="tab" data-toggle="tab">
+                {{'men.ESTABLISHMENT' | translate}}
+                <span class="label label-primary">{{pager.length || 0}}</span>
+              </a>
+              <button class="btn btn-info text-right" (click)="openSidePanelAdd()"><i class="fa fa-plus"></i> Ajouter</button>
+            </li>
+          </ul>
+
+          <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade in active" id="tab-request">
+              <div class="row card-group">
+                <div class="col-lg-12" stTable #table="stTable">
+                  <div class="table-responsive">
+                    <table class="m-0 table no-border table-striped">
+                      <thead>
+                        <tr>
+                          <th stSort="code" stSortCycle="true" class="width-15 border-top-0" translate>common.CODE</th>
+                          <th stSort="name" stSortCycle="true" class="border-top-0" translate>common.NAME</th>
+                          <th class="width-15 border-top-0">DREN / {{ 'men.REGION' | translate }}</th>
+                          <th class="width-15 border-top-0" stSortCycle="true">CISCO / {{ 'men.DISTRICT' | translate }}</th>
+                          <th class="width-15 border-top-0">ZAP / {{ 'common.TOWN' | translate }}</th>
+                          <th class="text-center border-top-0" translate>common.REQUEST</th>
+                        </tr>
+                        <tr>
+                          <td>
+                            <input type="search" id="code" class="form-control" placeholder="Rechercher..." [(ngModel)]="searchCode" (ngModelChange)="searchCode = removeSpaceFromStr(searchCode)"
+                              stDebounceTime="800" stFilter="code" stFilterOperator="like" stFilterType="string">
+                          </td>
+                          <td>
+                            <input type="search" id="search" class="form-control" placeholder="Rechercher..."
+                              stDebounceTime="800" stSearch="name">
+                          </td>
+                          <td>
+                            <!-- <ng-select
+                              placeholder="Region"
+                              bindLabel="name"
+                              [(ngModel)]="selectedRegion"
+                              [items]="regions | async"
+                              (change)="filterResult($event, 'region')"
+                            >
+                            </ng-select> -->
+                          </td>
+                          <td>
+                            <ng-select
+                              placeholder="Selectionner..."
+                              bindLabel="name"
+                              [(ngModel)]="selectedDistrict"
+                              [items]="districts | async"
+                              (change)="filterResult($event, 'district')"
+                            >
+                            </ng-select>
+                          </td>
+                          <td>
+                            <input type="search" id="search" class="form-control" placeholder="Rechercher..."
+                              stDebounceTime="800" stFilter="geography_id" stFilterOperator="equals" stFilterType="number">
+                            <!-- <ng-select
+                              placeholder="Commune"
+                              bindLabel="name"
+                              [(ngModel)]="selectedCommune"
+                              [items]="communes | async"
+                              (change)="filterResult($event, 'commune')"
+                            >
+                            </ng-select> -->
+                          </td>
+                          <td class="text-center">
+                            <button type="button" class="btn btn-link text-dark" (click)="clearFilter()">
+                              <i class="fa fa-refresh"></i> Actualiser
+                            </button>
+                          </td>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td class="text-center" colspan="6" *ngIf="table.busy">
+                            <i class="fa fa-spin fa-spinner"></i>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class="text-center" colspan="6"
+                            *ngIf="!table.busy && table.items.length === 0" translate>
+                            common.NO_RECORD
+                          </td>
+                        </tr>
+                        <tr *ngFor="let facility of table.items;let i=index;" [hidden]="table.busy">
+                          <td>
+                            <a href [routerLink]="['/men/detail/', facility.id]">
+                              {{facility.code}}
+                            </a>
+                            <br>
+                            <span class="text-muted font-size-13">{{facility.id}}</span>
+                          </td>
+                          <td>
+                            {{facility.name}}
+                            <br/>
+                            <span class="text-muted text-uppercase font-size-13">
+                              {{(facility.is_private ? 'men.PRIVATE' : 'men.PUBLIC') | translate}}
+                            </span>
+                          </td>
+                          <td>
+                            {{facility.Geography?.Parent?.Parent?.region}}
+                          </td>
+                          <td>
+                            {{facility.Geography?.Parent?.district}}
+                          </td>
+                          <td>
+                            {{facility.Geography.commune}}
+                            <span class="d-block font-size-13 text-opacity-6">
+                              {{facility.geography_id}}
+                            </span>
+                          </td>
+                          <td class="text-center">
+                            <button type="button" class="btn btn-danger btn-inverse btn-sm btn-rounded"
+                              *ngIf="facility.Requests.length">
+                              {{facility.Requests.length}}
+                            </button>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              <hr style="margin: 0;"/>
+
+              <div class="row padding-10" stPagination #pager="stPagination">
+                <div class="col-lg">
+                  <div style="width: 200px;">
+                    <div class="d-inline" translate>button.DISPLAY</div>
+                    <select class="form-control d-inline mx-2 width-35" [(ngModel)]="pager.size"
+                            (ngModelChange)="smartTableService.slice(_table, pager)">
+                      <option [value]="item" *ngFor="let item of appService.displayedRows">
+                        {{item}}
+                      </option>
+                    </select>
+                    <div class="d-inline" translate>common.ROWS</div>
+                  </div>
+                </div>
+                <div class="col-lg-3 text-center">
+                  <div class="btn btn-link mb-0 disabled">
+                    {{pager.length > 0 ? pager.lowerBoundIndex + 1 : 0}} - {{(pager.higherBoundIndex || -1) + 1}} sur
+                    {{pager.length || 0}}
+                  </div>
+                </div>
+                <div class="col-lg">
+                  <div class="btn-group pagination justify-content-end">
+                    <button type="button" class="btn btn-default mb-0" (click)="pager.selectPreviousPage()"
+                            [disabled]="!pager.isPreviousPageEnabled()">
+                      <i class="ti-arrow-left"></i>
+                    </button>
+                    <button type="button" class="btn btn-default mb-0" (click)="pager.selectNextPage()"
+                            [disabled]="!pager.isNextPageEnabled()">
+                      <i class="ti-arrow-right"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

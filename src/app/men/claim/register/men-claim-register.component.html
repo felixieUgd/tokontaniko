@@ -1,0 +1,418 @@
+<div class="container-fluid">
+  <div class="pdd-horizon-30">
+    <div class="page-title">
+      <h4>FICHE DE DECLARATION D'ACCIDENT</h4>
+    </div>
+
+    <div class="row mt-3">
+      <div class="col-lg-12">
+        <div class="card">
+          <div class="card-block">
+            <form [formGroup]="form">
+              <aw-wizard [navBarLayout]="'large-filled-symbols'" [defaultStepIndex]="0" #wizard>
+                <aw-wizard-step [navigationSymbol]="{ symbol: '&#xf19d;', fontFamily: 'FontAwesome' }">
+                  <div class="pdd-horizon-50 pdd-vertical-20">
+                    <div class="row">
+                      <div class="col-lg">
+                        <div class="form-group row">
+                          <label class="col-lg-4">Etablissement :</label>
+                          <label class="col-lg-8 font-weight-bold text-info">
+                            <a href [routerLink]="['/men/detail/', facility?.id]" *ngIf="facility">
+                              {{facility?.name}}
+                            </a>
+                          </label>
+                        </div>
+                        <div class="form-group row">
+                          <label class="col-lg-4">Adresse :</label>
+                          <label class="col-lg-8 font-weight-bold text-dark"></label>
+                        </div>
+                        <div class="form-group row">
+                          <label class="col-lg-4">ZAP :</label>
+                          <label class="col-lg-8 font-weight-bold text-dark"></label>
+                        </div>
+                      </div>
+                      <div class="col-lg border-left border-light b-2x">
+                        <div class="form-group row">
+                          <label class="col-lg-4">Responsable :</label>
+                          <label class="col-lg-8 text-normal text-dark">
+                            {{facility?.Contact?.name}}
+                          </label>
+                        </div>
+                        <div class="form-group row">
+                          <label class="col-lg-4">Tel. :</label>
+                          <label class="col-lg-8 text-normal text-dark">
+                            {{facility?.Contact?.phone | mask:'000 00 000 00'}}
+                          </label>
+                        </div>
+                        <!-- <div class="form-group row">
+                          <label class="col-lg-4">{{'men.IM' | translate}} :</label>
+                          <label class="col-lg-8 font-weight-bold text-dark">
+                            {{facility?.Contact?.meta?.teacher_serial}}
+                          </label>
+                        </div>
+                        <div class="form-group row">
+                          <label class="col-lg-4">{{'men.GRADE' | translate}} :</label>
+                          <label class="col-lg-8 font-weight-bold text-dark">
+                            {{facility?.Contact?.meta?.teacher_rank}}
+                          </label>
+                        </div> -->
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="border-bottom mb-4"></div>
+
+                  <div class="px-4">
+                    <button type="button" class="btn btn-info button-next m-0 pull-right" awNextStep>
+                      {{'button.NEXT' | translate}}
+                    </button>
+                  </div>
+                </aw-wizard-step>
+
+                <aw-wizard-step [navigationSymbol]="{ symbol: '&#xf007;', fontFamily: 'FontAwesome' }"
+                  [canExit]="onExitStudent">
+                  <div class="pdd-horizon-50 pdd-vertical-20" formGroupName="Student">
+                    <div *ngIf="selectedStudent">
+                      <div class="text-info pb-2 mb-4 border-bottom b-info padding-20 font-size-18">
+                        <b>RENSEIGNEMENTS SUR L'ELEVE SINISTRE</b>
+                      </div>
+
+                      <div class="form-group row pdd-top-25">
+                        <label class="col-md-2 control-label col-form-label">Nom et prénoms</label>
+                        <div class="col-md-6">
+                          <input class="form-control" formControlName="name"
+                            [class.error]="submitted_student && Student.controls.name.invalid">
+                        </div>
+                        <label class="col-md-2 control-label col-form-label text-center">Sexe</label>
+                        <div class="col-md-2">
+                          <div
+                            class="btn-group btn-group-toggle width-100"
+                            ngbRadioGroup
+                            formControlName="sex"
+                          >
+                            <label
+                              ngbButtonLabel
+                              style="width: 50% !important;"
+                              [attr.class]="
+                                submitted_student && Student.controls.sex.invalid
+                                  ? 'btn btn-outline-danger'
+                                  : 'btn btn-default'
+                              "
+                            >
+                              <input ngbButton type="radio" value="M"/> H
+                            </label>
+                            <label
+                              ngbButtonLabel
+                              class="btn"
+                              style="width: 50% !important;"
+                              [attr.class]="
+                                submitted_student && Student.controls.sex.invalid
+                                  ? 'btn btn-outline-danger'
+                                  : 'btn btn-default'
+                              "
+                            >
+                              <input ngbButton type="radio" value="F"/> F
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="form-group row">
+                        <label class="col-md-2 control-label col-form-label">
+                          Né(e) le
+                          (<span class="text-info font-weight-bold" *ngIf="Student.controls.bio_dob.value">
+                            {{Student.controls.age.value}} ans
+                          </span>)
+                        </label>
+                        <div class="col-md-3">
+                          <div class="timepicker-input input-icon">
+                            <i class="ti-calendar"></i>
+                            <input type="text" class="form-control" ngbDatepicker #bio_dob="ngbDatepicker"
+                              [class.error]="submitted_student && Student.controls.bio_dob.invalid"
+                              formControlName="bio_dob" (click)="bio_dob.toggle()"
+                              [minDate]="minDate" [readOnly]="true" (dateSelect)="onSelectDob($event)"
+                            >
+                          </div>
+                        </div>
+                        <label class="col-md-2 control-label col-form-label text-center">à</label>
+                        <div class="col-md-3">
+                          <input class="form-control" formControlName="bio_pob" name="bio_pob"
+                            [class.error]="submitted_student && Student.controls.bio_pob.invalid">
+                        </div>
+                      </div>
+
+                      <div class="form-group row">
+                        <label class="col-md-2 control-label col-form-label">Classe</label>
+                        <div class="col-md-3">
+                          <ng-select [items]="menService.grades"
+                            formControlName="grade" [clearable]="true"
+                            [class.error]="submitted_accident && Student.controls.grade?.invalid"
+                          ></ng-select>
+                        </div>
+                        <label class="col-md-2 control-label col-form-label text-center">N° matricule</label>
+                        <div class="col-md-3">
+                          <input class="form-control" formControlName="serial"
+                            [class.error]="submitted_student && Student.controls.serial.invalid">
+                        </div>
+                      </div>
+
+                      <div class="form-group row">
+                        <label class="col-md-2 control-label col-form-label">Responsable</label>
+                        <div class="col-md-3">
+                          <div
+                            class="btn-group btn-group-toggle width-100"
+                            ngbRadioGroup
+                            formControlName="person_in_charge"
+                          >
+                            <label
+                              ngbButtonLabel
+                              class="btn btn-default"
+                              style="width: 50% !important;"
+                            >
+                              <input ngbButton type="radio" value="PARENT"/> PARENT
+                            </label>
+                            <label
+                              ngbButtonLabel
+                              class="btn btn-default"
+                              style="width: 50% !important;"
+                            >
+                              <input ngbButton type="radio" value="TUTOR"/> TUTEUR
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="form-group row fade in" *ngIf="Student.controls.person_in_charge.value === 'PARENT'">
+                        <label class="col-md-2 control-label col-form-label">Fils / Fille de</label>
+                        <div class="col-md-4">
+                          <app-typeahead-contact
+                            formControlName="father"
+                            (selectContact)="onSelectContact($event, 'FATHER')"
+                            (removeContact)="onRemoveContact($event, 'FATHER')"
+                          >
+                          </app-typeahead-contact>
+                        </div>
+                        <label class="col-md-2 control-label col-form-label text-center">Et de</label>
+                        <div class="col-md-4">
+                          <app-typeahead-contact
+                            formControlName="mother"
+                            (selectContact)="onSelectContact($event, 'MOTHER')"
+                            (removeContact)="onRemoveContact($event, 'MOTHER')"
+                          >
+                          </app-typeahead-contact>
+                        </div>
+                      </div>
+
+                      <div class="form-group row fade in" *ngIf="Student.controls.person_in_charge.value === 'PARENT'">
+                        <label class="col-md-2 control-label col-form-label">Adresse de parent</label>
+                        <div class="col-md-4 col-form-label">
+                          {{Student.controls.father.value?.address || Student.controls.mother.value?.address}}
+                        </div>
+                      </div>
+
+                      <div class="form-group row fade in" *ngIf="Student.controls.person_in_charge.value === 'TUTOR'">
+                        <label class="col-md-2 control-label col-form-label">Tuteur</label>
+                        <div class="col-md-4">
+                          <app-typeahead-contact
+                            formControlName="tutor"
+                            (selectContact)="onSelectContact($event, 'TUTOR')"
+                            (removeContact)="onRemoveContact($event, 'TUTOR')"
+                          >
+                          </app-typeahead-contact>
+                        </div>
+                        <label class="col-md-2 control-label col-form-label text-center">Adresse de tuteur</label>
+                        <div class="col-md-4 col-form-label">
+                          {{Student.controls.tutor.value?.address}}
+                        </div>
+                      </div>
+
+                      <div class="form-group row">
+                        <label class="col-md-2 control-label col-form-label">Attestation A. N°</label>
+                        <div class="col-md-2">
+                          <input class="form-control" formControlName="insurance"
+                            [class.error]="submitted_student && Student.controls.insurance.invalid">
+                        </div>
+                        <label class="col-md-2 control-label col-form-label text-center">Envoyée le</label>
+                        <div class="col-md-2">
+                          <div class="timepicker-input input-icon">
+                            <i class="ti-calendar"></i>
+                            <input type="text" class="form-control" ngbDatepicker #dts="ngbDatepicker"
+                              formControlName="delivered_at" (click)="dts.toggle()" [minDate]="minDate" [readOnly]="true"
+                              [class.error]="submitted_student && Student.controls.delivered_at.invalid">
+                          </div>
+                        </div>
+                        <label class="col-md-2 control-label col-form-label text-center">Sous le N°</label>
+                        <div class="col-md-2">
+                          <input type="number" class="form-control" formControlName="doc_number"
+                            [class.error]="submitted_student && Student.controls.doc_number.invalid">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="border-bottom mb-4"></div>
+
+                  <div class="px-4">
+                    <button type="button" class="btn btn-default pull-right pull-left" awPreviousStep>
+                      {{'button.PREVIOUS' | translate}}
+                    </button>
+                    <button type="button" class="btn btn-info button-next m-0 pull-right" awNextStep>
+                      {{'button.NEXT' | translate}}
+                    </button>
+                  </div>
+                </aw-wizard-step>
+
+                <aw-wizard-step [navigationSymbol]="{ symbol: '&#xf067;', fontFamily: 'FontAwesome' }">
+                  <div class="pdd-horizon-50 pdd-vertical-20" formGroupName="Accident">
+                    <div id="accordion" class="accordion panel-group" role="tablist" aria-multiselectable="false">
+                      <div class="panel panel-default">
+                        <div class="panel-heading border-bottom b-info" role="tab" id="heading-One">
+                          <h4 class="panel-title">
+                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse-One"
+                              aria-expanded="true" aria-controls="collapse-One">
+                              <span class="text-info font-weight-bold">ACCIDENT</span>
+                              <i class="icon ti-arrow-circle-down"></i>
+                            </a>
+                          </h4>
+                        </div>
+                        <div id="collapse-One" class="collapse panel-collapse show" aria-labelledby="heading-One">
+                          <div class="panel-body pdd-top-35">
+                            <div class="form-group row">
+                              <label class="col-md-2 control-label col-form-label">Type</label>
+                              <div class="col-md">
+                                <ng-select [items]="menService.accidentTypes" bindLabel="name" formControlName="request_type" [clearable]="true"
+                                  [class.error]="submitted_accident && Accident.controls.request_type?.invalid">
+                                  <ng-template ng-option-tmp let-item="item">
+                                    {{item.name}}
+                                  </ng-template>
+                                </ng-select>
+                              </div>
+                              <div class="col-md">
+                                <ng-select formControlName="request_type_id" bindValue="id" [items]="requestTypes | async" bindLabel="name">
+                                  <ng-template ng-option-tmp let-item="item">
+                                    <span [title]="item.name">{{ item.name }}</span>
+                                  </ng-template>
+                                </ng-select>
+                              </div>
+                            </div>
+
+                            <div class="form-group row">
+                              <label class="col-md-2 control-label col-form-label">Date et heure</label>
+                              <div class="col-md-5">
+                                <div class="timepicker-input input-icon">
+                                  <i class="ti-calendar"></i>
+                                  <input type="text" class="form-control" ngbDatepicker #dta="ngbDatepicker"
+                                    formControlName="requested_at" (click)="dta.toggle()" [minDate]="minDate" [readOnly]="true">
+                                </div>
+                              </div>
+                              <div class="col-md">
+                                <input class="form-control text-center" formControlName="event_start"
+                                  mask="Hh:m0" [showMaskTyped]="true" [validation]="true" [dropSpecialCharacters]="false">
+                              </div>
+                            </div>
+
+                            <div class="form-group row">
+                              <label class="col-md-2 control-label col-form-label">Cause</label>
+                              <div class="col-md">
+                                <ng-select [items]="causeCategories" bindLabel="name" bindValue="name"
+                                          formControlName="title" [clearable]="true"
+                                          [class.error]="submitted_accident && Accident.controls.title?.invalid"
+                                          [required]="!Accident.controls.other_title.value">
+                                  <ng-template ng-option-tmp let-item="item">
+                                    {{item.name}}
+                                  </ng-template>
+                                </ng-select>
+                              </div>
+                              <div class="col-md">
+                                <input class="form-control" formControlName="other_title"
+                                  [class.error]="submitted_accident && Accident.controls.other_title?.invalid"
+                                  [required]="!Accident.controls.title.value">
+                              </div>
+                            </div>
+
+                            <div class="form-group row">
+                              <label class="col-md-2 control-label col-form-label">Effet</label>
+                              <div class="col-md">
+                                <ng-select [items]="effectCategories" bindLabel="name" bindValue="name"
+                                          formControlName="comments" [clearable]="true"
+                                          [class.error]="submitted_accident && Accident.controls.comments?.invalid"
+                                          [required]="!Accident.controls.other_comments.value">
+                                  <ng-template ng-option-tmp let-item="item">
+                                    {{item.name}}
+                                  </ng-template>
+                                </ng-select>
+                              </div>
+                              <div class="col-md">
+                                <input class="form-control" formControlName="other_comments"
+                                  [class.error]="submitted_accident && Accident.controls.other_comments?.invalid"
+                                  [required]="!Accident.controls.comments.value">
+                              </div>
+                            </div>
+
+                            <div class="form-group row" *ngIf="Accident.controls.request_type.value?.id === 2">
+                              <label class="col-md-2 control-label col-form-label">Constat</label>
+                              <div class="col-md">
+                                <app-typeahead-contact
+                                  formControlName="officer"
+                                  (selectContact)="onSelectContact($event, 'OFFICER')"
+                                  (removeContact)="onRemoveContact($event, 'OFFICER')"
+                                ></app-typeahead-contact>
+                              </div>
+                              <label class="col-md-2 control-label col-form-label text-center">Témoin</label>
+                              <div class="col-md">
+                                <app-typeahead-contact
+                                  formControlName="witness"
+                                  (selectContact)="onSelectContact($event, 'WITNESS')"
+                                  (removeContact)="onRemoveContact($event, 'WITNESS')"
+                                ></app-typeahead-contact>
+                              </div>
+                            </div>
+
+                            <div class="form-group row">
+                              <label class="col-md-2 control-label">
+                                Renseignement sur ce qui a causé l'accident
+                              </label>
+                              <div class="col-md">
+                                <textarea class="form-control" formControlName="description"
+                                  [class.error]="submitted_accident && Accident.controls.description.invalid"></textarea>
+                              </div>
+                            </div>
+
+                            <div class="form-group row">
+                              <label class="col-md-2 control-label col-form-label">Déclarant</label>
+                              <div class="col-md-4">
+                                <app-typeahead-contact
+                                  formControlName="warrant"
+                                  (selectContact)="onSelectContact($event, 'WARRANT')"
+                                  (removeContact)="onRemoveContact($event, 'WARRANT')"
+                                ></app-typeahead-contact>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="border-bottom mb-4"></div>
+
+                  <div class="px-4">
+                    <button type="button" class="btn btn-default pull-right pull-left" awPreviousStep>
+                      {{'button.PREVIOUS' | translate}}
+                    </button>
+                    <button class="btn btn-primary m-0 pull-right" (click)="save()">
+                      {{'button.FINISH' | translate}}
+                    </button>
+                  </div>
+                </aw-wizard-step>
+              </aw-wizard>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-side-panel-facility></app-side-panel-facility>
+

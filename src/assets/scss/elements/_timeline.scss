@@ -1,0 +1,150 @@
+/* TIMELINE START */
+.timeline-event {
+  margin: 0;
+  padding: 0;
+}
+
+.tl-item {
+  display: block;
+
+  &:before, &:after {
+    content: " ";
+    display: table;
+  }
+
+  &:after {
+    clear: both;
+  }
+}
+
+.visible-left {
+  display: none;
+}
+
+.tl-wrap {
+  display: block;
+  margin-left: 6em;
+  padding: 15px 0 15px 20px;
+  border-style: solid;
+  border-color: $border-color;
+  border-width: 0 0 0 4px;
+
+  &:before, &:after {
+    content: " ";
+    display: table;
+  }
+
+  &:after {
+    clear: both;
+  }
+
+  &:before {
+    position: relative;
+    content: "";
+    float: left;
+    top: 15px;
+    margin-left: -27px;
+    width: 10px;
+    height: 10px;
+    border-color: inherit;
+    border-width: 3px;
+    border-radius: 50%;
+    border-style: solid;
+    background: $default-white;
+    box-shadow: 0 0 0 4px $default-white;
+  }
+
+  &:hover:before {
+    background: transparent;
+    border-color: $default-white;
+  }
+}
+
+.tl-date {
+  position: relative;
+  top: 10px;
+  float: left;
+  margin-left: -8.5em;
+  display: block;
+  width: 6em;
+  text-align: right;
+}
+
+.tl-content {
+  display: inline-block;
+  position: relative;
+  padding-top: 10px;
+  padding-bottom: 10px;
+
+  &.block {
+    display: block;
+    width: 100%;
+  }
+
+  &.card {
+    margin-bottom: 0;
+    padding: 10px 15px;
+  }
+}
+
+.tl-header {
+  display: block;
+  width: 12em;
+  text-align: center;
+  margin-left: 2px;
+  margin-right: 2px;
+}
+/* TIMELINE END */
+
+/* ARROW START */
+.arrow-event {
+  border-width: 9px;
+  z-index: 10;
+
+  &, &:after {
+    position: absolute;
+    display: block;
+    width: 0;
+    height: 0;
+    border-color: transparent;
+    border-style: solid;
+  }
+
+  &:after {
+    border-width: 8px;
+    content: "";
+  }
+
+  &.left {
+    top: 50%;
+    left: -9px;
+    margin-top: -9px;
+    border-left-width: 0;
+    border-right-color: rgba(0, 0, 0, 0.1);
+
+    &:after {
+      left: 1px;
+      bottom: -8px;
+      border-left-width: 0;
+      border-right-color: #fff;
+    }
+
+    &.arrow-info:after {
+      border-right-color: $default-info;
+    }
+
+    &.arrow-success:after {
+      border-right-color: $default-success;
+    }
+
+    &.arrow-danger:after {
+      border-right-color: $default-danger;
+    }
+
+  }
+
+  &.pull-up {
+    top: 19px;
+  }
+}
+/* ARROW END */

@@ -1,0 +1,124 @@
+.toggle {
+    cursor: pointer;
+    text-align: center;
+    display: inline-block;
+    margin-right: 2px;
+    position: relative;
+    z-index: 1;
+    top: -0.5px;
+}
+
+ol {
+    list-style-type: none;
+    padding-left: 23px;
+}
+
+ol.tree-root {
+    padding-left: 0;
+}
+
+.tree-branch-label {
+    width: fit-content;
+    padding-left: 22px;
+    padding-bottom: 8px;
+}
+
+.tree-branch-leaf .tree-branch-label {
+    padding-left: 21px!important;
+}
+
+.tree-branch-content-name.editable {
+    cursor: pointer;
+}
+
+.tree-branch-text-value {
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.radio label, .checkbox label, input + label::before {
+    cursor: default;
+}
+
+.tree-branch-text-value::before {
+    content: "";
+    display: inline-block;
+    margin-right: 5px;
+    margin-left: 10px;
+    height: 1px;
+    width: 40px;
+    background-color: rgb(211, 211, 211);
+    vertical-align: middle;
+}
+
+.tree-branch-has-children > .tree-branch-label {
+    padding-left: 0;
+}
+
+.tree-branch-label .tree-btn-action {
+    opacity: 0;
+    transition: 0.25s opacity;
+}
+
+.tree-branch-label:hover .tree-btn-action {
+    opacity: 1;
+}
+
+/* LINE */
+
+.tree-branch-content, .tree-children {
+    position: relative;
+}
+  
+.tree-branch-content::before, .tree-children::after {
+    content: "";
+    position: absolute;
+}
+  
+.tree-branch-content::before {
+    border-bottom: 1px solid lightgrey;
+    border-left: 1px solid lightgrey;
+    height: 34px;
+    width: 25px;
+    top: -25px;
+    left: -35.5px;
+}
+  
+.tree-root > .tree-branch > .tree-branch-label > .tree-branch-content::before {
+    display: none;
+}
+  
+.tree-node-leaf > .tree-branch-label > .tree-branch-content::before {
+    width: 25px;
+}
+  
+.tree-children::after {
+    border-left: 1px solid lightgrey;
+    height: 110%;
+    top: -25px;
+    left: -14.25px;
+}
+  
+.tree-branch:last-child > health-tree-view-content > .tree-children::after {
+    border-left: none;
+}
+
+hr:last-of-type {
+    display: none;
+}
+
+.btn-info:disabled, .btn-info:disabled:hover {
+    background-color: #e5f4fd;
+    border-color: #e5f4fd;
+    color: #b9e4ff;
+}
+
+.btn-info:not(:disabled):not(.disabled):active:focus, .btn-info:not(:disabled):not(.disabled).active:focus {
+    box-shadow: none;
+}
+
+.btn-info:not(:disabled):not(.disabled):active, .btn-info:not(:disabled):not(.disabled).active {
+    color: #fff;
+    background-color: #95d6fc;
+    border-color: #85d0fc;
+}

@@ -1,0 +1,154 @@
+<div class="container-fluid">
+  <div class="pdd-horizon-30">
+    <div class="row">
+      <div class="col-lg">
+        <div class="card">
+          <div class="row">
+            <div class="col-lg">
+              <table class="table table-striped no-border m-0">
+                <tr>
+                  <td colspan="6" class="border-top-0">
+                    <button class="btn btn-info btn-sm pull-right"
+                      (click)="sidePanelOpen = true">Ajouter
+                      devise</button>
+                  </td>
+                </tr>
+                <tr>
+                  <th class="text-center" style="width: 5%;">Statut</th>
+                  <th class="width-25">Nom</th>
+                  <th>Code</th>
+                  <th>Cours de change</th>
+                  <th>Taux</th>
+                  <th class="width-10 text-center">Actions</th>
+                </tr>
+                <tr>
+                  <td class="text-center" colspan="6" *ngIf="currencies?.length === 0">
+                    Aucune devise
+                  </td>
+                </tr>
+                <tr *ngFor="let item of currencies">
+                  <td class="text-center">
+                    <i class="fa"
+                      [ngClass]="{'fa-check-circle text-success': item.enabled, 'fa-times-circle text-normal': !item.enabled}"></i>
+                  </td>
+                  <td>{{item.name}}</td>
+                  <td>{{item.code}}</td>
+                  <td>{{1/item.rate | currency:'MGA':'Ar'}}</td>
+                  <td>{{item.rate}}</td>
+                  <td class="text-center">
+                    <button type="button" class="btn btn-sm btn-info btn-icon" (click)="edit(item)">
+                      <i class="fa fa-pencil"></i>
+                    </button>
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Side Panel START -->
+<div class="side-panel" [ngClass]="{'side-panel-open' : sidePanelOpen}">
+  <div class="side-panel-wrapper bg-white">
+    <ul class="nav nav-tabs" role="tablist">
+      <li class="nav-item active">
+        <a class="nav-link" href="#chat" role="tab" data-toggle="tab">
+          <span>{{currency ? 'Modifier' : 'Nouvelle'}} devise</span>
+        </a>
+      </li>
+      <li class="panel-close">
+        <button class="side-panel-toggle" (click)="reset()">
+          <i class="ti-close"></i>
+        </button>
+      </li>
+    </ul>
+
+    <div class="tab-content ps" perfectScrollbar>
+      <div class="p-4">
+        <form class="form-horizontal" [formGroup]="currencyForm" (ngSubmit)="save()" autocomplete="off" novalidate>
+
+          <div class="row">
+            <div class="col-lg">
+              <div class="form-group">
+                <label for="name" class="control-label">Nom</label>
+                <input type="text" id="name" class="form-control" formControlName="name" placeholder=""
+                  [class.error]="submitted && currencyForm.get('name').status==='INVALID'">
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-lg-6">
+              <div class="form-group">
+                <label for="code" class="control-label">Code</label>
+                <input type="text" id="code" class="form-control" formControlName="code" placeholder=""
+                  [class.error]="submitted && currencyForm.get('code').status==='INVALID'">
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="form-group">
+                <label for="symbol" class="control-label">Symbole</label>
+                <input type="text" id="symbol" class="form-control" formControlName="symbol" placeholder=""
+                  [class.error]="submitted && currencyForm.get('symbol').status==='INVALID'">
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-lg-6">
+              <div class="form-group">
+                <label for="rate" class="control-label">Cours</label>
+                <input type="text" id="rate" class="form-control" formControlName="rate" placeholder=""
+                  [class.error]="submitted && currencyForm.get('rate').status==='INVALID'">
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="form-group">
+                <label for="exchange_rate" class="control-label">Taux</label>
+                <input type="text" id="exchange_rate" class="form-control" placeholder=""
+                  [value]="displayRate(this.currencyForm.get('rate').value)" [readOnly]="true">
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <!-- <div class="col-lg-6">
+              <div class="form-group">
+                <label class="control-label">Par defaut</label>
+                <div class="toggle-checkbox toggle-info">
+                  <input type="checkbox" formControlName="default" id="default" checked
+                    [class.error]="submitted && currencyForm.get('default').status==='INVALID'">
+                  <label for="default"></label>
+                </div>
+              </div>
+            </div> -->
+            <div class="col-lg-6">
+              <div class="form-group">
+                <label class="control-label">Activé</label>
+                <div class="toggle-checkbox toggle-info">
+                  <input type="checkbox" formControlName="enabled" id="toggle" checked
+                    [class.error]="submitted && currencyForm.get('enabled').status==='INVALID'">
+                  <label for="toggle"></label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row bg-white fixed-bottom">
+            <div class="col-lg-12">
+              <div class="px-4 pdd-vertical-10 border top">
+                <button type="submit" class="btn btn-info btn-block no-mrg-btm">
+                  Enregistrer
+                </button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Side Panel END -->

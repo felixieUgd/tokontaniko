@@ -1,0 +1,62 @@
+<div *ngIf="calendarVisible" style="height: 70vh;">
+  <div class="row mrg-btm-5">
+    <div class="col-md-3">
+      <div class="form-group no-mrg">
+        <div class="timepicker-input input-icon width-75 pull-left mrg-right-10">
+          <i class="ti-time text-primary"></i>
+          <input type="text" class="form-control" ngbDatepicker (dateSelect)="handleDateSelect($event)"
+                 #d1="ngbDatepicker" (click)="d1.toggle()">
+        </div>
+
+        <button type="button" class="btn btn-outline-primary btn-icon" (click)="calendarComponent.getApi().today()">
+          <i class="fa fa-calendar-check-o"></i>
+        </button>
+      </div>
+
+    </div>
+
+    <div class="col-md-5 font-size-19 text-center">
+      <span>{{activeView?.activeStart | date:'mediumDate'}}</span>
+      <span class="padding-10">-</span>
+      <span>{{activeView?.activeEnd | date:'mediumDate'}}</span>
+    </div>
+
+    <div class="col-md-4">
+      <div class="btn-group pull-right">
+        <button type="button" class="btn btn-outline-primary" (click)="calendarComponent.getApi().prev()">
+          <i class="ti-angle-left"></i>
+        </button>
+        <button type="button" class="btn btn-outline-primary" (click)="calendarComponent.getApi().next()">
+          <i class="ti-angle-right"></i>
+        </button>
+      </div>
+
+      <div class="btn-group pull-right mrg-right-10">
+        <button type="button" class="btn btn-outline-primary"
+                (click)="calendarComponent.getApi().changeView('timeGridWeek');">
+          Week
+        </button>
+        <button type="button" class="btn btn-outline-primary"
+                (click)="calendarComponent.getApi().changeView('dayGridMonth'); slotLabelFormat = [{weekday: 'narrow', day: 'numeric'}]">
+          Month
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <full-calendar
+    #calendar
+    defaultView="timeGridWeek"
+    [defaultDate]="defaultDate"
+    editable="true"
+    nowIndicator="true"
+    height="parent"
+    schedulerLicenseKey="CC-Attribution-NonCommercial-NoDerivatives"
+    (eventRender)="formatEvent($event)"
+    [header]="false"
+    [plugins]="calendarPlugins"
+    [events]="calendarEvents"
+    (datesRender)="getEvents($event)"
+    (eventClick)="handleEventClick($event)">
+  </full-calendar>
+</div>

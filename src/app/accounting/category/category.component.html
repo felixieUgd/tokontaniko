@@ -1,0 +1,153 @@
+<div class="container-fluid">
+  <div class="pdd-horizon-30">
+    <div class="row">
+      <div class="col-lg">
+        <div class="card">
+          <div class="row">
+            <div class="col-lg">
+              <div class="table-responsive">
+                <table class="table table-striped no-border m-0">
+                  <tbody>
+                  <tr>
+                    <td colspan="7" class="border-top-0">
+                      <button class="btn btn-info btn-sm pull-right mr-0" (click)="open()">
+                        Ajouter catégorie</button>
+                      <button type="button" class="btn btn-link btn-sm pull-right"
+                            (click)="exportToExcel(categories, 'categories')" translate>
+                        button.DOWNLOAD
+                      </button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th class="text-center width-5">Statut</th>
+                    <th class="width-5">ID</th>
+                    <th>Code</th>
+                    <th>Nom</th>
+                    <th>Type</th>
+                    <th>Couleur</th>
+                    <th class="width-10 text-center">Actions</th>
+                  </tr>
+                  <tr *ngFor="let category of categories">
+                    <td class="text-center">
+                      <i class="fa"
+                         [ngClass]="{'fa-check-circle text-success': category.enabled, 'fa-times-circle text-normal': !category.enabled}"></i>
+                    </td>
+                    <td>{{category.id}}</td>
+                    <td>{{category.code}}</td>
+                    <td>{{category.name}}</td>
+                    <td>{{'category.' + category.type | translate}}</td>
+                    <td [style.color]="category.color"><i class="fa fa-circle"></i></td>
+                    <td class="text-center">
+                      <button class="btn btn-sm btn-info btn-icon" (click)="edit(category.id)">
+                        <i class="fa fa-pencil"></i>
+                      </button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="text-center" colspan="7" *ngIf="categories?.length === 0">
+                      Aucune catégorie
+                    </td>
+                  </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Side Panel START -->
+<div class="side-panel" [ngClass]="{'side-panel-open' : sidePanelOpen}">
+  <div class="side-panel-wrapper bg-white">
+    <ul class="nav nav-tabs" role="tablist">
+      <li class="nav-item active">
+        <a class="nav-link" href="#chat" role="tab" data-toggle="tab">
+          <span>{{category ? 'Modifier' : 'Nouvelle'}} catégorie</span>
+        </a>
+      </li>
+      <li class="panel-close">
+        <button class="side-panel-toggle" (click)="sidePanelOpen = !sidePanelOpen">
+          <i class="ti-close"></i>
+        </button>
+      </li>
+    </ul>
+
+    <div class="tab-content overflow-y-auto scrollable">
+      <div class="p-4">
+        <form role="form" [formGroup]="categoryForm" (ngSubmit)="save()" novalidate>
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label for="name">Nom</label>
+                <input type="text" id="name" class="form-control" placeholder="" formControlName="name"
+                       [class.error]="submitted && categoryForm.get('name').status === 'INVALID'">
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="code">Code</label>
+                <input type="number" id="code" class="form-control" placeholder="" formControlName="code">
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="type">Type</label>
+                <select id="type" class="form-control" formControlName="type"
+                        [class.error]="submitted && categoryForm.get('type').status === 'INVALID'">
+                  <option value="" selected>Sélectionnez...</option>
+                  <option *ngFor="let type of types" value="{{type}}">{{type}}</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="color">Couleur</label>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <button type="button" class="btn btn-default m-0">
+                      <i class="fa fa-circle font-size-16"
+                         [ngStyle]="{'color': this.categoryForm.get('color').value}"></i>
+                    </button>
+                  </div>
+                  <input type="text" id="color" class="form-control" formControlName="color"
+                         placeholder="#000000"
+                         [class.error]="submitted && categoryForm.get('color').status === 'INVALID'">
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Activé</label>
+                <div class="toggle-checkbox toggle-info">
+                  <input type="checkbox" formControlName="enabled" id="toggle" checked>
+                  <label for="toggle"></label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row bg-white fixed-bottom">
+            <div class="col-md-12">
+              <div class="px-4 pdd-vertical-20 border top">
+                <button type="submit" class="btn btn-info btn-block no-mrg-btm" appXhrBtnIndicator>
+                  Enregistrer
+                </button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Side Panel END -->

@@ -1,0 +1,161 @@
+<div class="container-fluid">
+  <div class="pdd-horizon-30">
+    <div class="row">
+      <div class="col-lg-12">
+        <form role="form" [formGroup]="requestForm" autocomplete="off" novalidate (ngSubmit)="save()">
+          <div class="card">
+            <div class="card-heading border bottom">
+              <h4 class="card-title text-info">Nouvelle requête</h4>
+            </div>
+
+            <div class="card-block">
+              <div class="form-group row">
+                <label class="col-lg-2 col-form-label text-lg-right" translate>common.FACILITY</label>
+                <div class="col-lg-3">
+                  <ng-select [items]="rooms | async" bindLabel="title" formControlName="room">
+                    <ng-template ng-label-tmp let-item="item">
+                      {{item.title}} - {{item.RoomType.name}}
+                    </ng-template>
+                    <ng-template ng-option-tmp let-item="item">
+                      {{item.title}} - {{item.RoomType.name}} <span class="d-block text-muted font-size-13">{{ item.Facility?.name || '-' }}</span>
+                    </ng-template>
+                  </ng-select>
+                </div>
+
+                <label class="offset-lg-1 col-lg-3 col-form-label text-lg-right">Date</label>
+                <div class="col-lg-3">
+                  <div class="timepicker-input input-icon">
+                    <i class="ti-time"></i>
+                    <input class="form-control" #d3="ngbDatepicker"
+                      (click)="d3.toggle()" formControlName="requested_at" ngbDatepicker [readOnly]="true">
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <label class="col-lg-2 col-form-label text-lg-right">Type</label>
+                <div class="col-lg-3">
+                  <div class="btn-group btn-group-toggle width-100" ngbRadioGroup name="radioBasic" formControlName="type">
+                    <label ngbButtonLabel class="btn-default" style="width: 50% !important;"
+                      [class.text-danger]="submitted && requestForm.get('type').invalid">
+                      <input ngbButton type="radio" value="REQUEST"> REQUÊTE
+                    </label>
+                    <label ngbButtonLabel class="btn-default" style="width: 50% !important;"
+                      [class.text-danger]="submitted && requestForm.get('type').invalid">
+                      <input ngbButton type="radio" value="MAINTENANCE"> MAINT.
+                    </label>
+                  </div>
+                </div>
+
+                <label class="offset-lg-1 col-lg-3 col-form-label text-lg-right">Deadline</label>
+                <div class="col-lg-3">
+                  <div class="timepicker-input input-icon">
+                    <i class="ti-time"></i>
+                    <input type="text" id="due_at" class="form-control" placeholder="" #d4="ngbDatepicker"
+                           (click)="d4.toggle()" formControlName="due_at" ngbDatepicker [readOnly]="true">
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <label class="col-lg-2 col-form-label text-lg-right">Catégorie</label>
+                <div class="col-lg-3">
+                  <ng-select [items]="categories | async" bindLabel="name" formControlName="category"
+                    [ngClass]="{'error': submitted && requestForm.get('category').status === 'INVALID'}">
+                    <ng-template ng-option-tmp let-item="item">
+                      {{item.name}}
+                    </ng-template>
+                  </ng-select>
+                </div>
+                
+                <label class="offset-lg-1 col-lg-3 col-form-label text-lg-right">Etat</label>
+                <div class="col-lg-3">
+                  <ng-select [items]="statuses" formControlName="status"
+                             [ngClass]="{'error': submitted && requestForm.get('status').status === 'INVALID'}">
+                    <ng-template ng-label-tmp let-item="item">
+                      {{'status.' + item | translate}}
+                    </ng-template>
+                    <ng-template ng-option-tmp let-item="item">
+                      {{'status.' + item | translate}}
+                    </ng-template>
+                  </ng-select>
+                </div>
+              </div>
+
+              <div class="border-top my-5"></div>
+
+              <div class="row justify-content-center">
+                <div class="col-lg-8 pl-0">
+                  <div class="form-group row">
+                    <label class="col-lg-3 col-form-label text-lg-right" translate>nav.CONTACT</label>
+                    <div class="col-lg-8">
+                      <ng-select [items]="contact$ | async" bindLabel="name"
+                        formControlName="contact"  minTermLength="3"
+                        typeToSearchText="{{('nav.SEARCH' | translate) + '...'}}"
+                        [typeahead]="contactInput$" [clearable]="true" [multiple]="true"
+                        (add)="onSelectContact($event)"
+                      >
+                        <ng-template ng-option-tmp let-item="item">
+                          {{item.name}}
+                          <ng-container *ngIf="item.id">
+                            <br />
+                            <span style="color: #6f748a;">
+                              {{item.phone}} -
+                              {{item.id_cin}} -
+                              {{item.id_passport}}
+                            </span>
+                          </ng-container>
+                        </ng-template>
+                      </ng-select>
+                    </div>
+                  </div>
+
+                  <div class="form-group row">
+                    <label class="col-lg-3 col-form-label text-lg-right">Titre</label>
+                    <div class="col-lg-8">
+                      <input type="text" class="form-control" formControlName="title"
+                             [class.error]="submitted && requestForm.get('title').status === 'INVALID'">
+                    </div>
+                  </div>
+
+                  <div class="form-group row">
+                    <label class="col-lg-3 col-form-label text-lg-right">Description</label>
+                    <div class="col-lg-8">
+                      <textarea id="description" class="form-control" formControlName="description"
+                                [class.error]="submitted && requestForm.controls.description.invalid"></textarea>
+                    </div>
+                  </div>
+
+                  <div class="form-group row">
+                    <label class="col-lg-3 col-form-label text-lg-right">Assigné à</label>
+                    <div class="col-lg-8">
+                      <ng-select [items]="staff$ | async" bindLabel="name"
+                        formControlName="staff"  minTermLength="3"
+                        typeToSearchText="{{('nav.SEARCH' | translate) + '...'}}"
+                        [typeahead]="staffInput$" [clearable]="true" [multiple]="true"
+                        [class.error]="submitted && requestForm.controls.staff.invalid">
+                        <ng-template ng-option-tmp let-item="item">
+                          {{item.name}}
+                          <br/>
+                          <span style="color: #6f748a;">
+                            {{item.email}}
+                          </span>
+                        </ng-template>
+                      </ng-select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card-footer border top pdd-vertical-15 pdd-horizon-30">
+              <button type="submit" class="btn btn-info pull-right m-0" appXhrBtnIndicator>
+                <i class="fa fa-save"></i>
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
